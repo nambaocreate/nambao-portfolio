@@ -1,21 +1,31 @@
 /* ============================================================
-   Nam Bao Portfolio — bản tĩnh v1 (desktop-first)
-   Token màu và cỡ chữ lấy đúng từ khung "Nam Bao Portfolio"
-   trong Figma. Responsive cơ bản: chữ co bằng clamp(),
-   bố cục xếp chồng dưới 900px. Bản mobile thiết kế riêng
-   sẽ làm ở bước sau, chỉ thêm breakpoint, không sửa HTML.
+   Nam Bao Portfolio — v2
+   Token màu, cỡ chữ và vị trí lấy đúng từ khung
+   "Nam Bao Portfolio" trong Figma (Page 11).
+   - Chữ hiển thị theo đúng textCase của Figma:
+     các nhãn section là chữ hoa (INTRODUCTION, WHAT I DO,
+     AWARDS & RECOGNITIONS, PRESS), nav là Title Case.
+   - Bảng Awards theo đúng grid 6 cột của Figma
+     (offset 80, gutter 20): cột 297 / 300 / 597 / 420 / 140
+     trên nền nội dung 1760px, header cách nhãn 48px,
+     hàng cao 77px, divider 1px nằm dưới mỗi hàng.
+   - Motion tham khảo noho.ink (xem, không copy code):
+     chữ cuộn từng ký tự khi hover (nav, hàng Awards),
+     mọi element hiện dần khi cuộn, con trỏ tròn "Read"
+     trên thẻ Press. Tôn trọng prefers-reduced-motion.
    ============================================================ */
 
 :root {
   --tan: #b1907e;        /* Hero */
   --green: #2bae52;      /* About, Press card 1 */
-  --orange: #cd7338;     /* Press card 2, 4 */
+  --orange: #cd7338;     /* Footer, Press card 2, 4 */
   --card-tan: #b19d7e;   /* Press card 3 */
-  --cream: #e4dacd;      /* Awards, Press, Footer */
+  --cream: #e4dacd;      /* Awards, Press */
   --ink: #000;
   --ink-soft: #1a1a1a;
   --pad: clamp(20px, 4.17vw, 80px); /* lề 2 bên: 80px ở 1920 */
   --font: "Libre Franklin", -apple-system, "Segoe UI", sans-serif;
+  --ease-out: cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -27,6 +37,7 @@ body {
   color: var(--ink);
   background: var(--cream);
   -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
 }
 
 img { display: block; max-width: 100%; }
@@ -37,6 +48,60 @@ ul { list-style: none; }
   font-size: 20px;
   font-weight: 500;
   line-height: 1.2;
+}
+
+/* ================= MOTION: HIỆN DẦN KHI CUỘN =================
+   Chỉ ẩn khi JS đang chạy (class .js ở <html>); không có JS
+   thì nội dung vẫn hiện bình thường. */
+
+.js .reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.7s ease, transform 0.7s var(--ease-out);
+  transition-delay: var(--d, 0ms);
+}
+
+.js .reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Dành cho hàng <tr>: transform không áp dụng được cho
+   table-row nên chỉ mờ dần, không trượt. */
+.js .reveal--fade {
+  opacity: 0;
+  transition: opacity 0.7s ease;
+  transition-delay: var(--d, 0ms);
+}
+
+.js .reveal--fade.is-visible { opacity: 1; }
+
+/* ================= MOTION: CHỮ CUỘN TỪNG KÝ TỰ =================
+   Mỗi chữ có 2 bản giống hệt nhau xếp chồng, mỗi ký tự là
+   một span riêng. Khi hover, từng ký tự trượt lên 1 dòng
+   với độ trễ tăng dần từ trái sang phải, tạo sóng cuộn.
+   Áp dụng cho nav và từng hàng Awards. */
+
+[data-roll] {
+  display: inline-block;
+  overflow: hidden;
+  height: 1.21em;
+  line-height: 1.21;
+  vertical-align: top;
+  white-space: nowrap;
+}
+
+.roll-copy { display: block; }
+
+.roll-letter {
+  display: inline-block;
+  transition: transform 0.5s var(--ease-out);
+  transition-delay: calc(var(--i) * 35ms);
+}
+
+.nav a:hover .roll-letter,
+.awards-table tbody tr:hover .roll-letter {
+  transform: translateY(-100%);
 }
 
 /* ================= HERO ================= */
@@ -65,14 +130,11 @@ ul { list-style: none; }
 
 .nav-center a,
 .nav-contact {
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 700;
   line-height: 1.21;
   text-decoration: none;
 }
-
-.nav-center a:hover,
-.nav-contact:hover { text-decoration: underline; }
 
 .hero-content {
   flex: 1;
@@ -83,12 +145,21 @@ ul { list-style: none; }
   padding: 64px 0;
 }
 
+.hero-clip { overflow: hidden; }
+
 .hero-headline {
   max-width: 717px;
   font-size: clamp(40px, 3.8vw, 73px);
   font-weight: 700;
   line-height: 1;
 }
+
+.js .hero-headline {
+  transform: translateY(110%);
+  transition: transform 0.8s var(--ease-out) 0.1s;
+}
+
+.js .hero-headline.is-visible { transform: none; }
 
 .hero-shapes {
   display: flex;
@@ -173,25 +244,22 @@ ul { list-style: none; }
   padding: 64px var(--pad) 120px;
 }
 
+/* Nhãn cao 24px trong HTML (Figma là khung 48px vì có dòng
+   trống), bù bằng margin để header cột rơi đúng y=160. */
+.awards .section-label { margin-bottom: 72px; }
+
 .awards-table {
   width: 100%;
-  margin-top: 48px;
   border-collapse: collapse;
   table-layout: fixed;
 }
-
-.awards-table col:nth-child(1) { width: 17%; }
-.awards-table col:nth-child(2) { width: 17%; }
-.awards-table col:nth-child(3) { width: 34%; }
-.awards-table col:nth-child(4) { width: 24%; }
-.awards-table col:nth-child(5) { width: 8%; }
 
 .awards-table th {
   font-size: 16px;
   font-weight: 600;
   line-height: 1.19;
   text-align: left;
-  padding-bottom: 28px;
+  padding-bottom: 48px; /* header cách hàng đầu 48px như Figma */
 }
 
 .awards-table td {
@@ -199,7 +267,7 @@ ul { list-style: none; }
   font-weight: 500;
   line-height: 1.21;
   padding: 24px 8px 24px 0;
-  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink); /* divider dưới mỗi hàng */
   vertical-align: middle;
 }
 
@@ -276,34 +344,102 @@ ul { list-style: none; }
   white-space: nowrap;
 }
 
-.press-card:hover .press-read { text-decoration: underline; }
-
-/* ================= FOOTER ================= */
+/* ================= FOOTER (theo khung Footer trong Figma) ================= */
 
 .footer {
-  background: var(--cream);
-  padding: 64px var(--pad);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  border-top: 1px solid rgba(0, 0, 0, 0.15);
-}
-
-.footer-logo img { width: 135px; height: 30px; }
-
-.footer-note {
-  font-size: 16px;
-  font-weight: 500;
+  background: var(--orange);
+  padding: 126px var(--pad) 57px;
 }
 
 .footer-top {
-  font-size: 16px;
+  display: flex;
+  justify-content: space-between;
+  gap: 48px;
+}
+
+.footer-copy {
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.footer-cols {
+  display: grid;
+  grid-template-columns: 271px 273px;
+  gap: 25px;
+}
+
+.footer-socials li {
+  font-size: 20px;
   font-weight: 600;
+  line-height: 1.2;
+  padding: 6px 0;
+}
+
+.footer-touch-title {
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.21;
+  margin-bottom: 12px;
+}
+
+.footer-email {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.2;
   text-decoration: none;
 }
 
-.footer-top:hover { text-decoration: underline; }
+.footer-email:hover { text-decoration: underline; }
+
+.footer-logo {
+  width: 100%;
+  height: auto;
+  margin-top: 381px;
+}
+
+/* ================= MOTION: CON TRỎ "READ" =================
+   Chấm đen nhỏ đi theo chuột khắp trang, khi vào thẻ Press
+   thì nở thành đĩa tròn đen 120px có chữ Read ở giữa,
+   giống con trỏ của Noho Stories. Chỉ chạy trên thiết bị
+   có chuột, không chạy trên cảm ứng. */
+
+.cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--ink);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: width 0.35s var(--ease-out), height 0.35s var(--ease-out), opacity 0.2s ease;
+  will-change: transform;
+}
+
+.cursor.is-on { opacity: 1; }
+
+.cursor span {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.cursor--read { width: 120px; height: 120px; }
+.cursor--read span { opacity: 1; }
+
+@media (hover: none) {
+  .cursor { display: none; }
+}
 
 /* ================= RESPONSIVE CƠ BẢN ================= */
 
@@ -314,7 +450,7 @@ ul { list-style: none; }
 
 @media (max-width: 900px) {
   .nav-center a,
-  .nav-contact { font-size: 20px; }
+  .nav-contact { font-size: 18px; }
 
   .hero-content {
     flex-direction: column;
@@ -337,7 +473,7 @@ ul { list-style: none; }
   .awards-table thead,
   .awards-table colgroup { display: none; }
   .awards-table tr { padding: 20px 0; border-top: 1px solid var(--ink); }
-  .awards-table td { padding: 4px 0; border-top: none; }
+  .awards-table td { padding: 4px 0; border: none; }
   .awards-table td::before {
     content: attr(data-label);
     display: block;
@@ -348,7 +484,10 @@ ul { list-style: none; }
 
   .press-card { flex-basis: min(520px, 85vw); height: auto; min-height: 360px; }
 
-  .footer { flex-wrap: wrap; }
+  .footer { padding: 64px var(--pad) 48px; }
+  .footer-top { flex-direction: column; gap: 48px; }
+  .footer-cols { grid-template-columns: 1fr; gap: 48px; }
+  .footer-logo { margin-top: 96px; }
 }
 
 @media (max-width: 640px) {
@@ -364,4 +503,13 @@ ul { list-style: none; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
+  .js .reveal,
+  .js .reveal--fade,
+  .js .hero-headline {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .roll-letter { transition: none; }
+  .cursor { display: none; }
 }

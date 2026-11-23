@@ -9,26 +9,29 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
+  <script>document.documentElement.classList.add("js");</script>
 </head>
 <body>
 
   <!-- ============ HERO ============ -->
   <header class="hero">
-    <nav class="nav" aria-label="Main">
+    <nav class="nav reveal" aria-label="Main">
       <a class="nav-logo" href="#top" aria-label="Nam Bảo, home">
         <img src="assets/logo.svg" alt="nam bao" width="135" height="30">
       </a>
       <ul class="nav-center">
-        <li><a href="/work" aria-current="page">Work</a></li>
-        <li><a href="#about">About</a></li>
-        <li><a href="/playground">Playground</a></li>
+        <li><a href="/work" aria-current="page"><span data-roll>Work</span></a></li>
+        <li><a href="#about"><span data-roll>About</span></a></li>
+        <li><a href="/playground"><span data-roll>Playground</span></a></li>
       </ul>
-      <a class="nav-contact" href="#contact">contact</a>
+      <a class="nav-contact" href="#contact"><span data-roll>Contact</span></a>
     </nav>
 
     <div class="hero-content" id="top">
-      <h1 class="hero-headline">I build systems that stay in people mind.</h1>
-      <div class="hero-shapes" aria-hidden="true">
+      <div class="hero-clip">
+        <h1 class="hero-headline reveal-clip">I build systems that stay in people mind.</h1>
+      </div>
+      <div class="hero-shapes reveal" style="--d:200ms" aria-hidden="true">
         <span class="shape shape-circle"></span>
         <span class="shape shape-triangle"></span>
         <span class="shape shape-square"></span>
@@ -41,17 +44,17 @@
     <section class="about" id="about" aria-labelledby="about-label">
       <div class="about-inner">
         <div class="about-intro">
-          <h2 class="section-label" id="about-label">introduction</h2>
+          <h2 class="section-label reveal" id="about-label">INTRODUCTION</h2>
           <div class="about-body">
-            <p>Nam Bảo is a graduate of Design Studies at RMIT Vietnam and one of the only two recipients of the Creativity Scholarship 2022.</p>
-            <p>Guided by a belief in finding the extraordinary in the ordinary, Bảo sees designers as artists – both sharing the ability to see romance in the minuscule, and elevating even the smallest details into something worth remembering.</p>
+            <p class="reveal" style="--d:100ms">Nam Bảo is a graduate of Design Studies at RMIT Vietnam and one of the only two recipients of the Creativity Scholarship 2022.</p>
+            <p class="reveal" style="--d:200ms">Guided by a belief in finding the extraordinary in the ordinary, Bảo sees designers as artists – both sharing the ability to see romance in the minuscule, and elevating even the smallest details into something worth remembering.</p>
           </div>
         </div>
 
         <div class="about-what">
-          <h2 class="section-label">what i do</h2>
-          <div class="about-columns">
-            <div class="about-column">
+          <h2 class="section-label reveal">WHAT I DO</h2>
+          <div class="about-columns" data-stagger>
+            <div class="about-column reveal">
               <h3>Brand Identity</h3>
               <ul>
                 <li>Logo</li>
@@ -62,7 +65,7 @@
                 <li>UI Design</li>
               </ul>
             </div>
-            <div class="about-column">
+            <div class="about-column reveal">
               <h3>Advertising</h3>
               <ul>
                 <li>Art direction</li>
@@ -71,7 +74,7 @@
                 <li>Merchandise</li>
               </ul>
             </div>
-            <div class="about-column">
+            <div class="about-column reveal">
               <h3>Art</h3>
               <ul>
                 <li>Industrial Design</li>
@@ -88,11 +91,18 @@
     <!-- ============ AWARDS ============ -->
     <section class="awards" aria-labelledby="awards-label">
       <div class="awards-inner">
-        <h2 class="section-label" id="awards-label">Awards &amp; Recognitions</h2>
+        <h2 class="section-label reveal" id="awards-label">AWARDS &amp; RECOGNITIONS</h2>
 
         <table class="awards-table">
+          <colgroup>
+            <col style="width: 16.88%">
+            <col style="width: 17.05%">
+            <col style="width: 33.92%">
+            <col style="width: 23.86%">
+            <col style="width: 7.95%">
+          </colgroup>
           <thead>
-            <tr>
+            <tr class="reveal--fade">
               <th scope="col">Category</th>
               <th scope="col">Result</th>
               <th scope="col">Award</th>
@@ -100,55 +110,55 @@
               <th scope="col">Year</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td data-label="Category">Scholarship</td>
-              <td data-label="Result">Winner</td>
-              <td data-label="Award">Creativity Scholarship</td>
-              <td data-label="Organisation">RMIT University</td>
-              <td data-label="Year">2022</td>
+          <tbody data-stagger>
+            <tr class="reveal--fade">
+              <td data-label="Category"><span data-roll>Scholarship</span></td>
+              <td data-label="Result"><span data-roll>Winner</span></td>
+              <td data-label="Award"><span data-roll>Creativity Scholarship</span></td>
+              <td data-label="Organisation"><span data-roll>RMIT University</span></td>
+              <td data-label="Year"><span data-roll>2022</span></td>
             </tr>
-            <tr>
-              <td data-label="Category">Scholarship</td>
-              <td data-label="Result">Winner</td>
-              <td data-label="Award">50% Scholarship</td>
-              <td data-label="Organisation">FPT Arena</td>
-              <td data-label="Year">2022</td>
+            <tr class="reveal--fade">
+              <td data-label="Category"><span data-roll>Scholarship</span></td>
+              <td data-label="Result"><span data-roll>Winner</span></td>
+              <td data-label="Award"><span data-roll>50% Scholarship</span></td>
+              <td data-label="Organisation"><span data-roll>FPT Arena</span></td>
+              <td data-label="Year"><span data-roll>2022</span></td>
             </tr>
-            <tr>
-              <td data-label="Category">Brand Design</td>
-              <td data-label="Result">Winner</td>
-              <td data-label="Award">Creative Short Talks</td>
-              <td data-label="Organisation">RMIT University</td>
-              <td data-label="Year">2023</td>
+            <tr class="reveal--fade">
+              <td data-label="Category"><span data-roll>Brand Design</span></td>
+              <td data-label="Result"><span data-roll>Winner</span></td>
+              <td data-label="Award"><span data-roll>Creative Short Talks</span></td>
+              <td data-label="Organisation"><span data-roll>RMIT University</span></td>
+              <td data-label="Year"><span data-roll>2023</span></td>
             </tr>
-            <tr>
-              <td data-label="Category">Brand Design</td>
-              <td data-label="Result">Winner</td>
-              <td data-label="Award">RMIT 25th Anniversary Logo</td>
-              <td data-label="Organisation">RMIT University</td>
-              <td data-label="Year">2026</td>
+            <tr class="reveal--fade">
+              <td data-label="Category"><span data-roll>Brand Design</span></td>
+              <td data-label="Result"><span data-roll>Winner</span></td>
+              <td data-label="Award"><span data-roll>RMIT 25th Anniversary Logo</span></td>
+              <td data-label="Organisation"><span data-roll>RMIT University</span></td>
+              <td data-label="Year"><span data-roll>2026</span></td>
             </tr>
-            <tr>
-              <td data-label="Category">Industrial Design</td>
-              <td data-label="Result">Winner</td>
-              <td data-label="Award">REBORN Design Competition</td>
-              <td data-label="Organisation">Annam Gourmet, PlasticPeople</td>
-              <td data-label="Year">2023</td>
+            <tr class="reveal--fade">
+              <td data-label="Category"><span data-roll>Industrial Design</span></td>
+              <td data-label="Result"><span data-roll>Winner</span></td>
+              <td data-label="Award"><span data-roll>REBORN Design Competition</span></td>
+              <td data-label="Organisation"><span data-roll>Annam Gourmet, PlasticPeople</span></td>
+              <td data-label="Year"><span data-roll>2023</span></td>
             </tr>
-            <tr>
-              <td data-label="Category">Industrial Design</td>
-              <td data-label="Result">Nominated</td>
-              <td data-label="Award">Best Concept - 3 Weeks of Design</td>
-              <td data-label="Organisation">Gallery Medium</td>
-              <td data-label="Year">2025</td>
+            <tr class="reveal--fade">
+              <td data-label="Category"><span data-roll>Industrial Design</span></td>
+              <td data-label="Result"><span data-roll>Nominated</span></td>
+              <td data-label="Award"><span data-roll>Best Concept - 3 Weeks of Design</span></td>
+              <td data-label="Organisation"><span data-roll>Gallery Medium</span></td>
+              <td data-label="Year"><span data-roll>2025</span></td>
             </tr>
-            <tr>
-              <td data-label="Category">Industrial Design</td>
-              <td data-label="Result">Winner</td>
-              <td data-label="Award">ArielCup 03</td>
-              <td data-label="Organisation">Ariel Studio</td>
-              <td data-label="Year">2026</td>
+            <tr class="reveal--fade">
+              <td data-label="Category"><span data-roll>Industrial Design</span></td>
+              <td data-label="Result"><span data-roll>Winner</span></td>
+              <td data-label="Award"><span data-roll>ArielCup 03</span></td>
+              <td data-label="Organisation"><span data-roll>Ariel Studio</span></td>
+              <td data-label="Year"><span data-roll>2026</span></td>
             </tr>
           </tbody>
         </table>
@@ -158,10 +168,10 @@
     <!-- ============ PRESS ============ -->
     <section class="press" aria-labelledby="press-label">
       <div class="press-inner">
-        <h2 class="section-label" id="press-label">Press</h2>
+        <h2 class="section-label reveal" id="press-label">PRESS</h2>
       </div>
-      <div class="press-row">
-        <a class="press-card press-card-green" href="https://tuoitre.vn/print/chu-nhan-hoc-bong-rmit-bat-mi-cach-nam-bat-co-hoi-100261119115152121.htm" target="_blank" rel="noopener">
+      <div class="press-row" data-stagger>
+        <a class="press-card press-card-green reveal" href="https://tuoitre.vn/print/chu-nhan-hoc-bong-rmit-bat-mi-cach-nam-bat-co-hoi-100261119115152121.htm" target="_blank" rel="noopener">
           <span class="press-year">2026</span>
           <span class="press-title">Chủ nhân học bổng RMIT bật mí cách nắm bắt cơ hội</span>
           <span class="press-footer">
@@ -169,7 +179,7 @@
             <span class="press-read">Read article &gt;</span>
           </span>
         </a>
-        <a class="press-card press-card-orange" href="https://kenh14.vn/cau-chuyen-logo-ky-niem-25-nam-rmit-viet-nam-cua-chang-sinh-vien-nhan-hoc-bong-sang-tao-215241218121725227.chn" target="_blank" rel="noopener">
+        <a class="press-card press-card-orange reveal" href="https://kenh14.vn/cau-chuyen-logo-ky-niem-25-nam-rmit-viet-nam-cua-chang-sinh-vien-nhan-hoc-bong-sang-tao-215241218121725227.chn" target="_blank" rel="noopener">
           <span class="press-year">2024</span>
           <span class="press-title">Câu chuyện logo kỷ niệm 25 năm RMIT Việt Nam của chàng sinh viên nhận học bổng sáng tạo</span>
           <span class="press-footer">
@@ -177,7 +187,7 @@
             <span class="press-read">Read article &gt;</span>
           </span>
         </a>
-        <a class="press-card press-card-tan" href="https://dantri.com.vn/giao-duc-huong-nghiep/nha-thiet-ke-18-tuoi-thay-ao-cho-sach-giao-khoa-gianh-hoc-bong-gan-nua-ty-dong-20221121210338664.htm" target="_blank" rel="noopener">
+        <a class="press-card press-card-tan reveal" href="https://dantri.com.vn/giao-duc-huong-nghiep/nha-thiet-ke-18-tuoi-thay-ao-cho-sach-giao-khoa-gianh-hoc-bong-gan-nua-ty-dong-20221121210338664.htm" target="_blank" rel="noopener">
           <span class="press-year">2022</span>
           <span class="press-title">Nhà thiết kế 18 tuổi “thay áo” cho sách giáo khoa giành học bổng gần nửa tỷ đồng</span>
           <span class="press-footer">
@@ -185,7 +195,7 @@
             <span class="press-read">Read article &gt;</span>
           </span>
         </a>
-        <a class="press-card press-card-orange" href="https://dantri.com.vn/nhip-song-tre/chuyen-chua-ke-ve-nam-sinh-thiet-ke-ao-moi-doc-dao-cho-sach-giao-khoa-20220211183610662.htm" target="_blank" rel="noopener">
+        <a class="press-card press-card-orange reveal" href="https://dantri.com.vn/nhip-song-tre/chuyen-chua-ke-ve-nam-sinh-thiet-ke-ao-moi-doc-dao-cho-sach-giao-khoa-20220211183610662.htm" target="_blank" rel="noopener">
           <span class="press-year">2022</span>
           <span class="press-title">Chuyện chưa kể về nam sinh thiết kế “áo mới” độc đáo cho sách giáo khoa</span>
           <span class="press-footer">
@@ -199,12 +209,25 @@
 
   <!-- ============ FOOTER ============ -->
   <footer class="footer" id="contact">
-    <a class="footer-logo" href="#top" aria-label="Nam Bảo, back to top">
-      <img src="assets/logo.svg" alt="nam bao" width="135" height="30">
-    </a>
-    <p class="footer-note">© <span id="year">2026</span> Nam Bảo</p>
-    <a class="footer-top" href="#top">Back to top ↑</a>
+    <div class="footer-top">
+      <p class="footer-copy reveal">©2026 NAM BAO</p>
+      <div class="footer-cols reveal" style="--d:100ms">
+        <ul class="footer-socials">
+          <li>Instagram</li>
+          <li>Facebook</li>
+          <li>LinkedIn</li>
+          <li>Behance</li>
+        </ul>
+        <div class="footer-touch">
+          <h2 class="footer-touch-title">Get in touch</h2>
+          <a class="footer-email" href="mailto:nambao.create@gmail.com">nambao.create@gmail.com</a>
+        </div>
+      </div>
+    </div>
+    <img class="footer-logo reveal" style="--d:150ms" src="assets/logo-footer.svg" alt="nam bao" width="1784" height="384">
   </footer>
+
+  <div class="cursor" aria-hidden="true"><span>Read</span></div>
 
   <script src="js/main.js"></script>
 </body>
