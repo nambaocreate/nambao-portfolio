@@ -154,12 +154,12 @@ ul { list-style: none; }
   line-height: 1;
 }
 
-.js .hero-headline {
+.js .hero-clip.reveal-clip .hero-headline {
   transform: translateY(110%);
   transition: transform 0.8s var(--ease-out) 0.1s;
 }
 
-.js .hero-headline.is-visible { transform: none; }
+.js .hero-clip.reveal-clip.is-visible .hero-headline { transform: none; }
 
 .hero-shapes {
   display: flex;
@@ -505,7 +505,7 @@ ul { list-style: none; }
   html { scroll-behavior: auto; }
   .js .reveal,
   .js .reveal--fade,
-  .js .hero-headline {
+  .js .hero-clip.reveal-clip .hero-headline {
     opacity: 1;
     transform: none;
     transition: none;
