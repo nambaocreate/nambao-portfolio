@@ -1,0 +1,367 @@
+/* ============================================================
+   Nam Bao Portfolio — bản tĩnh v1 (desktop-first)
+   Token màu và cỡ chữ lấy đúng từ khung "Nam Bao Portfolio"
+   trong Figma. Responsive cơ bản: chữ co bằng clamp(),
+   bố cục xếp chồng dưới 900px. Bản mobile thiết kế riêng
+   sẽ làm ở bước sau, chỉ thêm breakpoint, không sửa HTML.
+   ============================================================ */
+
+:root {
+  --tan: #b1907e;        /* Hero */
+  --green: #2bae52;      /* About, Press card 1 */
+  --orange: #cd7338;     /* Press card 2, 4 */
+  --card-tan: #b19d7e;   /* Press card 3 */
+  --cream: #e4dacd;      /* Awards, Press, Footer */
+  --ink: #000;
+  --ink-soft: #1a1a1a;
+  --pad: clamp(20px, 4.17vw, 80px); /* lề 2 bên: 80px ở 1920 */
+  --font: "Libre Franklin", -apple-system, "Segoe UI", sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font);
+  color: var(--ink);
+  background: var(--cream);
+  -webkit-font-smoothing: antialiased;
+}
+
+img { display: block; max-width: 100%; }
+a { color: inherit; }
+ul { list-style: none; }
+
+.section-label {
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+/* ================= HERO ================= */
+
+.hero {
+  background: var(--tan);
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  padding: 0 var(--pad);
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  padding-top: 64px;
+}
+
+.nav-logo img { width: 135px; height: 30px; }
+
+.nav-center {
+  display: flex;
+  gap: 120px;
+  margin-inline: auto;
+}
+
+.nav-center a,
+.nav-contact {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.21;
+  text-decoration: none;
+}
+
+.nav-center a:hover,
+.nav-contact:hover { text-decoration: underline; }
+
+.hero-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 48px;
+  padding: 64px 0;
+}
+
+.hero-headline {
+  max-width: 717px;
+  font-size: clamp(40px, 3.8vw, 73px);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.hero-shapes {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.shape { display: block; background: var(--ink); }
+
+.shape-circle {
+  width: clamp(96px, 8.3vw, 159px);
+  height: clamp(96px, 8.3vw, 159px);
+  border-radius: 50%;
+}
+
+.shape-triangle {
+  width: clamp(128px, 11.1vw, 213px);
+  height: clamp(128px, 11.1vw, 213px);
+  margin-left: calc(clamp(128px, 11.1vw, 213px) * -0.094); /* chồng 20px như Figma */
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+
+.shape-square {
+  width: clamp(90px, 7.8vw, 150px);
+  height: clamp(90px, 7.8vw, 150px);
+  margin-left: 1px;
+}
+
+/* ================= ABOUT ================= */
+
+.about {
+  background: var(--green);
+  padding: 64px var(--pad) 120px;
+}
+
+.about-intro {
+  display: grid;
+  grid-template-columns: 275px 1fr;
+  gap: 25px;
+}
+
+.about-body p {
+  font-size: clamp(28px, 2.5vw, 48px);
+  font-weight: 600;
+  line-height: 1.21;
+}
+
+.about-body p + p { margin-top: 64px; }
+
+.about-what {
+  display: grid;
+  grid-template-columns: 275px 1fr;
+  gap: 25px;
+  margin-top: 160px;
+}
+
+.about-columns {
+  display: grid;
+  grid-template-columns: repeat(3, 271px);
+  justify-content: space-between;
+  gap: 32px;
+}
+
+.about-column h3 {
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.21;
+  margin-bottom: 12px;
+}
+
+.about-column li {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.2;
+  padding: 6px 0;
+}
+
+/* ================= AWARDS ================= */
+
+.awards {
+  background: var(--cream);
+  padding: 64px var(--pad) 120px;
+}
+
+.awards-table {
+  width: 100%;
+  margin-top: 48px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.awards-table col:nth-child(1) { width: 17%; }
+.awards-table col:nth-child(2) { width: 17%; }
+.awards-table col:nth-child(3) { width: 34%; }
+.awards-table col:nth-child(4) { width: 24%; }
+.awards-table col:nth-child(5) { width: 8%; }
+
+.awards-table th {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.19;
+  text-align: left;
+  padding-bottom: 28px;
+}
+
+.awards-table td {
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.21;
+  padding: 24px 8px 24px 0;
+  border-top: 1px solid var(--ink);
+  vertical-align: middle;
+}
+
+.awards-table td:last-child { font-weight: 600; }
+
+/* ================= PRESS ================= */
+
+.press {
+  background: var(--cream);
+  padding: 64px 0 120px;
+}
+
+.press-inner { padding: 0 var(--pad); }
+
+.press-row {
+  display: flex;
+  gap: 24px;
+  margin-top: 48px;
+  padding: 0 var(--pad);
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+}
+
+.press-card {
+  flex: 0 0 520px;
+  height: 394px;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  scroll-snap-align: start;
+  text-decoration: none;
+}
+
+.press-card-green { background: var(--green); }
+.press-card-orange { background: var(--orange); }
+.press-card-tan { background: var(--card-tan); }
+
+.press-year {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.19;
+  color: var(--ink);
+}
+
+.press-title {
+  margin-top: 12px;
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1.22;
+  color: var(--ink-soft);
+}
+
+.press-footer {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+}
+
+.press-outlet {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.22;
+  color: var(--ink-soft);
+}
+
+.press-read {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.22;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+.press-card:hover .press-read { text-decoration: underline; }
+
+/* ================= FOOTER ================= */
+
+.footer {
+  background: var(--cream);
+  padding: 64px var(--pad);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  border-top: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+.footer-logo img { width: 135px; height: 30px; }
+
+.footer-note {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.footer-top {
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.footer-top:hover { text-decoration: underline; }
+
+/* ================= RESPONSIVE CƠ BẢN ================= */
+
+@media (max-width: 1200px) {
+  .nav-center { gap: 48px; }
+  .about-columns { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 900px) {
+  .nav-center a,
+  .nav-contact { font-size: 20px; }
+
+  .hero-content {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  .about-intro,
+  .about-what { grid-template-columns: 1fr; gap: 24px; }
+
+  .about-what { margin-top: 96px; }
+  .about-body p + p { margin-top: 32px; }
+  .about-columns { grid-template-columns: 1fr; gap: 48px; }
+
+  /* Bảng Awards xếp chồng từng hàng */
+  .awards-table,
+  .awards-table tbody,
+  .awards-table tr,
+  .awards-table td { display: block; width: 100%; }
+  .awards-table thead,
+  .awards-table colgroup { display: none; }
+  .awards-table tr { padding: 20px 0; border-top: 1px solid var(--ink); }
+  .awards-table td { padding: 4px 0; border-top: none; }
+  .awards-table td::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    opacity: 0.55;
+  }
+
+  .press-card { flex-basis: min(520px, 85vw); height: auto; min-height: 360px; }
+
+  .footer { flex-wrap: wrap; }
+}
+
+@media (max-width: 640px) {
+  .nav { flex-wrap: wrap; gap: 16px; padding-top: 32px; }
+  .nav-center { gap: 24px; }
+  .hero-headline { font-size: 40px; }
+  .about { padding-bottom: 80px; }
+  .awards { padding-bottom: 80px; }
+  .press { padding-bottom: 80px; }
+  .press-card { padding: 28px; }
+  .press-title { font-size: 26px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
