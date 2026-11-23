@@ -1,8 +1,10 @@
-// Nam Bao Portfolio — v2
+// Nam Bao Portfolio — v3
 // Motion tham khảo noho.ink (xem rồi tự viết lại, không copy code):
 // 1. Chữ cuộn từng ký tự khi hover (nav, hàng Awards).
 // 2. Mọi element hiện dần khi cuộn vào khung nhìn.
 // 3. Con trỏ tròn "Read" trên thẻ Press.
+// 4. Press ghim lại, cuộn dọc đẩy hàng thẻ trượt ngang
+//    (như Noho Stories). Không có thanh trượt ngang.
 // Tôn trọng prefers-reduced-motion và thiết bị cảm ứng.
 
 (function () {
@@ -95,6 +97,40 @@
       card.addEventListener("mouseenter", function () { cursor.classList.add("cursor--read"); });
       card.addEventListener("mouseleave", function () { cursor.classList.remove("cursor--read"); });
     });
+  }
+
+  /* ---------- 4. Press: cuộn dọc đẩy hàng thẻ trượt ngang ---------- */
+  var press = document.querySelector(".press");
+  var pressRow = document.querySelector(".press-row");
+  var pressTicking = false;
+
+  function updatePress() {
+    pressTicking = false;
+    if (!press || !pressRow) return;
+    if (reduceMotion || window.innerWidth <= 900) {
+      pressRow.style.transform = "";
+      return;
+    }
+    var total = press.offsetHeight - window.innerHeight;
+    if (total <= 0) return;
+    var rect = press.getBoundingClientRect();
+    var progress = Math.min(Math.max(-rect.top / total, 0), 1);
+    var maxX = pressRow.scrollWidth - pressRow.clientWidth;
+    if (maxX <= 0) return;
+    pressRow.style.transform = "translate3d(" + (-progress * maxX).toFixed(1) + "px, 0, 0)";
+  }
+
+  function requestPress() {
+    if (!pressTicking) {
+      pressTicking = true;
+      requestAnimationFrame(updatePress);
+    }
+  }
+
+  if (press && pressRow) {
+    window.addEventListener("scroll", requestPress, { passive: true });
+    window.addEventListener("resize", requestPress);
+    updatePress();
   }
 
   /* ---------- Cuộn mượt tới anchor ---------- */

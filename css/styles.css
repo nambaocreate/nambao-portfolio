@@ -1,14 +1,27 @@
 /* ============================================================
-   Nam Bao Portfolio — v2
+   Nam Bao Portfolio — v3
    Token màu, cỡ chữ và vị trí lấy đúng từ khung
    "Nam Bao Portfolio" trong Figma (Page 11).
+   - v3: mọi cỡ chữ giảm 4px so với v2, theo đúng Figma
+     (nav 20, headline 69, thân bài About 44, hàng Awards 20,
+     tiêu đề Press 28). Khung composition cũng đã giảm 4pt
+     trong Figma, layout web khớp lại theo số đo mới.
    - Chữ hiển thị theo đúng textCase của Figma:
      các nhãn section là chữ hoa (INTRODUCTION, WHAT I DO,
      AWARDS & RECOGNITIONS, PRESS), nav là Title Case.
    - Bảng Awards theo đúng grid 6 cột của Figma
      (offset 80, gutter 20): cột 297 / 300 / 597 / 420 / 140
      trên nền nội dung 1760px, header cách nhãn 48px,
-     hàng cao 77px, divider 1px nằm dưới mỗi hàng.
+     hàng cao 72px, divider 1px nằm dưới mỗi hàng.
+   - Cụm shape hero: vị trí tuyệt đối theo đúng Figma,
+     tam giác là file SVG xuất từ Figma (bo góc 9),
+     vuông bo góc 16, tròn là hình tròn. Đáy các shape
+     gần như thẳng hàng, tam giác nhô lên trên một chút.
+   - Press: section ghim (pinned), cuộn dọc đẩy hàng thẻ
+     trượt ngang như Noho Stories, KHÔNG có thanh trượt
+     ngang. Trên mobile thẻ xếp dọc.
+   - Footer: min-height 100svh, nội dung co giãn để vừa
+     đúng một màn hình, logo ôm sát đáy.
    - Motion tham khảo noho.ink (xem, không copy code):
      chữ cuộn từng ký tự khi hover (nav, hàng Awards),
      mọi element hiện dần khi cuộn, con trỏ tròn "Read"
@@ -45,7 +58,7 @@ a { color: inherit; }
 ul { list-style: none; }
 
 .section-label {
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 500;
   line-height: 1.2;
 }
@@ -130,7 +143,7 @@ ul { list-style: none; }
 
 .nav-center a,
 .nav-contact {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 700;
   line-height: 1.21;
   text-decoration: none;
@@ -149,7 +162,7 @@ ul { list-style: none; }
 
 .hero-headline {
   max-width: 717px;
-  font-size: clamp(40px, 3.8vw, 73px);
+  font-size: clamp(36px, 3.59vw, 69px);
   font-weight: 700;
   line-height: 1;
 }
@@ -161,31 +174,41 @@ ul { list-style: none; }
 
 .js .hero-clip.reveal-clip.is-visible .hero-headline { transform: none; }
 
+/* Cụm shape: vị trí tuyệt đối theo đúng Figma (khung 502x182).
+   Tròn (0, 11) 159x159. Tam giác là SVG xuất từ Figma,
+   đặt ở (158, 9) rộng 172. Vuông (353, 16) 150x150, bo 16. */
 .hero-shapes {
-  display: flex;
-  align-items: center;
+  position: relative;
+  width: clamp(300px, 26.15vw, 502px);
+  aspect-ratio: 502 / 182;
   flex-shrink: 0;
 }
 
-.shape { display: block; background: var(--ink); }
+.shape { position: absolute; display: block; }
 
 .shape-circle {
-  width: clamp(96px, 8.3vw, 159px);
-  height: clamp(96px, 8.3vw, 159px);
+  left: 0;
+  top: 6.04%;
+  width: 31.67%;
+  aspect-ratio: 1;
+  background: var(--ink);
   border-radius: 50%;
 }
 
 .shape-triangle {
-  width: clamp(128px, 11.1vw, 213px);
-  height: clamp(128px, 11.1vw, 213px);
-  margin-left: calc(clamp(128px, 11.1vw, 213px) * -0.094); /* chồng 20px như Figma */
-  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  left: 31.47%;
+  top: 4.95%;
+  width: 34.26%;
+  height: auto;
 }
 
 .shape-square {
-  width: clamp(90px, 7.8vw, 150px);
-  height: clamp(90px, 7.8vw, 150px);
-  margin-left: 1px;
+  left: 70.32%;
+  top: 8.79%;
+  width: 29.88%;
+  aspect-ratio: 1;
+  background: var(--ink);
+  border-radius: 10.67%; /* 16px ở 150px */
 }
 
 /* ================= ABOUT ================= */
@@ -202,7 +225,7 @@ ul { list-style: none; }
 }
 
 .about-body p {
-  font-size: clamp(28px, 2.5vw, 48px);
+  font-size: clamp(24px, 2.29vw, 44px);
   font-weight: 600;
   line-height: 1.21;
 }
@@ -224,14 +247,14 @@ ul { list-style: none; }
 }
 
 .about-column h3 {
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 600;
   line-height: 1.21;
   margin-bottom: 12px;
 }
 
 .about-column li {
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 600;
   line-height: 1.2;
   padding: 6px 0;
@@ -244,9 +267,9 @@ ul { list-style: none; }
   padding: 64px var(--pad) 120px;
 }
 
-/* Nhãn cao 24px trong HTML (Figma là khung 48px vì có dòng
-   trống), bù bằng margin để header cột rơi đúng y=160. */
-.awards .section-label { margin-bottom: 72px; }
+/* Nhãn 16px cao 19px trong HTML (Figma là khung 38px vì có
+   dòng trống), bù bằng margin để header cột rơi đúng y=150. */
+.awards .section-label { margin-bottom: 67px; }
 
 .awards-table {
   width: 100%;
@@ -255,7 +278,7 @@ ul { list-style: none; }
 }
 
 .awards-table th {
-  font-size: 16px;
+  font-size: 12px;
   font-weight: 600;
   line-height: 1.19;
   text-align: left;
@@ -263,7 +286,7 @@ ul { list-style: none; }
 }
 
 .awards-table td {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 500;
   line-height: 1.21;
   padding: 24px 8px 24px 0;
@@ -273,11 +296,26 @@ ul { list-style: none; }
 
 .awards-table td:last-child { font-weight: 600; }
 
-/* ================= PRESS ================= */
+/* ================= PRESS: GHIM + TRƯỢT NGANG THEO CUỘN =================
+   Section cao 200vh, khung trong ghim lại (sticky) ở 100svh.
+   Cuộn dọc đẩy hàng thẻ trượt ngang, giống Noho Stories.
+   Không có thanh trượt ngang, không có slider. */
 
 .press {
   background: var(--cream);
-  padding: 64px 0 120px;
+  height: 200vh;
+  position: relative;
+}
+
+.press-pin {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .press-inner { padding: 0 var(--pad); }
@@ -287,9 +325,7 @@ ul { list-style: none; }
   gap: 24px;
   margin-top: 48px;
   padding: 0 var(--pad);
-  overflow-x: auto;
-  scroll-snap-type: x proximity;
-  scrollbar-width: thin;
+  will-change: transform;
 }
 
 .press-card {
@@ -298,7 +334,6 @@ ul { list-style: none; }
   padding: 40px;
   display: flex;
   flex-direction: column;
-  scroll-snap-align: start;
   text-decoration: none;
 }
 
@@ -307,7 +342,7 @@ ul { list-style: none; }
 .press-card-tan { background: var(--card-tan); }
 
 .press-year {
-  font-size: 16px;
+  font-size: 12px;
   font-weight: 600;
   line-height: 1.19;
   color: var(--ink);
@@ -315,7 +350,7 @@ ul { list-style: none; }
 
 .press-title {
   margin-top: 12px;
-  font-size: 32px;
+  font-size: 28px;
   font-weight: 600;
   line-height: 1.22;
   color: var(--ink-soft);
@@ -330,25 +365,31 @@ ul { list-style: none; }
 }
 
 .press-outlet {
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 500;
   line-height: 1.22;
   color: var(--ink-soft);
 }
 
 .press-read {
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 600;
   line-height: 1.22;
   color: var(--ink-soft);
   white-space: nowrap;
 }
 
-/* ================= FOOTER (theo khung Footer trong Figma) ================= */
+/* ================= FOOTER (theo khung Footer trong Figma) =================
+   Cao tối thiểu đúng một màn hình (100svh). Logo là flex item
+   co giãn (object-fit contain, ôm đáy) nên dù màn hình thấp
+   thì hàng contact phía trên vẫn không bị đẩy mất. */
 
 .footer {
   background: var(--orange);
-  padding: 126px var(--pad) 57px;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(48px, 11.7vh, 126px) var(--pad) clamp(24px, 5.3vh, 57px);
 }
 
 .footer-top {
@@ -358,7 +399,7 @@ ul { list-style: none; }
 }
 
 .footer-copy {
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 500;
   line-height: 1.2;
 }
@@ -370,21 +411,21 @@ ul { list-style: none; }
 }
 
 .footer-socials li {
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 600;
   line-height: 1.2;
   padding: 6px 0;
 }
 
 .footer-touch-title {
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 600;
   line-height: 1.21;
   margin-bottom: 12px;
 }
 
 .footer-email {
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 600;
   line-height: 1.2;
   text-decoration: none;
@@ -393,9 +434,11 @@ ul { list-style: none; }
 .footer-email:hover { text-decoration: underline; }
 
 .footer-logo {
+  flex: 1 1 auto;
+  min-height: 0;
   width: 100%;
-  height: auto;
-  margin-top: 381px;
+  object-fit: contain;
+  object-position: left bottom;
 }
 
 /* ================= MOTION: CON TRỎ "READ" =================
@@ -426,7 +469,7 @@ ul { list-style: none; }
 
 .cursor span {
   color: #fff;
-  font-size: 16px;
+  font-size: 12px;
   font-weight: 600;
   line-height: 1;
   white-space: nowrap;
@@ -450,7 +493,7 @@ ul { list-style: none; }
 
 @media (max-width: 900px) {
   .nav-center a,
-  .nav-contact { font-size: 18px; }
+  .nav-contact { font-size: 14px; }
 
   .hero-content {
     flex-direction: column;
@@ -482,23 +525,29 @@ ul { list-style: none; }
     opacity: 0.55;
   }
 
-  .press-card { flex-basis: min(520px, 85vw); height: auto; min-height: 360px; }
+  /* Press: bỏ ghim, thẻ xếp dọc, không có thanh trượt */
+  .press { height: auto; padding: 64px 0 80px; }
+  .press-pin {
+    position: static;
+    height: auto;
+    overflow: visible;
+    justify-content: flex-start;
+  }
+  .press-row { flex-direction: column; transform: none !important; }
+  .press-card { flex: 1 1 auto; width: 100%; height: auto; min-height: 320px; }
 
-  .footer { padding: 64px var(--pad) 48px; }
   .footer-top { flex-direction: column; gap: 48px; }
   .footer-cols { grid-template-columns: 1fr; gap: 48px; }
-  .footer-logo { margin-top: 96px; }
 }
 
 @media (max-width: 640px) {
   .nav { flex-wrap: wrap; gap: 16px; padding-top: 32px; }
   .nav-center { gap: 24px; }
-  .hero-headline { font-size: 40px; }
+  .hero-headline { font-size: 36px; }
   .about { padding-bottom: 80px; }
   .awards { padding-bottom: 80px; }
-  .press { padding-bottom: 80px; }
   .press-card { padding: 28px; }
-  .press-title { font-size: 26px; }
+  .press-title { font-size: 22px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -512,4 +561,7 @@ ul { list-style: none; }
   }
   .roll-letter { transition: none; }
   .cursor { display: none; }
+  .press { height: auto; }
+  .press-pin { position: static; height: auto; overflow: visible; }
+  .press-row { transform: none; }
 }
