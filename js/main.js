@@ -115,7 +115,12 @@
     if (total <= 0) return;
     var rect = press.getBoundingClientRect();
     var progress = Math.min(Math.max(-rect.top / total, 0), 1);
-    var maxX = pressRow.scrollWidth - pressRow.clientWidth;
+    // Tính điểm dừng từ mép phải của thẻ cuối + lề phải 80px,
+    // không dùng scrollWidth vì flex container bỏ qua padding
+    // phải khi tính vùng cuộn, làm thẻ cuối dừng sát mép màn hình.
+    var last = pressRow.lastElementChild;
+    var padRight = parseFloat(window.getComputedStyle(pressRow).paddingRight) || 0;
+    var maxX = last.offsetLeft + last.offsetWidth + padRight - pressRow.clientWidth;
     if (maxX <= 0) return;
     pressRow.style.transform = "translate3d(" + (-progress * maxX).toFixed(1) + "px, 0, 0)";
   }
