@@ -1,7 +1,14 @@
 /* ============================================================
-   Nam Bao Portfolio — v4
+   Nam Bao Portfolio — v5
    Token màu, cỡ chữ và vị trí lấy đúng từ khung
    "Nam Bao Portfolio" trong Figma (Page 11).
+   - v5: lề trang thu còn 40px (đúng margin Figma, trước
+     là 80px), gap nhóm link nav 120 xuống 90px (chữ đã
+     giảm còn 75% nên gap thu theo tỉ lệ cho giống Figma),
+     Press đổi sang xấp bài chồng dọc khi cuộn (bỏ ghim
+     ngang), sửa headline "people's mind", bỏ Photography
+     trùng và Motion graphics trùng trong About, favicon
+     là logo "nam bao" từ Figma node 1659:180 (SVG vector).
    - v4: mọi cỡ chữ giảm còn 75% so với v3 (Bảo đo được
      là zoom Chrome 75% thì font mới khớp Figma: nav 15,
      headline 52, thân bài About 33, hàng Awards 15,
@@ -22,15 +29,14 @@
      tam giác là file SVG xuất từ Figma (bo góc 9),
      vuông bo góc 16, tròn là hình tròn. Đáy các shape
      gần như thẳng hàng, tam giác nhô lên trên một chút.
-   - Press: 6 bài, section ghim (pinned) cuộn dọc đẩy
-     hàng thẻ trượt ngang, các card dính sát nhau gap 0
-     (giống mục Noho Stories, không phải chồng dọc).
-     Trên mobile thẻ xếp dọc.
+   - Press: 6 bài, xấp bài chồng dọc khi cuộn (mỗi card
+     sticky với top offset riêng, card sau đè lên card
+     trước). Trên mobile thẻ xếp dọc, tắt sticky.
    - Footer: min-height 100svh, nội dung co giãn để vừa
      đúng một màn hình, logo ôm sát đáy.
    - Motion: chữ cuộn từng ký tự tinh chỉnh khi hover
      (nav, tên dự án và tag trên trang Work; tham khảo
-     nav brandonyasin.com: 0,35 giây, stagger 20ms,
+     nav brandonyasin.com: 0,3 giây, stagger 15ms,
      ease-out), mọi element hiện dần khi cuộn, con trỏ
      tròn "Read" trên thẻ Press và "Open" trên ảnh trang
      Work. Tôn trọng prefers-reduced-motion.
@@ -44,7 +50,7 @@
   --cream: #e4dacd;      /* Awards, Press */
   --ink: #000;
   --ink-soft: #1a1a1a;
-  --pad: clamp(20px, 4.17vw, 80px); /* lề 2 bên: 80px ở 1920 */
+  --pad: clamp(20px, 2.08vw, 40px); /* lề 2 bên: 40px ở 1920, đúng margin Figma */
   --font: "Libre Franklin", -apple-system, "Segoe UI", sans-serif;
   --ease-out: cubic-bezier(0.65, 0, 0.35, 1);
 }
@@ -100,13 +106,13 @@ ul { list-style: none; }
 /* ================= MOTION: CHỮ CUỘN TỪNG KÝ TỰ (TINH CHỈNH) =================
    Mỗi chữ có 2 bản giống hệt nhau xếp chồng, mỗi ký tự là
    một span riêng. Khi hover, từng ký tự trượt lên 1 dòng
-   với độ trễ rất nhẹ 20ms mỗi ký tự (chỉ hơi gợn sóng,
-   không cascade mạnh), tổng khoảng 0,35 giây, easing
+   với độ trễ rất nhẹ 15ms mỗi ký tự (chỉ hơi gợn sóng,
+   không cascade mạnh), tổng khoảng 0,3 giây, easing
    ease-out (bắt đầu nhanh, đáp mềm, không nảy). Tham khảo
    nav của brandonyasin.com (xem trực tiếp, không copy
-   code): bản đó cũng là split-flap / roll-up, chỉ nhanh
-   hơn và nhẹ hơn bản cũ của site. Áp dụng cho nav và tên
-   dự án + tag trên card trang Work. Trên homepage đã bỏ
+   code): bản đó cũng là split-flap / roll-up, tổng khoảng
+   300-400ms, stagger 15-30ms mỗi ký tự. Áp dụng cho nav và
+   tên dự án + tag trên card trang Work. Trên homepage đã bỏ
    hover này ở mọi chỗ khác, đặc biệt là các hàng Awards. */
 
 [data-roll] {
@@ -122,8 +128,8 @@ ul { list-style: none; }
 
 .roll-letter {
   display: inline-block;
-  transition: transform 0.35s ease-out;
-  transition-delay: calc(var(--i) * 20ms);
+  transition: transform 0.3s var(--ease-out);
+  transition-delay: calc(var(--i) * 15ms);
 }
 
 .nav a:hover .roll-letter {
@@ -143,14 +149,18 @@ ul { list-style: none; }
 .nav {
   display: flex;
   align-items: center;
-  padding-top: 64px;
+  padding-top: 40px; /* lề trên 40px, đúng margin Figma */
 }
 
 .nav-logo img { width: 135px; height: 30px; }
 
 .nav-center {
   display: flex;
-  gap: 120px;
+  /* Figma để gap 120px khi chữ 20px; chữ trên web đã giảm
+     còn 75% (15px) nên gap thu theo tỉ lệ còn 90px để
+     khoảng cách nhìn giống Figma, không bị thưa. Nhóm link
+     vẫn nằm giữa nav nhờ margin-inline auto. */
+  gap: 90px;
   margin-inline: auto;
 }
 
@@ -309,49 +319,49 @@ ul { list-style: none; }
 
 .awards-table td:last-child { font-weight: 600; }
 
-/* ================= PRESS: GHIM + TRƯỢT NGANG THEO CUỘN =================
-   Section cao 200vh, khung trong ghim lại (sticky) ở 100svh.
-   Cuộn dọc đẩy hàng thẻ trượt ngang, giống mục Noho Stories.
-   Các card nằm sát nhau, gap 0 (dính trực tiếp, ranh giới
-   chỉ là đổi màu nền, không border, không shadow, không
-   khoảng cách). Không có thanh trượt ngang, không có slider.
-   Lưu ý: đây KHÔNG phải kiểu card chồng dọc lên nhau. */
+/* ================= PRESS: XẤP BÀI CHỒNG DỌC KHI CUỘN =================
+   6 card xếp dọc thành xấp bài. Mỗi card sticky với top
+   offset riêng (tăng dần 24px), khi cuộn xuống card sau
+   trượt lên đè lên card trước, chỉ còn lộ một dải mép
+   của card trước. Card giữ 520x394 theo component Press
+   Card trong Figma, màu nền xen kẽ. Không có ghim ngang,
+   không có translateX theo cuộn. Chỉ dùng position sticky
+   nên không động vào layout khi cuộn, không giật. */
 
 .press {
   background: var(--cream);
-  height: 200vh;
-  position: relative;
-}
-
-.press-pin {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  height: 100svh;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  padding: 64px 0 120px;
 }
 
 .press-inner { padding: 0 var(--pad); }
 
-.press-row {
+.press-stack {
   display: flex;
-  gap: 0;
+  flex-direction: column;
+  gap: 32px;
   margin-top: 48px;
-  padding: 0 var(--pad);
-  will-change: transform;
 }
 
 .press-card {
-  flex: 0 0 520px;
+  position: sticky;
+  flex: 0 0 auto;
+  width: 520px;
+  max-width: 100%;
   height: 394px;
   padding: 40px;
   display: flex;
   flex-direction: column;
   text-decoration: none;
 }
+
+/* Top offset tăng dần để mỗi card sau đè lên card trước
+   nhưng vẫn lộ một dải mép 24px của card trước. */
+.press-stack .press-card:nth-child(1) { top: 120px; }
+.press-stack .press-card:nth-child(2) { top: 144px; }
+.press-stack .press-card:nth-child(3) { top: 168px; }
+.press-stack .press-card:nth-child(4) { top: 192px; }
+.press-stack .press-card:nth-child(5) { top: 216px; }
+.press-stack .press-card:nth-child(6) { top: 240px; }
 
 .press-card-green { background: var(--green); }
 .press-card-orange { background: var(--orange); }
@@ -405,7 +415,7 @@ ul { list-style: none; }
   min-height: 100svh;
   display: flex;
   flex-direction: column;
-  padding: clamp(48px, 11.7vh, 126px) var(--pad) clamp(24px, 5.3vh, 57px);
+  padding: clamp(48px, 11.7vh, 126px) var(--pad) clamp(24px, 5.3vh, 40px); /* lề dưới 40px, đúng margin Figma */
 }
 
 .footer-top {
@@ -550,16 +560,11 @@ ul { list-style: none; }
     opacity: 0.55;
   }
 
-  /* Press: bỏ ghim, thẻ xếp dọc, không có thanh trượt */
-  .press { height: auto; padding: 64px 0 80px; }
-  .press-pin {
-    position: static;
-    height: auto;
-    overflow: visible;
-    justify-content: flex-start;
-  }
-  .press-row { flex-direction: column; gap: 16px; transform: none !important; }
-  .press-card { flex: 1 1 auto; width: 100%; height: auto; min-height: 320px; }
+  /* Press: xấp bài chồng dọc, trên mobile tắt sticky để
+     thẻ xếp dọc bình thường. */
+  .press { padding: 64px 0 40px; }
+  .press-stack { gap: 16px; }
+  .press-card { position: static; flex: 1 1 auto; width: 100%; height: auto; min-height: 320px; }
 
   .footer-top { flex-direction: column; gap: 48px; }
   .footer-cols { grid-template-columns: 1fr; gap: 48px; }
@@ -569,8 +574,8 @@ ul { list-style: none; }
   .nav { flex-wrap: wrap; gap: 16px; padding-top: 32px; }
   .nav-center { gap: 24px; }
   .hero-headline { font-size: 27px; }
-  .about { padding-bottom: 80px; }
-  .awards { padding-bottom: 80px; }
+  .about { padding-bottom: 40px; }
+  .awards { padding-bottom: 40px; }
   .press-card { padding: 28px; }
   .press-title { font-size: 16.5px; }
 }
@@ -586,7 +591,5 @@ ul { list-style: none; }
   }
   .roll-letter { transition: none; }
   .cursor { display: none; }
-  .press { height: auto; }
-  .press-pin { position: static; height: auto; overflow: visible; }
-  .press-row { transform: none; }
+  .press-card { position: static; }
 }

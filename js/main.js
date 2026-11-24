@@ -1,16 +1,15 @@
-// Nam Bao Portfolio — v4
+// Nam Bao Portfolio — v5
 // 1. Chữ cuộn từng ký tự khi hover (nav, tên dự án và tag
 //    trên trang Work), tinh chỉnh theo nav của
 //    brandonyasin.com (xem trực tiếp, không copy code):
-//    tổng khoảng 0,35 giây, stagger nhẹ 20ms mỗi ký tự,
-//    ease-out. Bản cũ đã bỏ ở các hàng Awards trên
-//    homepage và mọi chỗ khác.
+//    tổng khoảng 0,3 giây, stagger nhẹ 15ms mỗi ký tự,
+//    ease-out. Đã bỏ ở các hàng Awards trên homepage
+//    và mọi chỗ khác.
 // 2. Mọi element hiện dần khi cuộn vào khung nhìn.
 // 3. Con trỏ tròn "Read" trên thẻ Press, "Open" trên ảnh
 //    trang Work.
-// 4. Press ghim lại, cuộn dọc đẩy hàng thẻ trượt ngang
-//    (giống mục Noho Stories), các card dính sát nhau
-//    gap 0. Không có thanh trượt ngang.
+// 4. Press là xấp bài chồng dọc (CSS position sticky,
+//    không còn logic JS trượt ngang).
 // Tôn trọng prefers-reduced-motion và thiết bị cảm ứng.
 
 (function () {
@@ -112,45 +111,6 @@
       media.addEventListener("mouseenter", function () { cursor.classList.add("cursor--open"); });
       media.addEventListener("mouseleave", function () { cursor.classList.remove("cursor--open"); });
     });
-  }
-
-  /* ---------- 4. Press: cuộn dọc đẩy hàng thẻ trượt ngang ---------- */
-  var press = document.querySelector(".press");
-  var pressRow = document.querySelector(".press-row");
-  var pressTicking = false;
-
-  function updatePress() {
-    pressTicking = false;
-    if (!press || !pressRow) return;
-    if (reduceMotion || window.innerWidth <= 900) {
-      pressRow.style.transform = "";
-      return;
-    }
-    var total = press.offsetHeight - window.innerHeight;
-    if (total <= 0) return;
-    var rect = press.getBoundingClientRect();
-    var progress = Math.min(Math.max(-rect.top / total, 0), 1);
-    // Tính điểm dừng từ mép phải của thẻ cuối + lề phải 80px,
-    // không dùng scrollWidth vì flex container bỏ qua padding
-    // phải khi tính vùng cuộn, làm thẻ cuối dừng sát mép màn hình.
-    var last = pressRow.lastElementChild;
-    var padRight = parseFloat(window.getComputedStyle(pressRow).paddingRight) || 0;
-    var maxX = last.offsetLeft + last.offsetWidth + padRight - pressRow.clientWidth;
-    if (maxX <= 0) return;
-    pressRow.style.transform = "translate3d(" + (-progress * maxX).toFixed(1) + "px, 0, 0)";
-  }
-
-  function requestPress() {
-    if (!pressTicking) {
-      pressTicking = true;
-      requestAnimationFrame(updatePress);
-    }
-  }
-
-  if (press && pressRow) {
-    window.addEventListener("scroll", requestPress, { passive: true });
-    window.addEventListener("resize", requestPress);
-    updatePress();
   }
 
   /* ---------- Cuộn mượt tới anchor ---------- */

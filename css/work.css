@@ -1,5 +1,5 @@
 /* ============================================================
-   Nam Bao Portfolio — trang Work (/work), v4
+   Nam Bao Portfolio — trang Work (/work), v5
    Bố cục và motion riêng của trang Work. Dùng chung token màu,
    cỡ chữ, motion hiện dần (.reveal) và chữ cuộn ([data-roll])
    trong css/styles.css, chỉ thêm những gì trang Work cần.
@@ -7,6 +7,8 @@
      Figma (1920x5673, margin 40). Mỗi cặp 1 lùn 1 cao để
      tạo dynamic: tỉ lệ khung ảnh lấy từ work-data.js.
    - Card wide (RMIT25) chiếm cả 2 cột, là section to nhất.
+   - v5: lề trang 40px (đúng Figma), mobile work-grid
+     padding-bottom 80 xuống 40px.
    - v4: nav nằm đúng y=64 (bỏ padding-top thừa của .work),
      header cách nav 192px như Figma nên tiêu đề không
      còn chạm nav; font giảm còn 75% như toàn site.
@@ -218,7 +220,7 @@
     grid-template-columns: 1fr;
     row-gap: 64px;
     margin-top: 64px;
-    padding-bottom: 80px;
+    padding-bottom: 40px;
   }
 
   .work-card--wide { grid-column: auto; }

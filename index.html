@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nam Bảo — Portfolio</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <meta name="description" content="Nam Bảo is a graduate of Design Studies at RMIT Vietnam and one of the only two recipients of the Creativity Scholarship 2022.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,7 +30,7 @@
 
     <div class="hero-content" id="top">
       <div class="hero-clip reveal-clip">
-        <h1 class="hero-headline">I build systems that stay in people mind.</h1>
+        <h1 class="hero-headline">I build systems that stay in people's mind.</h1>
       </div>
       <div class="hero-shapes reveal" style="--d:200ms" aria-hidden="true">
         <span class="shape shape-circle"></span>
@@ -59,7 +60,6 @@
               <ul>
                 <li>Logo</li>
                 <li>Packaging</li>
-                <li>Motion graphics</li>
                 <li>Social media</li>
                 <li>Motion Design</li>
                 <li>UI Design</li>
@@ -78,7 +78,6 @@
               <h3>Art</h3>
               <ul>
                 <li>Industrial Design</li>
-                <li>Photography</li>
                 <li>Photography</li>
                 <li>Music</li>
               </ul>
@@ -166,15 +165,14 @@
     </section>
 
     <!-- ============ PRESS ============ -->
-    <!-- 6 bài, mới nhất lên trước. Section ghim, cuộn dọc
-         đẩy hàng thẻ trượt ngang, các card dính sát nhau
-         gap 0 (xem .press-row trong styles.css). -->
+    <!-- 6 bài, mới nhất lên trước. Các card xếp dọc thành
+         xấp bài, mỗi card sticky với top offset riêng, khi
+         cuộn xuống card sau trượt lên đè lên card trước
+         (xem .press-stack trong styles.css). -->
     <section class="press" aria-labelledby="press-label">
-      <div class="press-pin">
-        <div class="press-inner">
-          <h2 class="section-label reveal" id="press-label">PRESS</h2>
-        </div>
-        <div class="press-row" data-stagger>
+      <div class="press-inner">
+        <h2 class="section-label reveal" id="press-label">PRESS</h2>
+        <div class="press-stack" data-stagger>
         <a class="press-card press-card-green reveal" href="https://tuoitre.vn/print/chu-nhan-hoc-bong-rmit-bat-mi-cach-nam-bat-co-hoi-100261119115152121.htm" target="_blank" rel="noopener">
           <span class="press-year">2026</span>
           <span class="press-title">Chủ nhân học bổng RMIT bật mí cách nắm bắt cơ hội</span>
@@ -223,7 +221,7 @@
             <span class="press-read">Read article &gt;</span>
           </span>
         </a>
-      </div>
+        </div>
       </div>
     </section>
   </main>
