@@ -21,7 +21,7 @@
     filterList.innerHTML = filters
       .map(function (name) {
         return (
-          '<li><button type="button" class="work-filter reveal" data-filter="' +
+          '<li><button type="button" class="work-filter" data-filter="' +
           name +
           '" aria-pressed="false">' +
           name +
