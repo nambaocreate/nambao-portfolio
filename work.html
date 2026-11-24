@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Selected Works — Nam Bảo</title>
+  <meta name="description" content="Selected works by Nam Bảo: Vore, EGG:01, RMIT25, Đô Thành Cổ Tích, Tad.atelier, VIBE Expo and Tuổi Hồng 28.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/work.css">
+  <script>document.documentElement.classList.add("js");</script>
+</head>
+<body>
+
+  <!-- ============ NAV (dùng lại như homepage) ============ -->
+  <div class="work">
+    <nav class="nav reveal" aria-label="Main">
+      <a class="nav-logo" href="/" aria-label="Nam Bảo, home">
+        <img src="assets/logo.svg" alt="nam bao" width="135" height="30">
+      </a>
+      <ul class="nav-center">
+        <li><a href="/work" aria-current="page"><span data-roll>Work</span></a></li>
+        <li><a href="/#about"><span data-roll>About</span></a></li>
+        <li><a href="/playground"><span data-roll>Playground</span></a></li>
+      </ul>
+      <a class="nav-contact" href="#contact"><span data-roll>Contact</span></a>
+    </nav>
+
+    <main>
+      <!-- ============ HEADER: tiêu đề + filter ============ -->
+      <header class="work-header">
+        <div class="work-title-clip reveal-clip">
+          <h1 class="work-title">Selected works</h1>
+        </div>
+        <div class="work-filters reveal" style="--d:120ms">
+          <p class="work-filter-label">[Industry]</p>
+          <ul class="work-filter-list" id="work-filter-list"></ul>
+        </div>
+      </header>
+
+      <!-- ============ LƯỚI DỰ ÁN (vẽ từ js/work-data.js) ============ -->
+      <div class="work-grid" id="work-grid" data-stagger></div>
+    </main>
+  </div>
+
+  <!-- ============ FOOTER (dùng lại như homepage) ============ -->
+  <footer class="footer" id="contact">
+    <div class="footer-top">
+      <p class="footer-copy reveal">©2026 NAM BAO</p>
+      <div class="footer-cols reveal" style="--d:100ms">
+        <ul class="footer-socials">
+          <li>Instagram</li>
+          <li>Facebook</li>
+          <li>LinkedIn</li>
+          <li>Behance</li>
+        </ul>
+        <div class="footer-touch">
+          <h2 class="footer-touch-title">Get in touch</h2>
+          <a class="footer-email" href="mailto:nambao.create@gmail.com">nambao.create@gmail.com</a>
+        </div>
+      </div>
+    </div>
+    <img class="footer-logo reveal" style="--d:150ms" src="assets/logo-footer.svg" alt="nam bao" width="1784" height="384">
+  </footer>
+
+  <div class="cursor" aria-hidden="true"><span>Read</span></div>
+
+  <script src="js/work-data.js"></script>
+  <script src="js/work.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

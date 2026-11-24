@@ -16,13 +16,18 @@ Mở http://localhost:8000
 ## Cấu trúc
 
 ```text
-index.html          Nội dung và cấu trúc trang (Hero, About, Awards, Press, Footer)
-css/styles.css      Toàn bộ giao diện, token màu, breakpoint và motion
+index.html          Nội dung và cấu trúc trang chủ (Hero, About, Awards, Press, Footer)
+work.html           Trang Work (Selected Works), lưới dự án vẽ từ js/work-data.js
+css/styles.css      Toàn bộ giao diện, token màu, breakpoint và motion dùng chung
+css/work.css        Bố cục và motion riêng của trang Work (lưới, card, filter, hover zoom)
 js/main.js          Chữ cuộn từng ký tự, hiện dần khi cuộn, con trỏ "Read",
-                    Press trượt ngang theo cuộn dọc, cuộn mượt
+                    Press trượt ngang theo cuộn dọc, cuộn mượt (dùng chung mọi trang)
+js/work-data.js     Dữ liệu 7 dự án trang Work (tên, tag, ảnh, tỉ lệ, thứ tự) + mục filter
+js/work.js          Vẽ lưới dự án từ work-data.js, xử lý filter theo ngành
 assets/logo.svg     Logo "nam bao" ở nav, xuất từ Figma
 assets/logo-footer.svg  Logo "nam bao" lớn ở footer, xuất từ Figma
 assets/triangle.svg Tam giác hero (bo góc 9), xuất từ Figma
+assets/work/        7 ảnh cover trang Work (JPEG đã tối ưu, tên theo dự án)
 404.html            Trang báo lỗi Vercel tự dùng khi link chưa có
 ```
 
@@ -72,14 +77,40 @@ assets/triangle.svg Tam giác hero (bo góc 9), xuất từ Figma
 không cần deploy bằng tay. Link chạy ở tên miền `.vercel.app` của
 project trên Vercel.
 
+## Trang Work (/work)
+
+- Lưới 2 cột, lề 40px, gap 20px, theo đúng Frame 4 trong Figma
+  (1920x5673). Thứ tự: Vore + EGG:01, RMIT25 full width
+  (section to nhất), Đô Thành Cổ Tích + Tad.atelier,
+  VIBE Expo + Tuổi Hồng 28. Mỗi cặp 1 lùn 1 cao để tạo
+  dynamic, tỉ lệ khung ảnh giữ đúng Figma ở mọi màn hình.
+- Dữ liệu 7 dự án nằm hết trong `js/work-data.js` (tên, tag,
+  ảnh, tỉ lệ, thứ tự, mục filter). Đổi tên, tag, ảnh hay thứ
+  tự thì chỉ sửa file đó, không cần động vào HTML hay JS.
+- Motion trang Work: tiêu đề trượt lên khỏi khung cắt khi tải
+  xong (cùng cơ chế với headline ở hero); card hiện dần bằng
+  `.reveal` dùng chung, ảnh trong card thì "lắng" từ zoom
+  1.08 về 1 khi vào viewport (kiểu reveal của trang case
+  tham khảo brandonyasin.com/cases/bestseller, xem rồi tự
+  viết lại, không copy code); hover thì ảnh zoom nhẹ lên
+  1.05 trong khung overflow hidden. Chỉ dùng transform và
+  opacity (GPU) nên không giật layout.
+- Filter theo ngành: bấm một ngành để chỉ hiện dự án thuộc
+  ngành đó, bấm lại để hiện tất cả. Card không khớp thì mờ
+  dần rồi mới ẩn khỏi lưới.
+- Ảnh cover trong `assets/work/` là JPEG đã tối ưu (tổng 7
+  ảnh khoảng 1,8 MB). Ảnh full width RMIT25 giữ 1920px vì
+  hiển thị tới 1840px, các ảnh còn lại 1000-1600px. Hai ảnh
+  đầu tải eager (trên màn hình đầu tiên), còn lại lazy.
+
 ## Việc tiếp theo
 
 1. Bản mobile: hiện tại chỉ có responsive cơ bản (chữ co bằng
    `clamp()`, bố cục xếp chồng dưới 900px). Khi có thiết kế mobile
    trong Figma thì thêm breakpoint, không cần sửa HTML.
-2. Trang Work (Selected Works), Playground, Contact: nav đang trỏ
-   tới `/work`, `/playground`, `/contact`, các trang này chưa có nên
-   Vercel hiện trả về `404.html`.
+2. Trang Playground, Contact: nav đang trỏ tới `/playground`,
+   `/contact`, các trang này chưa có nên Vercel hiện trả về
+   `404.html`.
 3. Link Instagram, Facebook, LinkedIn, Behance ở footer hiện là
    chữ thường (chưa có URL hồ sơ), cần hỏi Bảo lấy link rồi mới
    gắn thành link bấm được.

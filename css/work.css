@@ -1,0 +1,206 @@
+/* ============================================================
+   Nam Bao Portfolio — trang Work (/work)
+   Bố cục và motion riêng của trang Work. Dùng chung token màu,
+   cỡ chữ, motion hiện dần (.reveal) và chữ cuộn ([data-roll])
+   trong css/styles.css, chỉ thêm những gì trang Work cần.
+   - Lưới 2 cột, gap 20px, lề 40px, theo đúng Frame 4 trong
+     Figma (1920x5673, margin 40). Mỗi cặp 1 lùn 1 cao để
+     tạo dynamic: tỉ lệ khung ảnh lấy từ work-data.js.
+   - Card wide (RMIT25) chiếm cả 2 cột, là section to nhất.
+   - Motion: card hiện dần bằng .reveal dùng chung; ảnh trong
+     card thì "lắng" từ zoom 1.08 về 1 khi vào viewport (kiểu
+     reveal của trang case tham khảo); hover thì ảnh zoom nhẹ
+     lên 1.05. Chỉ dùng transform và opacity (GPU), không
+     động vào layout nên không giật.
+   - Filter: bấm một ngành để chỉ hiện dự án thuộc ngành đó,
+     bấm lại để hiện tất cả. Card không khớp thì mờ dần rồi
+     mới ẩn khỏi lưới (xem work.js).
+   ============================================================ */
+
+/* ---------- Trang Work: nền kem, lề 40 ---------- */
+
+.work {
+  background: var(--cream);
+  padding: 64px 40px 0;
+  max-width: 1920px;
+  margin-inline: auto;
+}
+
+/* ---------- Header: tiêu đề trái, filter phải ---------- */
+
+.work-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 48px;
+}
+
+/* Tiêu đề trượt lên khỏi khung cắt khi tải xong,
+   cùng cơ chế với headline ở hero (xem styles.css). */
+.work-title-clip { overflow: hidden; }
+
+.work-title {
+  font-size: 44px;
+  font-weight: 600;
+  line-height: 1.21;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.js .work-title-clip .work-title {
+  transform: translateY(110%);
+  transition: transform 0.8s var(--ease-out) 0.1s;
+}
+
+.js .work-title-clip.is-visible .work-title { transform: none; }
+
+/* Filter: nhãn "[Industry]" rồi các ngành xếp dọc. */
+.work-filters { flex-shrink: 0; }
+
+.work-filter-label {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.2;
+  text-transform: uppercase;
+  margin-bottom: 17px; /* nhãn cách mục đầu 22px như Figma */
+}
+
+.work-filter-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.work-filter {
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 0;
+  font-family: var(--font);
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.21;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  opacity: 0.35;
+  transition: opacity 0.3s ease;
+}
+
+.work-filter:hover { opacity: 0.7; }
+
+.work-filter.is-active { opacity: 1; }
+
+/* ---------- Lưới dự án ---------- */
+
+.work-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 20px;
+  row-gap: 80px; /* Figma để 95/80/68 giữa các hàng, web dùng 80 đều cho gọn */
+  margin-top: 126px; /* header cách hàng đầu 126px như Figma */
+  padding-bottom: 120px; /* khoảng thở trước footer */
+}
+
+.work-card { min-width: 0; }
+
+.work-card--wide { grid-column: 1 / -1; }
+
+/* Khung ảnh: crop theo tỉ lệ, ảnh phủ kín như FILL trong Figma. */
+.work-media {
+  overflow: hidden;
+  aspect-ratio: var(--ar);
+  background: var(--card-tan);
+}
+
+.work-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Lúc chưa hiện thì ảnh zoom nhẹ 1.08, khi vào viewport
+     sẽ "lắng" về 1 trong 1.1s. Chỉ transform nên chạy bằng GPU. */
+  transform: scale(1.08);
+  transition: transform 1.1s var(--ease-out);
+  will-change: transform;
+}
+
+.js .work-card.is-visible .work-media img { transform: scale(1); }
+
+/* Hover: ảnh zoom nhẹ vào trong, vẫn trong khung overflow hidden. */
+.js .work-card.is-visible:hover .work-media img {
+  transform: scale(1.05);
+  transition-duration: 0.7s;
+}
+
+/* Tiêu đề card trái, tag phải, cách ảnh 32px như Figma. */
+.work-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.work-card-title {
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.21;
+}
+
+.work-tag {
+  flex-shrink: 0;
+  background: #cebeb5; /* Tag / Pill trong Figma */
+  padding: 10px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+/* ---------- Filter: card không khớp thì mờ rồi ẩn ---------- */
+
+.js .work-card.is-hiding {
+  opacity: 0;
+  transform: scale(0.97) translateY(8px);
+  pointer-events: none;
+  transition: opacity 0.35s ease, transform 0.35s var(--ease-out);
+}
+
+.work-card.is-hidden { display: none; }
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 900px) {
+  .work { padding: 32px 20px 0; }
+
+  .work-header {
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .work-title { font-size: 32px; }
+
+  /* Mobile: filter xếp ngang cho dễ bấm. */
+  .work-filter-list {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+  }
+
+  .work-filter { font-size: 18px; }
+
+  .work-grid {
+    grid-template-columns: 1fr;
+    row-gap: 64px;
+    margin-top: 64px;
+    padding-bottom: 80px;
+  }
+
+  .work-card--wide { grid-column: auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .work-media img { transform: none; transition: none; }
+  .js .work-title-clip .work-title { transform: none; transition: none; }
+  .js .work-card.is-hiding { transition: none; }
+}
