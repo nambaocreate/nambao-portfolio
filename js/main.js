@@ -1,10 +1,16 @@
-// Nam Bao Portfolio — v3
-// Motion tham khảo noho.ink (xem rồi tự viết lại, không copy code):
-// 1. Chữ cuộn từng ký tự khi hover (nav, hàng Awards).
+// Nam Bao Portfolio — v4
+// 1. Chữ cuộn từng ký tự khi hover (nav, tên dự án và tag
+//    trên trang Work), tinh chỉnh theo nav của
+//    brandonyasin.com (xem trực tiếp, không copy code):
+//    tổng khoảng 0,35 giây, stagger nhẹ 20ms mỗi ký tự,
+//    ease-out. Bản cũ đã bỏ ở các hàng Awards trên
+//    homepage và mọi chỗ khác.
 // 2. Mọi element hiện dần khi cuộn vào khung nhìn.
-// 3. Con trỏ tròn "Read" trên thẻ Press.
+// 3. Con trỏ tròn "Read" trên thẻ Press, "Open" trên ảnh
+//    trang Work.
 // 4. Press ghim lại, cuộn dọc đẩy hàng thẻ trượt ngang
-//    (như Noho Stories). Không có thanh trượt ngang.
+//    (giống mục Noho Stories), các card dính sát nhau
+//    gap 0. Không có thanh trượt ngang.
 // Tôn trọng prefers-reduced-motion và thiết bị cảm ứng.
 
 (function () {
@@ -13,7 +19,7 @@
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var finePointer = window.matchMedia("(hover: hover)").matches;
 
-  /* ---------- 1. Chữ cuộn từng ký tự ---------- */
+  /* ---------- 1. Chữ cuộn từng ký tự (tinh chỉnh) ---------- */
   document.querySelectorAll("[data-roll]").forEach(function (el) {
     var text = el.textContent;
     el.textContent = "";
@@ -60,7 +66,7 @@
     revealEls.forEach(function (el) { observer.observe(el); });
   }
 
-  /* ---------- 3. Con trỏ "Read" trên thẻ Press ---------- */
+  /* ---------- 3. Con trỏ "Read" / "Open" ---------- */
   var cursor = document.querySelector(".cursor");
   if (cursor && finePointer && !reduceMotion) {
     var tx = -100, ty = -100, cx = -100, cy = -100, shown = false, raf = null;
@@ -93,9 +99,18 @@
       cursor.classList.remove("is-on");
     });
 
+    // Thẻ Press thì đĩa hiện chữ Read.
     document.querySelectorAll(".press-card").forEach(function (card) {
       card.addEventListener("mouseenter", function () { cursor.classList.add("cursor--read"); });
       card.addEventListener("mouseleave", function () { cursor.classList.remove("cursor--read"); });
+    });
+
+    // Ảnh trên trang Work thì đĩa hiện chữ Open. Chỉ hover
+    // đúng vào ảnh mới hiện, hover tên hay tag thì không.
+    // (work.js vẽ card trước main.js nên .work-media đã có.)
+    document.querySelectorAll(".work-media").forEach(function (media) {
+      media.addEventListener("mouseenter", function () { cursor.classList.add("cursor--open"); });
+      media.addEventListener("mouseleave", function () { cursor.classList.remove("cursor--open"); });
     });
   }
 

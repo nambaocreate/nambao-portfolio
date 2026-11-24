@@ -1,5 +1,5 @@
 /* ============================================================
-   Nam Bao Portfolio — trang Work (/work)
+   Nam Bao Portfolio — trang Work (/work), v4
    Bố cục và motion riêng của trang Work. Dùng chung token màu,
    cỡ chữ, motion hiện dần (.reveal) và chữ cuộn ([data-roll])
    trong css/styles.css, chỉ thêm những gì trang Work cần.
@@ -7,21 +7,30 @@
      Figma (1920x5673, margin 40). Mỗi cặp 1 lùn 1 cao để
      tạo dynamic: tỉ lệ khung ảnh lấy từ work-data.js.
    - Card wide (RMIT25) chiếm cả 2 cột, là section to nhất.
+   - v4: nav nằm đúng y=64 (bỏ padding-top thừa của .work),
+     header cách nav 192px như Figma nên tiêu đề không
+     còn chạm nav; font giảm còn 75% như toàn site.
    - Motion: card hiện dần bằng .reveal dùng chung; ảnh trong
      card thì "lắng" từ zoom 1.08 về 1 khi vào viewport (kiểu
      reveal của trang case tham khảo); hover thì ảnh zoom nhẹ
      lên 1.05. Chỉ dùng transform và opacity (GPU), không
      động vào layout nên không giật.
-   - Filter: bấm một ngành để chỉ hiện dự án thuộc ngành đó,
-     bấm lại để hiện tất cả. Card không khớp thì mờ dần rồi
-     mới ẩn khỏi lưới (xem work.js).
+   - Filter: có mục All (mặc định, hiện đủ 7 dự án), bấm
+     một ngành để chỉ hiện dự án thuộc ngành đó, bấm lại
+     để về All. Card không khớp thì mờ dần rồi mới ẩn
+     khỏi lưới (xem work.js).
    ============================================================ */
 
-/* ---------- Trang Work: nền kem, lề 40 ---------- */
+/* ---------- Trang Work: nền kem, lề 40 ----------
+   Lề trên để 0 vì .nav đã có padding-top 64px (xem
+   styles.css), nav nằm đúng y=64 như Figma và như
+   homepage. Trước đây .work có padding-top 64px nên
+   nav bị đẩy xuống 128px, còn header thì không có
+   khoảng cách nào với nav nên tiêu đề chạm vào nav. */
 
 .work {
   background: var(--cream);
-  padding: 64px 40px 0;
+  padding: 0 40px 0;
   max-width: 1920px;
   margin-inline: auto;
 }
@@ -33,6 +42,9 @@
   justify-content: space-between;
   align-items: flex-start;
   gap: 48px;
+  /* Khoảng cách từ nav xuống header là 192px như Figma
+     (spacer giữa Nav và Header trong Frame 4). */
+  margin-top: 192px;
 }
 
 /* Tiêu đề trượt lên khỏi khung cắt khi tải xong,
@@ -40,7 +52,7 @@
 .work-title-clip { overflow: hidden; }
 
 .work-title {
-  font-size: 44px;
+  font-size: 33px;
   font-weight: 600;
   line-height: 1.21;
   text-transform: uppercase;
@@ -58,7 +70,7 @@
 .work-filters { flex-shrink: 0; }
 
 .work-filter-label {
-  font-size: 16px;
+  font-size: 12px;
   font-weight: 500;
   line-height: 1.2;
   text-transform: uppercase;
@@ -77,7 +89,7 @@
   background: none;
   padding: 0;
   font-family: var(--font);
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 600;
   line-height: 1.21;
   color: var(--ink);
@@ -144,7 +156,7 @@
 }
 
 .work-card-title {
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 600;
   line-height: 1.21;
 }
@@ -153,10 +165,19 @@
   flex-shrink: 0;
   background: #cebeb5; /* Tag / Pill trong Figma */
   padding: 10px 12px;
-  font-size: 14px;
+  font-size: 10.5px;
   font-weight: 600;
   line-height: 1.2;
   white-space: nowrap;
+}
+
+/* Hover: tên dự án và tag cuộn từng ký tự như nav
+   (xem [data-roll] trong styles.css: 0,35 giây,
+   stagger 20ms, ease-out). Chỉ hover đúng vào chữ
+   mới chạy. */
+.work-card-title:hover .roll-letter,
+.work-tag:hover .roll-letter {
+  transform: translateY(-100%);
 }
 
 /* ---------- Filter: card không khớp thì mờ rồi ẩn ---------- */
@@ -173,14 +194,16 @@
 /* ---------- Responsive ---------- */
 
 @media (max-width: 900px) {
-  .work { padding: 32px 20px 0; }
+  .work { padding: 0 20px 0; }
 
   .work-header {
     flex-direction: column;
     gap: 32px;
+    /* Mobile: khoảng cách nav xuống header thu lại cho vừa màn hình. */
+    margin-top: 80px;
   }
 
-  .work-title { font-size: 32px; }
+  .work-title { font-size: 24px; }
 
   /* Mobile: filter xếp ngang cho dễ bấm. */
   .work-filter-list {
@@ -189,7 +212,7 @@
     gap: 8px 20px;
   }
 
-  .work-filter { font-size: 18px; }
+  .work-filter { font-size: 13.5px; }
 
   .work-grid {
     grid-template-columns: 1fr;

@@ -13,7 +13,7 @@
   var filterList = document.getElementById("work-filter-list");
   if (!grid || !projects.length) return;
 
-  var activeFilter = null; // null = hiện tất cả
+  var activeFilter = "All"; // "All" = hiện tất cả (mục mặc định)
   var hideTimers = new Map(); // card -> timeout chờ mờ xong mới display:none
 
   /* ---------- Vẽ filter ---------- */
@@ -34,8 +34,8 @@
       var btn = event.target.closest(".work-filter");
       if (!btn) return;
       var name = btn.getAttribute("data-filter");
-      // Bấm mục đang chọn thì bỏ filter, hiện tất cả.
-      setFilter(activeFilter === name ? null : name);
+      // Bấm mục đang chọn thì về All, hiện tất cả.
+      setFilter(activeFilter === name ? "All" : name);
     });
   }
 
@@ -67,12 +67,12 @@
         ">" +
         "</div>" +
         '<div class="work-meta">' +
-        '<h3 class="work-card-title">' +
+        '<h3 class="work-card-title"><span data-roll">' +
         p.title +
-        "</h3>" +
-        '<span class="work-tag">' +
+        "</span></h3>" +
+        '<span class="work-tag"><span data-roll">' +
         p.tag +
-        "</span>" +
+        "</span></span>" +
         "</div>" +
         "</article>"
       );
@@ -104,19 +104,23 @@
 
   function setFilter(name) {
     activeFilter = name;
-    // Cập nhật trạng thái nút bấm.
+    // Cập nhật trạng thái nút bấm ("All" cũng là một nút,
+    // đang chọn All thì nút All sáng).
     if (filterList) {
       filterList.querySelectorAll(".work-filter").forEach(function (btn) {
-        var on = name !== null && btn.getAttribute("data-filter") === name;
+        var on = btn.getAttribute("data-filter") === name;
         btn.classList.toggle("is-active", on);
         btn.setAttribute("aria-pressed", on ? "true" : "false");
       });
     }
-    // Hiện/ẩn từng card theo tag.
+    // Hiện/ẩn từng card theo tag ("All" thì hiện tất cả).
     grid.querySelectorAll(".work-card").forEach(function (card) {
-      var match = name === null || card.getAttribute("data-tag") === name;
+      var match = name === "All" || card.getAttribute("data-tag") === name;
       if (match) showCard(card);
       else hideCard(card);
     });
   }
+
+  // Trạng thái ban đầu: All đang chọn, hiện đủ 7 dự án.
+  setFilter("All");
 })();

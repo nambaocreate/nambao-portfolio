@@ -1,7 +1,12 @@
 /* ============================================================
-   Nam Bao Portfolio — v3
+   Nam Bao Portfolio — v4
    Token màu, cỡ chữ và vị trí lấy đúng từ khung
    "Nam Bao Portfolio" trong Figma (Page 11).
+   - v4: mọi cỡ chữ giảm còn 75% so với v3 (Bảo đo được
+     là zoom Chrome 75% thì font mới khớp Figma: nav 15,
+     headline 52, thân bài About 33, hàng Awards 15,
+     tiêu đề Press 21, tiêu đề Work 33). Chỉ giảm font,
+     giữ nguyên layout, spacing và kích thước khung.
    - v3: mọi cỡ chữ giảm 4px so với v2, theo đúng Figma
      (nav 20, headline 69, thân bài About 44, hàng Awards 20,
      tiêu đề Press 28). Khung composition cũng đã giảm 4pt
@@ -17,15 +22,18 @@
      tam giác là file SVG xuất từ Figma (bo góc 9),
      vuông bo góc 16, tròn là hình tròn. Đáy các shape
      gần như thẳng hàng, tam giác nhô lên trên một chút.
-   - Press: section ghim (pinned), cuộn dọc đẩy hàng thẻ
-     trượt ngang như Noho Stories, KHÔNG có thanh trượt
-     ngang. Trên mobile thẻ xếp dọc.
+   - Press: 6 bài, section ghim (pinned) cuộn dọc đẩy
+     hàng thẻ trượt ngang, các card dính sát nhau gap 0
+     (giống mục Noho Stories, không phải chồng dọc).
+     Trên mobile thẻ xếp dọc.
    - Footer: min-height 100svh, nội dung co giãn để vừa
      đúng một màn hình, logo ôm sát đáy.
-   - Motion tham khảo noho.ink (xem, không copy code):
-     chữ cuộn từng ký tự khi hover (nav, hàng Awards),
-     mọi element hiện dần khi cuộn, con trỏ tròn "Read"
-     trên thẻ Press. Tôn trọng prefers-reduced-motion.
+   - Motion: chữ cuộn từng ký tự tinh chỉnh khi hover
+     (nav, tên dự án và tag trên trang Work; tham khảo
+     nav brandonyasin.com: 0,35 giây, stagger 20ms,
+     ease-out), mọi element hiện dần khi cuộn, con trỏ
+     tròn "Read" trên thẻ Press và "Open" trên ảnh trang
+     Work. Tôn trọng prefers-reduced-motion.
    ============================================================ */
 
 :root {
@@ -58,7 +66,7 @@ a { color: inherit; }
 ul { list-style: none; }
 
 .section-label {
-  font-size: 16px;
+  font-size: 12px;
   font-weight: 500;
   line-height: 1.2;
 }
@@ -89,11 +97,17 @@ ul { list-style: none; }
 
 .js .reveal--fade.is-visible { opacity: 1; }
 
-/* ================= MOTION: CHỮ CUỘN TỪNG KÝ TỰ =================
+/* ================= MOTION: CHỮ CUỘN TỪNG KÝ TỰ (TINH CHỈNH) =================
    Mỗi chữ có 2 bản giống hệt nhau xếp chồng, mỗi ký tự là
    một span riêng. Khi hover, từng ký tự trượt lên 1 dòng
-   với độ trễ tăng dần từ trái sang phải, tạo sóng cuộn.
-   Áp dụng cho nav và từng hàng Awards. */
+   với độ trễ rất nhẹ 20ms mỗi ký tự (chỉ hơi gợn sóng,
+   không cascade mạnh), tổng khoảng 0,35 giây, easing
+   ease-out (bắt đầu nhanh, đáp mềm, không nảy). Tham khảo
+   nav của brandonyasin.com (xem trực tiếp, không copy
+   code): bản đó cũng là split-flap / roll-up, chỉ nhanh
+   hơn và nhẹ hơn bản cũ của site. Áp dụng cho nav và tên
+   dự án + tag trên card trang Work. Trên homepage đã bỏ
+   hover này ở mọi chỗ khác, đặc biệt là các hàng Awards. */
 
 [data-roll] {
   display: inline-block;
@@ -108,12 +122,11 @@ ul { list-style: none; }
 
 .roll-letter {
   display: inline-block;
-  transition: transform 0.5s var(--ease-out);
-  transition-delay: calc(var(--i) * 35ms);
+  transition: transform 0.35s ease-out;
+  transition-delay: calc(var(--i) * 20ms);
 }
 
-.nav a:hover .roll-letter,
-.awards-table tbody tr:hover .roll-letter {
+.nav a:hover .roll-letter {
   transform: translateY(-100%);
 }
 
@@ -143,7 +156,7 @@ ul { list-style: none; }
 
 .nav-center a,
 .nav-contact {
-  font-size: 20px;
+  font-size: 15px;
   font-weight: 700;
   line-height: 1.21;
   text-decoration: none;
@@ -162,7 +175,7 @@ ul { list-style: none; }
 
 .hero-headline {
   max-width: 717px;
-  font-size: clamp(36px, 3.59vw, 69px);
+  font-size: clamp(27px, 2.69vw, 52px);
   font-weight: 700;
   line-height: 1;
 }
@@ -225,7 +238,7 @@ ul { list-style: none; }
 }
 
 .about-body p {
-  font-size: clamp(24px, 2.29vw, 44px);
+  font-size: clamp(18px, 1.72vw, 33px);
   font-weight: 600;
   line-height: 1.21;
 }
@@ -247,14 +260,14 @@ ul { list-style: none; }
 }
 
 .about-column h3 {
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 600;
   line-height: 1.21;
   margin-bottom: 12px;
 }
 
 .about-column li {
-  font-size: 16px;
+  font-size: 12px;
   font-weight: 600;
   line-height: 1.2;
   padding: 6px 0;
@@ -278,7 +291,7 @@ ul { list-style: none; }
 }
 
 .awards-table th {
-  font-size: 12px;
+  font-size: 9px;
   font-weight: 600;
   line-height: 1.19;
   text-align: left;
@@ -286,7 +299,7 @@ ul { list-style: none; }
 }
 
 .awards-table td {
-  font-size: 20px;
+  font-size: 15px;
   font-weight: 500;
   line-height: 1.21;
   padding: 24px 8px 24px 0;
@@ -298,8 +311,11 @@ ul { list-style: none; }
 
 /* ================= PRESS: GHIM + TRƯỢT NGANG THEO CUỘN =================
    Section cao 200vh, khung trong ghim lại (sticky) ở 100svh.
-   Cuộn dọc đẩy hàng thẻ trượt ngang, giống Noho Stories.
-   Không có thanh trượt ngang, không có slider. */
+   Cuộn dọc đẩy hàng thẻ trượt ngang, giống mục Noho Stories.
+   Các card nằm sát nhau, gap 0 (dính trực tiếp, ranh giới
+   chỉ là đổi màu nền, không border, không shadow, không
+   khoảng cách). Không có thanh trượt ngang, không có slider.
+   Lưu ý: đây KHÔNG phải kiểu card chồng dọc lên nhau. */
 
 .press {
   background: var(--cream);
@@ -322,7 +338,7 @@ ul { list-style: none; }
 
 .press-row {
   display: flex;
-  gap: 24px;
+  gap: 0;
   margin-top: 48px;
   padding: 0 var(--pad);
   will-change: transform;
@@ -342,7 +358,7 @@ ul { list-style: none; }
 .press-card-tan { background: var(--card-tan); }
 
 .press-year {
-  font-size: 12px;
+  font-size: 9px;
   font-weight: 600;
   line-height: 1.19;
   color: var(--ink);
@@ -350,7 +366,7 @@ ul { list-style: none; }
 
 .press-title {
   margin-top: 12px;
-  font-size: 28px;
+  font-size: 21px;
   font-weight: 600;
   line-height: 1.22;
   color: var(--ink-soft);
@@ -365,14 +381,14 @@ ul { list-style: none; }
 }
 
 .press-outlet {
-  font-size: 14px;
+  font-size: 10.5px;
   font-weight: 500;
   line-height: 1.22;
   color: var(--ink-soft);
 }
 
 .press-read {
-  font-size: 14px;
+  font-size: 10.5px;
   font-weight: 600;
   line-height: 1.22;
   color: var(--ink-soft);
@@ -399,7 +415,7 @@ ul { list-style: none; }
 }
 
 .footer-copy {
-  font-size: 16px;
+  font-size: 12px;
   font-weight: 500;
   line-height: 1.2;
 }
@@ -411,21 +427,21 @@ ul { list-style: none; }
 }
 
 .footer-socials li {
-  font-size: 16px;
+  font-size: 12px;
   font-weight: 600;
   line-height: 1.2;
   padding: 6px 0;
 }
 
 .footer-touch-title {
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 600;
   line-height: 1.21;
   margin-bottom: 12px;
 }
 
 .footer-email {
-  font-size: 16px;
+  font-size: 12px;
   font-weight: 600;
   line-height: 1.2;
   text-decoration: none;
@@ -441,10 +457,11 @@ ul { list-style: none; }
   object-position: left bottom;
 }
 
-/* ================= MOTION: CON TRỎ "READ" =================
+/* ================= MOTION: CON TRỎ "READ" / "OPEN" =================
    Chấm đen nhỏ đi theo chuột khắp trang, khi vào thẻ Press
    thì nở thành đĩa tròn đen 120px có chữ Read ở giữa,
-   giống con trỏ của Noho Stories. Chỉ chạy trên thiết bị
+   giống con trỏ của Noho Stories; khi vào ảnh trên trang
+   Work thì đĩa hiện chữ Open. Chỉ chạy trên thiết bị
    có chuột, không chạy trên cảm ứng. */
 
 .cursor {
@@ -467,9 +484,15 @@ ul { list-style: none; }
 
 .cursor.is-on { opacity: 1; }
 
+/* Hai nhãn nằm chồng nhau ở giữa đĩa, chỉ nhãn nào khớp
+   với class đang bật mới hiện. */
 .cursor span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   color: #fff;
-  font-size: 12px;
+  font-size: 9px;
   font-weight: 600;
   line-height: 1;
   white-space: nowrap;
@@ -477,8 +500,10 @@ ul { list-style: none; }
   transition: opacity 0.25s ease;
 }
 
-.cursor--read { width: 120px; height: 120px; }
-.cursor--read span { opacity: 1; }
+.cursor--read,
+.cursor--open { width: 120px; height: 120px; }
+.cursor--read [data-cursor-label="read"] { opacity: 1; }
+.cursor--open [data-cursor-label="open"] { opacity: 1; }
 
 @media (hover: none) {
   .cursor { display: none; }
@@ -493,7 +518,7 @@ ul { list-style: none; }
 
 @media (max-width: 900px) {
   .nav-center a,
-  .nav-contact { font-size: 14px; }
+  .nav-contact { font-size: 10.5px; }
 
   .hero-content {
     flex-direction: column;
@@ -520,7 +545,7 @@ ul { list-style: none; }
   .awards-table td::before {
     content: attr(data-label);
     display: block;
-    font-size: 14px;
+    font-size: 10.5px;
     font-weight: 600;
     opacity: 0.55;
   }
@@ -533,7 +558,7 @@ ul { list-style: none; }
     overflow: visible;
     justify-content: flex-start;
   }
-  .press-row { flex-direction: column; transform: none !important; }
+  .press-row { flex-direction: column; gap: 16px; transform: none !important; }
   .press-card { flex: 1 1 auto; width: 100%; height: auto; min-height: 320px; }
 
   .footer-top { flex-direction: column; gap: 48px; }
@@ -543,11 +568,11 @@ ul { list-style: none; }
 @media (max-width: 640px) {
   .nav { flex-wrap: wrap; gap: 16px; padding-top: 32px; }
   .nav-center { gap: 24px; }
-  .hero-headline { font-size: 36px; }
+  .hero-headline { font-size: 27px; }
   .about { padding-bottom: 80px; }
   .awards { padding-bottom: 80px; }
   .press-card { padding: 28px; }
-  .press-title { font-size: 22px; }
+  .press-title { font-size: 16.5px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

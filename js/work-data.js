@@ -92,9 +92,12 @@ window.WORK_PROJECTS = [
 ];
 
 // Thứ tự các mục filter, theo đúng Figma (thêm Entertainment
-// vì Tuổi Hồng 28 đã đổi tag sang Entertainment). Bấm một mục
-// để chỉ hiện dự án thuộc ngành đó, bấm lại để hiện tất cả.
+// vì Tuổi Hồng 28 đã đổi tag sang Entertainment). "All" là
+// mục đầu tiên và mặc định đang chọn: hiện đủ 7 dự án.
+// Bấm một ngành để chỉ hiện dự án thuộc ngành đó, bấm lại
+// (hoặc bấm All) để hiện tất cả.
 window.WORK_FILTERS = [
+  "All",
   "Food & beverage",
   "Education",
   "Architecture",
