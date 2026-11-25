@@ -335,20 +335,36 @@ ul { list-style: none; }
 
 .awards-table td:last-child { font-weight: 600; }
 
-/* ================= PRESS: GHIM + TRƯỢT NGANG THEO CUỘN =================
-   Section cao 200vh, khung trong ghim lại (sticky) ở 100svh.
-   Cuộn dọc đẩy hàng thẻ trượt ngang, giống mục Noho Stories.
-   Các card nằm sát nhau, gap 0 (dính trực tiếp, ranh giới
-   chỉ là đổi màu nền, không border, không shadow, không
-   khoảng cách). Trạng thái ban đầu: tất cả 6 card đã nằm
-   sát nhau trong hàng và nhìn thấy ngay, không hiện dần
-   từng cái khi cuộn (card không dùng class .reveal).
+/* ================= PRESS: GHIM + CHỒNG NGANG TỪNG CARD =================
+   Section cao 300vh, khung trong ghim lại (sticky) ở 100svh.
+   Lúc đầu section cuộn lên bình thường, không có chuyển động
+   ngang; tới khi ghim thì hiệu ứng chồng mới bắt đầu.
+   Cơ chế đúng kiểu Noho Stories, KHÔNG phải hàng cứng trượt
+   sang trái: mỗi card dính lại ở bên trái, card tiếp theo
+   trượt sang trái ĐÈ LÊN nó (z-index cao hơn), che nó dần
+   từ phía phải, chỉ để lại một dải mép nhỏ. Card 1 đứng yên
+   tại x=40, không trượt ra khỏi màn hình. Lần lượt: card 2
+   đè card 1, card 3 đè card 2, card 4 đè card 3, card 5 đè
+   card 4, card 6 đè card 5; mỗi lần đè chiếm một phần tiến
+   độ cuộn bằng nhau, không cùng lúc. Card đang đè giữ
+   nguyên chiều rộng đầy đủ, card bị che đứng yên và bị che
+   dần, chữ của card bị che bị cắt ngang tại đường ranh giới
+   một cách tự nhiên (do card đè lên che mất). Không bóng đổ,
+   không viền, không đổi tỉ lệ, không nghiêng. Card cuối dừng
+   khi mép phải cách mép phải viewport 40px, hiện đầy đủ và
+   không card nào đè lên nó. Dải mép và vị trí dừng tính động
+   theo chiều rộng khung (xem updatePress trong main.js);
+   ở viewport 1920 thì dải mép 220px, các mép trái dừng ở
+   x=40, 260, 480, 700, 920, card cuối ở x=1360 (mép phải
+   x=1880). Trạng thái ban đầu: tất cả 6 card đã nằm sát nhau
+   trong hàng (gap 0, chồng lấn 0) và nhìn thấy ngay, không
+   hiện dần từng cái khi cuộn (card không dùng class .reveal).
    Không có thanh trượt ngang, không có slider.
    Lưu ý: đây KHÔNG phải kiểu card chồng dọc lên nhau. */
 
 .press {
   background: var(--cream);
-  height: 200vh;
+  height: 300vh;
   position: relative;
 }
 
@@ -370,17 +386,26 @@ ul { list-style: none; }
   gap: 0;
   margin-top: 48px;
   padding: 0 var(--pad);
-  will-change: transform;
 }
 
 .press-card {
+  position: relative;
   flex: 0 0 520px;
   height: 394px;
   padding: 40px;
   display: flex;
   flex-direction: column;
   text-decoration: none;
+  will-change: transform;
 }
+
+/* Card sau đè lên card trước (z-index cao hơn), để lại dải mép. */
+.press-card:nth-child(1) { z-index: 1; }
+.press-card:nth-child(2) { z-index: 2; }
+.press-card:nth-child(3) { z-index: 3; }
+.press-card:nth-child(4) { z-index: 4; }
+.press-card:nth-child(5) { z-index: 5; }
+.press-card:nth-child(6) { z-index: 6; }
 
 .press-card-green { background: var(--green); }
 .press-card-orange { background: var(--orange); }
@@ -588,7 +613,7 @@ ul { list-style: none; }
     justify-content: flex-start;
   }
   .press-row { flex-direction: column; gap: 16px; transform: none !important; }
-  .press-card { flex: 1 1 auto; width: 100%; height: auto; min-height: 320px; }
+  .press-card { flex: 1 1 auto; width: 100%; height: auto; min-height: 320px; transform: none !important; }
 
   .footer-top { flex-direction: column; gap: 48px; }
   .footer-cols { grid-template-columns: 1fr; gap: 48px; }
@@ -618,4 +643,5 @@ ul { list-style: none; }
   .press { height: auto; }
   .press-pin { position: static; height: auto; overflow: visible; }
   .press-row { transform: none; }
+  .press-card { transform: none !important; }
 }

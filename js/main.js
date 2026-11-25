@@ -1,4 +1,4 @@
-// Nam Bao Portfolio — v7
+// Nam Bao Portfolio — v8
 // 1. Chữ cuộn từng ký tự khi hover (nav, tên dự án và tag
 //    trên trang Work), theo nav của brandonyasin.com và
 //    motion gốc noho.ink (xem trực tiếp, không copy code):
@@ -9,10 +9,12 @@
 // 2. Mọi element hiện dần khi cuộn vào khung nhìn.
 // 3. Con trỏ tròn "Read" trên thẻ Press, "Open" trên ảnh
 //    trang Work.
-// 4. Press là hàng ngang ghim theo cuộn như Noho Stories
-//    (section cao 200vh, khung trong sticky 100svh, cuộn
-//    dọc trượt hàng thẻ sang trái, gap 0, tất cả card có
-//    mặt từ trạng thái ban đầu, không hiện dần từng cái).
+// 4. Press chồng ngang từng card khi ghim, đúng kiểu Noho
+//    Stories (section cao 300vh, khung trong sticky 100svh,
+//    lúc đầu cuộn lên bình thường, tới khi ghim thì card sau
+//    trượt sang trái đè lên card trước, để lại dải mép, lần
+//    lượt từng card một, gap 0, tất cả card có mặt từ trạng
+//    thái ban đầu, không hiện dần từng cái).
 // Tôn trọng prefers-reduced-motion và thiết bị cảm ứng.
 
 (function () {
@@ -115,30 +117,70 @@
     });
   }
 
-  /* ---------- 4. Press ghim ngang theo cuộn ---------- */
+  /* ---------- 4. Press chồng ngang từng card khi ghim ---------- */
   var press = document.querySelector(".press");
+  var pressPin = document.querySelector(".press-pin");
   var pressRow = document.querySelector(".press-row");
+  var pressCards = pressRow ? Array.from(pressRow.querySelectorAll(".press-card")) : [];
+  var pressGeom = null; // { thresholds[], maxT }
   var pressTicking = false;
+
+  // Đo hình học một lần (và mỗi lần đổi kích thước), không đo
+  // trong từng khung cuộn để tránh layout thrashing.
+  // Dải mép: 4 dải (card 1-4) + card áp cuối lộ 2 dải + card cuối
+  // đủ rộng = 6 dải + cardW = chiều rộng khả dụng (W - 2*margin).
+  // Ở viewport 1920, lề 40, card 520 thì dải mép = 220px, các
+  // mép trái dừng ở x=40, 260, 480, 700, 920, card cuối ở
+  // x=1360 (mép phải x=1880, cách mép phải viewport 40px).
+  function measurePress() {
+    pressGeom = null;
+    if (!press || !pressPin || !pressRow || pressCards.length < 2) return;
+    var cardW = pressCards[0].offsetWidth;
+    var width = pressPin.clientWidth;
+    var margin = parseFloat(window.getComputedStyle(pressRow).paddingLeft) || 0;
+    if (!cardW || !width) return;
+    var n = pressCards.length;
+    var strip = (width - 2 * margin - cardW) / n;
+    if (strip <= 0) return;
+    var thresholds = pressCards.map(function (card, i) {
+      var initialLeft = margin + i * cardW;
+      var finalLeft = (i < n - 1) ? margin + i * strip : width - margin - cardW;
+      return initialLeft - finalLeft;
+    });
+    pressGeom = { thresholds: thresholds, maxT: thresholds[n - 1] };
+  }
 
   function updatePress() {
     pressTicking = false;
-    if (!press || !pressRow) return;
+    if (!press || !pressRow || !pressCards.length) return;
     if (reduceMotion || window.innerWidth <= 900) {
-      pressRow.style.transform = "";
+      pressCards.forEach(function (card) { card.style.transform = ""; });
       return;
     }
+    if (!pressGeom) measurePress();
+    if (!pressGeom) return;
     var total = press.offsetHeight - window.innerHeight;
     if (total <= 0) return;
     var rect = press.getBoundingClientRect();
     var progress = Math.min(Math.max(-rect.top / total, 0), 1);
-    // Tính điểm dừng từ mép phải của thẻ cuối + lề phải 40px,
-    // không dùng scrollWidth vì flex container bỏ qua padding
-    // phải khi tính vùng cuộn, làm thẻ cuối dừng sát mép màn hình.
-    var last = pressRow.lastElementChild;
-    var padRight = parseFloat(window.getComputedStyle(pressRow).paddingRight) || 0;
-    var maxX = last.offsetLeft + last.offsetWidth + padRight - pressRow.clientWidth;
-    if (maxX <= 0) return;
-    pressRow.style.transform = "translate3d(" + (-progress * maxX).toFixed(1) + "px, 0, 0)";
+    // Chia tiến độ cuộn thành 5 đoạn bằng nhau, mỗi đoạn là một
+    // lần đè (card 2 đè card 1, rồi card 3 đè card 2...). Mỗi đoạn
+    // kết thúc đúng khi card đang đè tới vị trí dừng của nó.
+    var n = pressCards.length;
+    var seg = progress * (n - 1);
+    var k = Math.min(Math.floor(seg), n - 2);
+    var local = seg - k;
+    var th = pressGeom.thresholds;
+    var totalShift = th[k] + local * (th[k + 1] - th[k]);
+    // Mỗi card trượt tối đa tới ngưỡng của nó rồi dừng; các card
+    // chưa tới lượt vẫn trượt cùng nhau để hàng không bị hở,
+    // card bị che đứng yên, card đang đè trượt lên nó.
+    pressCards.forEach(function (card, i) {
+      var shift = Math.min(totalShift, th[i]);
+      card.style.transform = shift > 0
+        ? "translate3d(" + (-shift).toFixed(1) + "px, 0, 0)"
+        : "";
+    });
   }
 
   function requestPress() {
@@ -148,9 +190,10 @@
     }
   }
 
-  if (press && pressRow) {
+  if (press && pressRow && pressCards.length) {
+    measurePress();
     window.addEventListener("scroll", requestPress, { passive: true });
-    window.addEventListener("resize", requestPress);
+    window.addEventListener("resize", function () { measurePress(); requestPress(); });
     updatePress();
   }
 

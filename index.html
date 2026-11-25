@@ -165,12 +165,16 @@
     </section>
 
     <!-- ============ PRESS ============ -->
-    <!-- 6 bài, mới nhất lên trước. Hàng ngang ghim theo
-         cuộn như Noho Stories: 6 card nằm sát nhau gap 0,
-         tất cả đã có mặt từ trạng thái ban đầu (card không
-         dùng class .reveal nên không hiện dần từng cái khi
-         cuộn), cuộn dọc trượt hàng sang trái (xem .press-row
-         và updatePress trong styles.css và main.js). -->
+    <!-- 6 bài, mới nhất lên trước. Chồng ngang từng card khi
+         ghim đúng kiểu Noho Stories: lúc đầu section cuộn lên
+         bình thường, tới khi ghim thì card sau trượt sang trái
+         đè lên card trước, để lại dải mép, lần lượt từng card
+         một (card 2 đè card 1, rồi card 3 đè card 2...), card
+         cuối dừng khi mép phải cách mép phải viewport 40px.
+         Tất cả 6 card đã nằm sát nhau gap 0 và nhìn thấy ngay
+         từ trạng thái ban đầu (card không dùng class .reveal
+         nên không hiện dần từng cái khi cuộn). Xem .press và
+         updatePress trong styles.css và main.js. -->
     <section class="press" aria-labelledby="press-label">
       <div class="press-pin">
         <div class="press-inner">
