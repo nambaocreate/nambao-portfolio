@@ -1,7 +1,18 @@
 /* ============================================================
-   Nam Bao Portfolio — v10
+   Nam Bao Portfolio — v11
    Token màu, cỡ chữ và vị trí lấy đúng từ khung
    "Nam Bao Portfolio" trong Figma (Page 11).
+   - v11: 2 điểm theo ý Bảo (sau khi xem ảnh chụp màn hình
+     bản v10). (1) Vòng hoa thu nhỏ cho giống reference:
+     bán kính 300px (trước 420px), tile giữ 420x280, nghiêng
+     cơ bản 50 độ (trước 55 độ), scene cao 800px (trước
+     860px). Số liệu tính bằng script (xấu nhất trên mọi góc
+     xoay và mọi vị trí chuột): 2 tile kề chồng nhau 160px,
+     lỗ giữa thu từ 555px còn 303px, đỉnh vòng cách đáy nav
+     116px ở hero 998px và 157px ở hero 1080px, đáy cách đáy
+     hero 28px và 69px, không tràn. (2) Nav bỏ hẳn inverted:
+     bỏ mix-blend-mode difference và logic JS .nav-on-hero,
+     nav luôn chữ đen trên mọi section.
    - v10: 2 điểm theo ý Bảo. (1) Vòng 3D xếp lại thành
      dạng bông hoa giống ảnh reference: vòng nghiêng cơ
      bản rotateX 55 độ (hình trụ đứng nghiêng đi, vòng
@@ -232,18 +243,19 @@ ul { list-style: none; }
   text-decoration: none;
 }
 
-/* ================= NAV: CỐ ĐỊNH + INVERTED (chỉ homepage) =================
+/* ================= NAV: CỐ ĐỊNH, CHỮ ĐEN (chỉ homepage) =================
    Nav tách khỏi Hero, là con trực tiếp của body, position
    fixed trên cùng, z-index cao nhất. Chỉ áp dụng khi body
    có class .home (trang /work không có class này nên nav ở
    đó giữ nguyên như cũ, không bị đổi).
-   Màu inverted: nav dùng mix-blend-mode difference với chữ
-   trắng và nền trong suốt, nên chữ tự đảo màu theo nền của
-   section đang ở dưới nó (trên nền kem thì thành gần đen,
-   trên nền xanh lá và cam thì thành màu tương phản, luôn
-   đọc được). Logo là SVG đen nên dùng filter invert(1) để
-   thành trắng trước khi blend. Hover roll giữ nguyên kiểu
-   cùng lúc (delay 0ms, 0,3 giây mỗi ký tự). */
+   Chữ đen cho mọi section: nav luôn luôn chữ đen (logo
+   "nam bao" và cả 4 link Work, About, Playground, Contact)
+   trên mọi nền (hero tan, About xanh lá, Awards kem, Press
+   kem, Footer cam), không đổi màu theo nền nữa. Đã bỏ hẳn
+   mix-blend-mode difference (v9-v10) và logic JS thêm class
+   .nav-on-hero theo scrollY (v10). Logo là SVG đen gốc nên
+   không cần filter invert. Hover roll giữ nguyên kiểu cùng
+   lúc (delay 0ms, 0,3 giây mỗi ký tự). */
 
 .home .nav {
   position: fixed;
@@ -252,22 +264,8 @@ ul { list-style: none; }
   right: 0;
   z-index: 1000;
   padding: 40px var(--pad) 0;
-  mix-blend-mode: difference;
-  color: #fff;
+  color: #000;
 }
-
-.home .nav-logo img { filter: invert(1); }
-
-/* Nav chữ đen khi đang ở trên hero: khi người dùng đang xem
-   hero ở đầu trang (scrollY còn nhỏ hơn chiều cao hero,
-   About chưa trượt lên che hero) thì chữ nav phải là màu
-   đen, không dùng inverted difference. JS thêm class
-   .nav-on-hero vào body khi đó, gỡ ra khi cuộn khỏi hero
-   để nav trở lại inverted. Chỉ đổi màu chữ và logo (logo
-   bỏ filter invert để trở lại đen gốc), không đổi vị trí,
-   kích thước hay hover roll của nav. */
-.home.nav-on-hero .nav { mix-blend-mode: normal; color: #000; }
-.home.nav-on-hero .nav-logo img { filter: none; }
 
 /* ================= VÒNG 3D XẾP DẠNG BÔNG HOA =================
    Bốn lớp wrapper lồng nhau để mỗi lớp xoay hoặc nghiêng trên
@@ -275,16 +273,21 @@ ul { list-style: none; }
    copy code, không dùng canvas hay Three.js). .wheel-scene cho
    perspective. .wheel-tilt nghiêng theo chuột (JS đặt
    rotateX/rotateY, tối đa khoảng 12 độ). .wheel-flower là góc
-   nghiêng cơ bản dạng bông hoa: rotateX 55 độ để hình trụ
+   nghiêng cơ bản dạng bông hoa: rotateX 50 độ để hình trụ
    đứng nghiêng đi, vòng nằm nghiêng như bông hoa nhìn từ trên
    xuống ở góc nghiêng, các tile tỏa ra như cánh hoa. Chuột
    rời hero thì vòng trở về góc nghiêng cơ bản này, không trở
    về thẳng đứng. .wheel-spin xoay chậm liên tục quanh trục
    đứng (60 giây một vòng, 6 độ mỗi giây). Mỗi tile là một ảnh
    phẳng hình chữ nhật, đặt quanh chu vi hình trụ đứng vô hình
-   (bán kính 420px), mặt hướng ra ngoài, xếp đều nhau 7 tile
-   (mỗi tile cách nhau 360/7 độ), mỗi tile nghiêng thêm
-   rotateX -20 độ để đầu tile xòe ra ngoài như cánh hoa.
+   (bán kính 300px, tile 420x280, 2 tile kề chồng nhau 160px),
+   mặt hướng ra ngoài, xếp đều nhau 7 tile (mỗi tile cách nhau
+   360/7 độ), mỗi tile nghiêng thêm rotateX -20 độ để đầu tile
+   xòe ra ngoài như cánh hoa. Số liệu tính bằng script (xấu
+   nhất trên mọi góc xoay và mọi vị trí chuột): lỗ giữa thu
+   từ 555px (bán kính 420px) còn 303px, đỉnh vòng cách đáy nav
+   116px ở hero 998px và 157px ở hero 1080px, đáy cách đáy
+   hero 28px và 69px, không tràn.
    backface-visibility visible để thấy đủ 7 tile cùng lúc
    (tile ở mặt sau vòng hiện mặt sau bị lật ngược, giống
    reference, nhờ đó vòng mới xòe thành bông hoa thay vì
@@ -297,10 +300,10 @@ ul { list-style: none; }
 .wheel-scene {
   --tile-w: 420px;
   --tile-h: 280px;
-  --radius: 420px;
+  --radius: 300px;
   perspective: 1600px;
   width: 100%;
-  height: 860px;
+  height: 800px;
   position: relative;
 }
 
@@ -315,7 +318,7 @@ ul { list-style: none; }
 }
 
 /* Góc nghiêng cơ bản dạng bông hoa (xem chú thích ở trên):
-   rotateX 55 độ, vòng nằm nghiêng như bông hoa nhìn từ trên
+   rotateX 50 độ, vòng nằm nghiêng như bông hoa nhìn từ trên
    xuống ở góc nghiêng. Nghiêng theo chuột (JS, tối đa 12 độ)
    cộng thêm trên góc nghiêng cơ bản này. */
 .wheel-flower {
@@ -325,7 +328,7 @@ ul { list-style: none; }
   width: 0;
   height: 0;
   transform-style: preserve-3d;
-  transform: rotateX(55deg);
+  transform: rotateX(50deg);
 }
 
 .wheel-spin {
@@ -363,13 +366,16 @@ ul { list-style: none; }
 
 /* Màn hình thấp: thu vòng hoa lại để không chạm nav hay tràn
    sang section dưới (hero 100svh mà thấp thì khoảng trống
-   cho vòng cũng thấp theo). */
+   cho vòng cũng thấp theo). Vòng cao 520px: ở màn hình cao
+   800px thì đỉnh cách đáy nav 129px, đáy cách đáy hero 81px;
+   ở màn hình cao 700px thì đỉnh cách nav 79px, đáy cách đáy
+   hero 31px, vẫn không tràn. */
 @media (max-height: 850px) {
   .wheel-scene {
-    --radius: 320px;
-    --tile-w: 320px;
-    --tile-h: 213px;
-    height: 680px;
+    --radius: 200px;
+    --tile-w: 280px;
+    --tile-h: 187px;
+    height: 520px;
   }
 }
 
@@ -729,12 +735,13 @@ ul { list-style: none; }
   .about,
   .awards { position: static; min-height: 0; }
 
-  /* Vòng 3D nhỏ lại trên mobile */
+  /* Vòng 3D nhỏ lại trên mobile (bán kính thu theo tỉ lệ
+     với bản desktop: 240px so với 300px, vòng cao 581px) */
   .wheel-scene {
     --tile-w: 280px;
     --tile-h: 187px;
-    --radius: 340px;
-    height: 420px;
+    --radius: 240px;
+    height: 600px;
   }
 
   .about-intro,

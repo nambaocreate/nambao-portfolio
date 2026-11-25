@@ -14,12 +14,13 @@
 </head>
 <body class="home">
 
-  <!-- ============ NAV: cố định trên cùng, inverted ============ -->
+  <!-- ============ NAV: cố định trên cùng, chữ đen mọi section ============ -->
   <!-- Nav tách khỏi Hero, là con trực tiếp của body, position
-       fixed, z-index cao nhất, mix-blend-mode difference với
-       chữ trắng nên tự đảo màu theo nền section bên dưới.
-       Trang /work dùng lại class .nav nhưng không có class
-       .home ở body nên nav ở đó vẫn như cũ, không bị đổi. -->
+       fixed, z-index cao nhất, luôn luôn chữ đen trên mọi
+       section (không còn mix-blend-mode difference, đã bỏ
+       hẳn từ v11). Trang /work dùng lại class .nav nhưng
+       không có class .home ở body nên nav ở đó vẫn như cũ,
+       không bị đổi. -->
   <nav class="nav reveal" aria-label="Main">
     <a class="nav-logo" href="#top" aria-label="Nam Bảo, home">
       <img src="assets/logo.svg" alt="nam bao" width="135" height="30">
@@ -35,15 +36,15 @@
   <!-- ============ HERO: vòng 3D xếp dạng bông hoa ============ -->
   <!-- Hero cũ (headline "I build systems..." và cụm shape tròn,
        tam giác, vuông) đã bỏ. Giờ hero chỉ còn vòng xoay 3D
-       xếp dạng bông hoa gồm 7 tile ảnh project: vòng nghiêng
-       cơ bản rotateX 55 độ để hình trụ đứng nghiêng đi, mỗi
-       tile nghiêng thêm rotateX -20 độ xòe ra như cánh hoa,
-       backface-visibility visible để thấy đủ 7 tile cùng lúc,
-       xoay chậm liên tục quanh trục đứng. Rê chuột trên hero
-       làm cả vòng nghiêng theo cả hai trục X và Y, chuột rời
-       hero thì vòng trở về góc nghiêng cơ bản dạng bông hoa.
-       KHÔNG có tương tác bằng cuộn: vòng không nghe scroll,
-       trang cuộn bình thường. -->
+       xếp dạng bông hoa gồm 7 tile ảnh project: bán kính
+       300px, vòng nghiêng cơ bản rotateX 50 độ để hình trụ
+       đứng nghiêng đi, mỗi tile nghiêng thêm rotateX -20 độ
+       xòe ra như cánh hoa, backface-visibility visible để
+       thấy đủ 7 tile cùng lúc, xoay chậm liên tục quanh trục
+       đứng. Rê chuột trên hero làm cả vòng nghiêng theo cả
+       hai trục X và Y, chuột rời hero thì vòng trở về góc
+       nghiêng cơ bản dạng bông hoa. KHÔNG có tương tác bằng
+       cuộn: vòng không nghe scroll, trang cuộn bình thường. -->
   <header class="hero" id="top">
     <div class="wheel-scene" aria-label="Selected works, rotating 3D gallery">
       <div class="wheel-tilt">

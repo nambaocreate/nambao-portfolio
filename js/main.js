@@ -1,4 +1,4 @@
-// Nam Bao Portfolio — v10
+// Nam Bao Portfolio — v11
 // 1. Chữ cuộn từng ký tự khi hover (nav, tên dự án và tag
 //    trên trang Work), theo nav của brandonyasin.com và
 //    motion gốc noho.ink (xem trực tiếp, không copy code):
@@ -17,9 +17,10 @@
 //    card có mặt từ trạng thái ban đầu, không hiện dần
 //    từng cái).
 // 5. Vòng 3D ở hero xếp dạng bông hoa, nghiêng theo chuột:
-//    vòng nghiêng cơ bản rotateX 55 độ (CSS .wheel-flower),
-//    mỗi tile nghiêng thêm rotateX -20 độ xòe ra như cánh
-//    hoa, backface-visibility visible để thấy đủ 7 tile,
+//    vòng nghiêng cơ bản rotateX 50 độ (CSS .wheel-flower),
+//    bán kính 300px, tile 420x280, mỗi tile nghiêng thêm
+//    rotateX -20 độ xòe ra như cánh hoa, backface-visibility
+//    visible để thấy đủ 7 tile,
 //    vòng xoay chậm liên tục bằng CSS animation (60 giây
 //    một vòng), rê chuột trên hero làm cả vòng nghiêng
 //    theo cả hai trục X và Y (tối đa 12 độ mỗi trục, cộng
@@ -30,12 +31,10 @@
 //    tăng tốc xoay, không dùng ScrollTrigger hay wheel
 //    event, không chặn cuộn, trang cuộn xuống About bình
 //    thường.
-// 6. Nav chữ đen khi đang ở trên hero: JS thêm class
-//    .nav-on-hero vào body khi scrollY còn nhỏ hơn chiều
-//    cao hero (About chưa trượt lên che hero), CSS tắt
-//    mix-blend-mode difference và đặt chữ đen, logo bỏ
-//    filter invert. Cuộn khỏi hero thì gỡ class để nav
-//    trở lại inverted.
+// 6. Nav chữ đen cho mọi section: đã bỏ hẳn mix-blend-mode
+//    difference và logic JS thêm class .nav-on-hero theo
+//    scrollY (v10); nav luôn chữ đen trên mọi nền, logo là
+//    SVG đen gốc, không cần filter invert.
 // Tôn trọng prefers-reduced-motion và thiết bị cảm ứng.
 
 (function () {
@@ -226,8 +225,8 @@
   /* ---------- 5. Vòng 3D bông hoa ở hero nghiêng theo chuột ---------- */
   // Vòng xoay chậm liên tục bằng CSS animation trên .wheel-spin
   // (60 giây một vòng), không cần JS. Góc nghiêng cơ bản dạng
-  // bông hoa nằm ở CSS (.wheel-flower rotateX 55 độ, mỗi tile
-  // nghiêng thêm rotateX -20 độ). Phần này chỉ làm nghiêng
+  // bông hoa nằm ở CSS (.wheel-flower rotateX 50 độ, bán kính
+  // 300px, mỗi tile nghiêng thêm rotateX -20 độ). Phần này chỉ làm nghiêng
   // cả vòng theo vị trí con trỏ chuột trên hero (tối đa 12 độ
   // mỗi trục, làm mượt bằng lerp, cộng thêm trên góc nghiêng
   // cơ bản). CHỈ tương tác bằng chuột: không nghe scroll, không
@@ -273,47 +272,6 @@
       tiltTY = 0;
       requestTilt();
     });
-  }
-
-  /* ---------- 6. Nav chữ đen khi đang ở trên hero ---------- */
-  // Khi hero đang ở dưới nav (đầu trang, scrollY còn nhỏ hơn
-  // chiều cao hero, About chưa trượt lên che hero) thì chữ
-  // nav phải là màu đen, không dùng inverted difference.
-  // Thêm class .nav-on-hero vào body khi đó; CSS tắt
-  // mix-blend-mode difference, đặt chữ đen, logo bỏ filter
-  // invert. Cuộn khỏi hero thì gỡ class để nav trở lại
-  // inverted. Chỉ đổi màu chữ và logo, không đổi vị trí,
-  // kích thước hay hover roll. Chỉ áp dụng trên homepage
-  // (CSS giới hạn ở body có class .home); trang /work không
-  // có class này và cũng không có .hero nên không bị ảnh
-  // hưởng. Ngưỡng đổi màu là đúng lúc About trượt lên che
-  // hết hero (scrollY bằng chiều cao hero).
-  var heroEl = document.querySelector(".hero");
-  var navHeroH = 0;
-  var navHeroTicking = false;
-
-  function measureNavHero() {
-    navHeroH = heroEl ? heroEl.offsetHeight : 0;
-  }
-
-  function updateNavHero() {
-    navHeroTicking = false;
-    if (!heroEl) return;
-    document.body.classList.toggle("nav-on-hero", window.scrollY < navHeroH);
-  }
-
-  function requestNavHero() {
-    if (!navHeroTicking) {
-      navHeroTicking = true;
-      requestAnimationFrame(updateNavHero);
-    }
-  }
-
-  if (heroEl) {
-    measureNavHero();
-    updateNavHero();
-    window.addEventListener("scroll", requestNavHero, { passive: true });
-    window.addEventListener("resize", function () { measureNavHero(); requestNavHero(); });
   }
 
   /* ---------- Cuộn mượt tới anchor ---------- */
