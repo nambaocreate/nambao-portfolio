@@ -32,17 +32,22 @@
     <a class="nav-contact" href="#contact"><span data-roll>Contact</span></a>
   </nav>
 
-  <!-- ============ HERO: vòng 3D xoay (3D wheel gallery) ============ -->
+  <!-- ============ HERO: vòng 3D xếp dạng bông hoa ============ -->
   <!-- Hero cũ (headline "I build systems..." và cụm shape tròn,
        tam giác, vuông) đã bỏ. Giờ hero chỉ còn vòng xoay 3D
-       gồm 7 tile ảnh project xếp quanh một hình trụ đứng vô
-       hình, mặt hướng ra ngoài, xoay chậm liên tục quanh trục
-       đứng. Rê chuột trên hero làm cả vòng nghiêng theo cả hai
-       trục X và Y. KHÔNG có tương tác bằng cuộn: vòng không
-       nghe scroll, trang cuộn bình thường. -->
+       xếp dạng bông hoa gồm 7 tile ảnh project: vòng nghiêng
+       cơ bản rotateX 55 độ để hình trụ đứng nghiêng đi, mỗi
+       tile nghiêng thêm rotateX -20 độ xòe ra như cánh hoa,
+       backface-visibility visible để thấy đủ 7 tile cùng lúc,
+       xoay chậm liên tục quanh trục đứng. Rê chuột trên hero
+       làm cả vòng nghiêng theo cả hai trục X và Y, chuột rời
+       hero thì vòng trở về góc nghiêng cơ bản dạng bông hoa.
+       KHÔNG có tương tác bằng cuộn: vòng không nghe scroll,
+       trang cuộn bình thường. -->
   <header class="hero" id="top">
     <div class="wheel-scene" aria-label="Selected works, rotating 3D gallery">
       <div class="wheel-tilt">
+        <div class="wheel-flower">
         <div class="wheel-spin">
           <figure class="wheel-tile" style="--i:0"><img src="assets/work/vore.jpg" alt="Ba poster của Vore treo trên tường" width="1600" height="900"></figure>
           <figure class="wheel-tile" style="--i:1"><img src="assets/work/egg01.jpg" alt="Hộp bạc EGG:01 cạnh chai thủy tinh gân sóng có lòng đỏ cam" width="1400" height="1356"></figure>
@@ -51,6 +56,7 @@
           <figure class="wheel-tile" style="--i:4"><img src="assets/work/tad.jpg" alt="Board tổng hợp các dự án của Tad.atelier" width="1400" height="989"></figure>
           <figure class="wheel-tile" style="--i:5"><img src="assets/work/vibe.jpg" alt="Render 3D sảnh expo cam của VIBE" width="1000" height="558"></figure>
           <figure class="wheel-tile" style="--i:6"><img src="assets/work/th28.jpg" alt="Bốn poster Tuổi Hồng 28 năm 2024 trên nền sọc hồng" width="1600" height="1067"></figure>
+        </div>
         </div>
       </div>
     </div>

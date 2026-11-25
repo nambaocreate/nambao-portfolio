@@ -1,7 +1,21 @@
 /* ============================================================
-   Nam Bao Portfolio — v9
+   Nam Bao Portfolio — v10
    Token màu, cỡ chữ và vị trí lấy đúng từ khung
    "Nam Bao Portfolio" trong Figma (Page 11).
+   - v10: 2 điểm theo ý Bảo. (1) Vòng 3D xếp lại thành
+     dạng bông hoa giống ảnh reference: vòng nghiêng cơ
+     bản rotateX 55 độ (hình trụ đứng nghiêng đi, vòng
+     nằm nghiêng như bông hoa nhìn từ trên xuống ở góc
+     nghiêng), mỗi tile nghiêng thêm rotateX -20 độ xòe
+     ra như cánh hoa, backface-visibility visible để thấy
+     đủ 7 tile cùng lúc, bán kính thu còn 420px, scene
+     cao 860px. Chuột rời hero thì vòng trở về góc nghiêng
+     cơ bản dạng bông hoa, không trở về thẳng đứng.
+     (2) Nav chữ đen khi đang ở trên hero (JS thêm class
+     .nav-on-hero vào body khi scrollY còn nhỏ hơn chiều
+     cao hero, tắt mix-blend-mode difference và đặt chữ
+     đen, logo bỏ filter invert; cuộn khỏi hero thì trở
+     lại inverted).
    - v9: 3 thay đổi lớn theo ý Bảo. (1) Nav tách khỏi Hero,
      position fixed trên cùng, mix-blend-mode difference
      với chữ trắng nên tự đảo màu theo nền (chỉ áp dụng
@@ -244,31 +258,49 @@ ul { list-style: none; }
 
 .home .nav-logo img { filter: invert(1); }
 
-/* ================= VÒNG 3D XOAY (3D WHEEL GALLERY) =================
-   Ba lớp wrapper lồng nhau để mỗi lớp xoay hoặc nghiêng trên
-   trục riêng, giống cấu trúc demo gốc (tự viết lại bằng CSS
-   3D transform thuần, không copy code, không dùng canvas hay
-   Three.js). .wheel-scene cho perspective. .wheel-tilt nghiêng
-   theo chuột (JS đặt rotateX/rotateY, tối đa khoảng 12 độ).
-   .wheel-spin xoay chậm liên tục quanh trục đứng (60 giây một
-   vòng, 6 độ mỗi giây). Mỗi tile là một ảnh phẳng hình chữ
-   nhật, đặt quanh chu vi hình trụ đứng vô hình (bán kính
-   520px), mặt hướng ra ngoài, xếp đều nhau 7 tile (mỗi tile
-   cách nhau 360/7 độ). Tile trước mặt đọc được rõ, tile bên
-   hông và sau bị foreshorten thành dải hẹp rồi xuất hiện lại
-   ở phía bên kia. backface-visibility hidden để tile quay ra
-   sau thì ẩn đi, không thấy mặt sau bị lật ngược. Không bóng
-   đổ, không viền, không phóng to khi hover, click không làm
-   gì. Chỉ dùng transform (GPU), tôn trọng prefers-reduced-
-   motion (tắt xoay và nghiêng, vòng đứng yên). */
+/* Nav chữ đen khi đang ở trên hero: khi người dùng đang xem
+   hero ở đầu trang (scrollY còn nhỏ hơn chiều cao hero,
+   About chưa trượt lên che hero) thì chữ nav phải là màu
+   đen, không dùng inverted difference. JS thêm class
+   .nav-on-hero vào body khi đó, gỡ ra khi cuộn khỏi hero
+   để nav trở lại inverted. Chỉ đổi màu chữ và logo (logo
+   bỏ filter invert để trở lại đen gốc), không đổi vị trí,
+   kích thước hay hover roll của nav. */
+.home.nav-on-hero .nav { mix-blend-mode: normal; color: #000; }
+.home.nav-on-hero .nav-logo img { filter: none; }
+
+/* ================= VÒNG 3D XẾP DẠNG BÔNG HOA =================
+   Bốn lớp wrapper lồng nhau để mỗi lớp xoay hoặc nghiêng trên
+   trục riêng (tự viết lại bằng CSS 3D transform thuần, không
+   copy code, không dùng canvas hay Three.js). .wheel-scene cho
+   perspective. .wheel-tilt nghiêng theo chuột (JS đặt
+   rotateX/rotateY, tối đa khoảng 12 độ). .wheel-flower là góc
+   nghiêng cơ bản dạng bông hoa: rotateX 55 độ để hình trụ
+   đứng nghiêng đi, vòng nằm nghiêng như bông hoa nhìn từ trên
+   xuống ở góc nghiêng, các tile tỏa ra như cánh hoa. Chuột
+   rời hero thì vòng trở về góc nghiêng cơ bản này, không trở
+   về thẳng đứng. .wheel-spin xoay chậm liên tục quanh trục
+   đứng (60 giây một vòng, 6 độ mỗi giây). Mỗi tile là một ảnh
+   phẳng hình chữ nhật, đặt quanh chu vi hình trụ đứng vô hình
+   (bán kính 420px), mặt hướng ra ngoài, xếp đều nhau 7 tile
+   (mỗi tile cách nhau 360/7 độ), mỗi tile nghiêng thêm
+   rotateX -20 độ để đầu tile xòe ra ngoài như cánh hoa.
+   backface-visibility visible để thấy đủ 7 tile cùng lúc
+   (tile ở mặt sau vòng hiện mặt sau bị lật ngược, giống
+   reference, nhờ đó vòng mới xòe thành bông hoa thay vì
+   chỉ thấy 2 đến 3 tile trước mặt như carousel đứng thẳng).
+   Không bóng đổ, không viền, không phóng to khi hover, click
+   không làm gì. Chỉ dùng transform (GPU), tôn trọng
+   prefers-reduced-motion (tắt xoay và nghiêng, vòng đứng yên
+   ở trạng thái bông hoa tĩnh). */
 
 .wheel-scene {
   --tile-w: 420px;
   --tile-h: 280px;
-  --radius: 520px;
+  --radius: 420px;
   perspective: 1600px;
   width: 100%;
-  height: 620px;
+  height: 860px;
   position: relative;
 }
 
@@ -280,6 +312,20 @@ ul { list-style: none; }
   height: 0;
   transform-style: preserve-3d;
   will-change: transform;
+}
+
+/* Góc nghiêng cơ bản dạng bông hoa (xem chú thích ở trên):
+   rotateX 55 độ, vòng nằm nghiêng như bông hoa nhìn từ trên
+   xuống ở góc nghiêng. Nghiêng theo chuột (JS, tối đa 12 độ)
+   cộng thêm trên góc nghiêng cơ bản này. */
+.wheel-flower {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  transform-style: preserve-3d;
+  transform: rotateX(55deg);
 }
 
 .wheel-spin {
@@ -304,8 +350,8 @@ ul { list-style: none; }
   left: calc(var(--tile-w) / -2);
   top: calc(var(--tile-h) / -2);
   margin: 0;
-  transform: rotateY(calc(var(--i) * 51.4286deg)) translateZ(var(--radius));
-  backface-visibility: hidden;
+  transform: rotateY(calc(var(--i) * 51.4286deg)) translateZ(var(--radius)) rotateX(-20deg);
+  backface-visibility: visible;
 }
 
 .wheel-tile img {
@@ -313,6 +359,18 @@ ul { list-style: none; }
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+/* Màn hình thấp: thu vòng hoa lại để không chạm nav hay tràn
+   sang section dưới (hero 100svh mà thấp thì khoảng trống
+   cho vòng cũng thấp theo). */
+@media (max-height: 850px) {
+  .wheel-scene {
+    --radius: 320px;
+    --tile-w: 320px;
+    --tile-h: 213px;
+    height: 680px;
+  }
 }
 
 /* ================= ABOUT =================
