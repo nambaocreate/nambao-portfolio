@@ -1,4 +1,4 @@
-// Nam Bao Portfolio — v11
+// Nam Bao Portfolio — v12
 // 1. Chữ cuộn từng ký tự khi hover (nav, tên dự án và tag
 //    trên trang Work), theo nav của brandonyasin.com và
 //    motion gốc noho.ink (xem trực tiếp, không copy code):
@@ -16,21 +16,21 @@
 //    để lại dải mép, lần lượt từng card một, gap 0, tất cả
 //    card có mặt từ trạng thái ban đầu, không hiện dần
 //    từng cái).
-// 5. Vòng 3D ở hero xếp dạng bông hoa, nghiêng theo chuột:
-//    vòng nghiêng cơ bản rotateX 50 độ (CSS .wheel-flower),
-//    bán kính 300px, tile 420x280, mỗi tile nghiêng thêm
-//    rotateX -20 độ xòe ra như cánh hoa, backface-visibility
-//    visible để thấy đủ 7 tile,
+// 5. Bông hoa 3D ở hero, cánh tỏa ra từ tâm, nghiêng theo chuột:
+//    bông hoa nghiêng cơ bản rotateX 50 độ (CSS .wheel-flower),
+//    mỗi tile là một cánh hoa: trục dài 420px chĩa ra theo
+//    hướng tâm, đầu trong ở bán kính 10px, đầu ngoài ở bán
+//    kính 430px, đầu ngoài nhấc lên 25 độ, tâm lấp kín,
+//    mọi cánh luôn thấy mặt trước nên không còn chữ ngược,
 //    vòng xoay chậm liên tục bằng CSS animation (60 giây
-//    một vòng), rê chuột trên hero làm cả vòng nghiêng
+//    một vòng), rê chuột trên hero làm cả bông hoa nghiêng
 //    theo cả hai trục X và Y (tối đa 12 độ mỗi trục, cộng
 //    thêm trên góc nghiêng cơ bản). Khi chuột rời khỏi
-//    hero thì vòng trở về góc nghiêng cơ bản dạng bông hoa,
-//    không trở về thẳng đứng. CHỈ tương tác bằng chuột,
-//    KHÔNG có tương tác bằng cuộn: không dùng scroll để
-//    tăng tốc xoay, không dùng ScrollTrigger hay wheel
-//    event, không chặn cuộn, trang cuộn xuống About bình
-//    thường.
+//    hero thì bông hoa trở về góc nghiêng cơ bản, không trở
+//    về thẳng đứng. CHỈ tương tác bằng chuột, KHÔNG có tương
+//    tác bằng cuộn: không dùng scroll để tăng tốc xoay, không
+//    dùng ScrollTrigger hay wheel event, không chặn cuộn,
+//    trang cuộn xuống About bình thường.
 // 6. Nav chữ đen cho mọi section: đã bỏ hẳn mix-blend-mode
 //    difference và logic JS thêm class .nav-on-hero theo
 //    scrollY (v10); nav luôn chữ đen trên mọi nền, logo là
@@ -222,14 +222,14 @@
     updatePress();
   }
 
-  /* ---------- 5. Vòng 3D bông hoa ở hero nghiêng theo chuột ---------- */
-  // Vòng xoay chậm liên tục bằng CSS animation trên .wheel-spin
-  // (60 giây một vòng), không cần JS. Góc nghiêng cơ bản dạng
-  // bông hoa nằm ở CSS (.wheel-flower rotateX 50 độ, bán kính
-  // 300px, mỗi tile nghiêng thêm rotateX -20 độ). Phần này chỉ làm nghiêng
-  // cả vòng theo vị trí con trỏ chuột trên hero (tối đa 12 độ
-  // mỗi trục, làm mượt bằng lerp, cộng thêm trên góc nghiêng
-  // cơ bản). CHỈ tương tác bằng chuột: không nghe scroll, không
+  /* ---------- 5. Bông hoa 3D ở hero nghiêng theo chuột ---------- */
+  // Bông hoa xoay chậm liên tục bằng CSS animation trên .wheel-spin
+  // (60 giây một vòng), không cần JS. Góc nghiêng cơ bản nằm ở
+  // CSS (.wheel-flower rotateX 50 độ, mỗi tile là một cánh hoa
+  // tỏa ra từ tâm, đầu ngoài nhấc lên 25 độ). Phần này chỉ làm
+  // nghiêng cả bông hoa theo vị trí con trỏ chuột trên hero (tối
+  // đa 12 độ mỗi trục, làm mượt bằng lerp, cộng thêm trên góc
+  // nghiêng cơ bản). CHỈ tương tác bằng chuột: không nghe scroll, không
   // dùng ScrollTrigger hay wheel event, không gọi preventDefault,
   // không giữ trang ở lại hero, trang cuộn xuống About bình
   // thường. Khi chuột rời khỏi hero thì vòng trở về góc nghiêng
