@@ -202,16 +202,19 @@
       left: to.left, top: to.top, width: to.width, height: to.height,
       borderRadius: 10, duration: 0.7, ease: "power3.inOut"
     }, 0);
-    // 0.15: thông tin cũ và stack cũ mờ dần.
+    // 0.15: thông tin cũ và stack cũ mờ dần. Không dùng stagger:
+    // số thứ tự, tiêu đề, meta và tag phải cùng một nhịp mờ, cùng
+    // độ mờ ở mọi khung (stagger làm số chạy trước tiêu đề một nhịp).
     tl.to(infoEls, {
-      y: -20, opacity: 0, duration: 0.25, ease: "power2.in", stagger: 0.03
+      y: -20, opacity: 0, duration: 0.25, ease: "power2.in"
     }, 0.15);
     tl.to(thumbsEl, { opacity: 0, duration: 0.25, ease: "power2.in" }, 0.15);
-    // 0.4: đổi nội dung (lúc đang mờ nên không thấy).
-    tl.add(function () { renderInfo(); }, 0.4);
-    // 0.45: thông tin mới trượt lên từ dưới.
+    // 0.42: đổi nội dung sau khi TẤT CẢ đã mờ hẳn (mờ xong lúc 0.4),
+    // lúc đang mờ nên không thấy, số mới không lộ ra khi còn mờ.
+    tl.add(function () { renderInfo(); }, 0.42);
+    // 0.45: thông tin mới trượt lên từ dưới, cùng một nhịp, không stagger.
     tl.fromTo(infoEls, { y: 24, opacity: 0 }, {
-      y: 0, opacity: 1, duration: 0.45, ease: "power3.out", stagger: 0.05,
+      y: 0, opacity: 1, duration: 0.45, ease: "power3.out",
       clearProps: "transform,opacity"
     }, 0.45);
     // 0.7: đổi ảnh lớn (lúc clone đã phủ kín khung) rồi dọn.
@@ -495,15 +498,18 @@
         opacity: 1, duration: 0.7, ease: "power3.inOut"
       }, 0);
     }
-    // 0.15: thông tin cũ trượt lên và mờ đi.
+    // 0.15: thông tin cũ trượt lên và mờ đi. Không dùng stagger:
+    // số thứ tự, tiêu đề, meta và tag phải cùng một nhịp mờ, cùng
+    // độ mờ ở mọi khung (stagger làm số chạy trước tiêu đề một nhịp).
     tl.to(infoEls, {
-      y: -20, opacity: 0, duration: 0.25, ease: "power2.in", stagger: 0.03
+      y: -20, opacity: 0, duration: 0.25, ease: "power2.in"
     }, 0.15);
-    // 0.4: đổi nội dung (lúc đang mờ nên không thấy).
-    tl.add(function () { renderInfo(); }, 0.4);
-    // 0.45: thông tin mới trượt lên từ dưới.
+    // 0.42: đổi nội dung sau khi TẤT CẢ đã mờ hẳn (mờ xong lúc 0.4),
+    // lúc đang mờ nên không thấy, số mới không lộ ra khi còn mờ.
+    tl.add(function () { renderInfo(); }, 0.42);
+    // 0.45: thông tin mới trượt lên từ dưới, cùng một nhịp, không stagger.
     tl.fromTo(infoEls, { y: 24, opacity: 0 }, {
-      y: 0, opacity: 1, duration: 0.45, ease: "power3.out", stagger: 0.05,
+      y: 0, opacity: 1, duration: 0.45, ease: "power3.out",
       clearProps: "transform,opacity"
     }, 0.45);
     // 0.7: đổi ảnh lớn (lúc clone đã phủ kín khung) rồi dọn.
@@ -536,8 +542,10 @@
     animating = tl;
     // Ảnh cũ và thông tin mờ dần (không nháy thành khung xám: nền
     // container đã trong suốt nên lúc mờ chỉ thấy nền trang).
+    // Không dùng stagger: số thứ tự, tiêu đề, meta, tag và ảnh phải
+    // cùng một nhịp mờ, cùng độ mờ ở mọi khung.
     tl.to([imgEl].concat(infoEls), {
-      opacity: 0, y: dir > 0 ? -18 : 18, duration: 0.25, ease: "power2.in", stagger: 0.02
+      opacity: 0, y: dir > 0 ? -18 : 18, duration: 0.25, ease: "power2.in"
     }, 0);
     // Stack cũ mờ dần cùng lúc để số lượng không đổi đột ngột.
     tl.to(thumbsEl, { opacity: 0, duration: 0.25, ease: "power2.in" }, 0);
@@ -546,7 +554,7 @@
       renderMedia();
     }, 0.28);
     tl.fromTo([imgEl].concat(infoEls), { opacity: 0, y: dir > 0 ? 18 : -18 }, {
-      opacity: 1, y: 0, duration: 0.5, ease: "power3.out", stagger: 0.04,
+      opacity: 1, y: 0, duration: 0.5, ease: "power3.out",
       // Xóa style inline khi xong để ảnh lớn về lại scale CSS (1.02)
       // và hover zoom (1.07) không bị kẹt ở crop phóng to.
       clearProps: "transform,opacity"
