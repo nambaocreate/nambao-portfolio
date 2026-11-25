@@ -1,8 +1,12 @@
 /* ============================================================
-   Nam Bao Portfolio — trang Work (/work), v5
+   Nam Bao Portfolio — trang Work (/work), v6
    Bố cục và motion riêng của trang Work. Dùng chung token màu,
    cỡ chữ, motion hiện dần (.reveal) và chữ cuộn ([data-roll])
    trong css/styles.css, chỉ thêm những gì trang Work cần.
+   - v6: nền trang đổi từ kem #E4DACD thành trắng xám offwhite
+     #F2F2F0, giống hệt nền Hero (dùng chung biến --hero-bg
+     trong styles.css), theo ý Bảo. Footer cam, card, filter
+     và chữ giữ nguyên màu.
    - Lưới 2 cột, gap 20px, lề 40px, theo đúng Frame 4 trong
      Figma (1920x5673, margin 40). Mỗi cặp 1 lùn 1 cao để
      tạo dynamic: tỉ lệ khung ảnh lấy từ work-data.js.
@@ -23,15 +27,17 @@
      khỏi lưới (xem work.js).
    ============================================================ */
 
-/* ---------- Trang Work: nền kem, lề 40 ----------
-   Lề trên để 0 vì .nav đã có padding-top 64px (xem
-   styles.css), nav nằm đúng y=64 như Figma và như
-   homepage. Trước đây .work có padding-top 64px nên
-   nav bị đẩy xuống 128px, còn header thì không có
-   khoảng cách nào với nav nên tiêu đề chạm vào nav. */
+/* ---------- Trang Work: nền offwhite giống Hero, lề 40 ----------
+   Nền đổi từ kem #E4DACD thành offwhite #F2F2F0 (v6), dùng chung
+   biến --hero-bg với Hero nên hai trang giống hệt nhau. Footer
+   cam nằm ngoài .work nên giữ nguyên màu cam. Cả trang (kể cả
+   lề 2 bên khi viewport rộng hơn 1920px) cũng dùng nền offwhite
+   này, vì body mặc định nền kem trong styles.css. */
+
+body.work-page { background: var(--hero-bg); }
 
 .work {
-  background: var(--cream);
+  background: var(--hero-bg);
   padding: 0 40px 0;
   max-width: 1920px;
   margin-inline: auto;
