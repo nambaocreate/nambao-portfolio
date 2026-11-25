@@ -1,4 +1,4 @@
-// Nam Bao Portfolio — v8
+// Nam Bao Portfolio — v9
 // 1. Chữ cuộn từng ký tự khi hover (nav, tên dự án và tag
 //    trên trang Work), theo nav của brandonyasin.com và
 //    motion gốc noho.ink (xem trực tiếp, không copy code):
@@ -10,11 +10,19 @@
 // 3. Con trỏ tròn "Read" trên thẻ Press, "Open" trên ảnh
 //    trang Work.
 // 4. Press chồng ngang từng card khi ghim, đúng kiểu Noho
-//    Stories (section cao 300vh, khung trong sticky 100svh,
-//    lúc đầu cuộn lên bình thường, tới khi ghim thì card sau
-//    trượt sang trái đè lên card trước, để lại dải mép, lần
-//    lượt từng card một, gap 0, tất cả card có mặt từ trạng
-//    thái ban đầu, không hiện dần từng cái).
+//    Stories (wrapper ngoài cao 300vh, section trong
+//    sticky 100svh, lúc đầu cuộn lên bình thường, tới khi
+//    ghim thì card sau trượt sang trái đè lên card trước,
+//    để lại dải mép, lần lượt từng card một, gap 0, tất cả
+//    card có mặt từ trạng thái ban đầu, không hiện dần
+//    từng cái).
+// 5. Vòng 3D ở hero nghiêng theo chuột: vòng xoay chậm liên
+//    tục bằng CSS animation (60 giây một vòng), rê chuột
+//    trên hero làm cả vòng nghiêng theo cả hai trục X và Y.
+//    CHỈ tương tác bằng chuột, KHÔNG có tương tác bằng
+//    cuộn: không dùng scroll để tăng tốc xoay, không dùng
+//    ScrollTrigger hay wheel event, không chặn cuộn, trang
+//    cuộn xuống About bình thường.
 // Tôn trọng prefers-reduced-motion và thiết bị cảm ứng.
 
 (function () {
@@ -118,8 +126,8 @@
   }
 
   /* ---------- 4. Press chồng ngang từng card khi ghim ---------- */
+  var pressWrap = document.querySelector(".press-wrap");
   var press = document.querySelector(".press");
-  var pressPin = document.querySelector(".press-pin");
   var pressRow = document.querySelector(".press-row");
   var pressCards = pressRow ? Array.from(pressRow.querySelectorAll(".press-card")) : [];
   var pressGeom = null; // { thresholds[], maxT }
@@ -134,9 +142,9 @@
   // x=1360 (mép phải x=1880, cách mép phải viewport 40px).
   function measurePress() {
     pressGeom = null;
-    if (!press || !pressPin || !pressRow || pressCards.length < 2) return;
+    if (!pressWrap || !press || !pressRow || pressCards.length < 2) return;
     var cardW = pressCards[0].offsetWidth;
-    var width = pressPin.clientWidth;
+    var width = press.clientWidth;
     var margin = parseFloat(window.getComputedStyle(pressRow).paddingLeft) || 0;
     if (!cardW || !width) return;
     var n = pressCards.length;
@@ -152,16 +160,21 @@
 
   function updatePress() {
     pressTicking = false;
-    if (!press || !pressRow || !pressCards.length) return;
+    if (!pressWrap || !pressRow || !pressCards.length) return;
     if (reduceMotion || window.innerWidth <= 900) {
       pressCards.forEach(function (card) { card.style.transform = ""; });
       return;
     }
     if (!pressGeom) measurePress();
     if (!pressGeom) return;
-    var total = press.offsetHeight - window.innerHeight;
+    // Tiến độ đo qua wrapper ngoài (cao 300vh): 0 khi wrapper
+    // vừa chạm đỉnh viewport (section trong bắt đầu ghim),
+    // 1 khi wrapper cuộn hết (section trong chuẩn bị nhả ghim
+    // để Footer trượt lên đè nó). Lúc section trong đang trượt
+    // lên đè Awards thì tiến độ vẫn là 0 nên card chưa chồng.
+    var total = pressWrap.offsetHeight - window.innerHeight;
     if (total <= 0) return;
-    var rect = press.getBoundingClientRect();
+    var rect = pressWrap.getBoundingClientRect();
     var progress = Math.min(Math.max(-rect.top / total, 0), 1);
     // Chia tiến độ cuộn thành 5 đoạn bằng nhau, mỗi đoạn là một
     // lần đè (card 2 đè card 1, rồi card 3 đè card 2...). Mỗi đoạn
@@ -190,11 +203,59 @@
     }
   }
 
-  if (press && pressRow && pressCards.length) {
+  if (pressWrap && pressRow && pressCards.length) {
     measurePress();
     window.addEventListener("scroll", requestPress, { passive: true });
     window.addEventListener("resize", function () { measurePress(); requestPress(); });
     updatePress();
+  }
+
+  /* ---------- 5. Vòng 3D ở hero nghiêng theo chuột ---------- */
+  // Vòng xoay chậm liên tục bằng CSS animation trên .wheel-spin
+  // (60 giây một vòng), không cần JS. Phần này chỉ làm nghiêng
+  // cả vòng theo vị trí con trỏ chuột trên hero (tối đa 12 độ
+  // mỗi trục, làm mượt bằng lerp). CHỈ tương tác bằng chuột:
+  // không nghe scroll, không dùng ScrollTrigger hay wheel event,
+  // không gọi preventDefault, không giữ trang ở lại hero, trang
+  // cuộn xuống About bình thường. Khi chuột rời khỏi hero thì
+  // vòng trở về thẳng. Tôn trọng prefers-reduced-motion và thiết
+  // bị cảm ứng (khi đó vòng đứng yên, không xoay không nghiêng).
+  var wheelTilt = document.querySelector(".wheel-tilt");
+  var hero = document.querySelector(".hero");
+  if (wheelTilt && hero && finePointer && !reduceMotion) {
+    var MAX_TILT = 12; // độ nghiêng tối đa mỗi trục
+    var tiltTX = 0, tiltTY = 0, tiltX = 0, tiltY = 0, tiltRaf = null;
+
+    var applyTilt = function () {
+      tiltX += (tiltTX - tiltX) * 0.08;
+      tiltY += (tiltTY - tiltY) * 0.08;
+      wheelTilt.style.transform = "rotateX(" + tiltX.toFixed(2) + "deg) rotateY(" + tiltY.toFixed(2) + "deg)";
+      if (Math.abs(tiltTX - tiltX) > 0.01 || Math.abs(tiltTY - tiltY) > 0.01) {
+        tiltRaf = requestAnimationFrame(applyTilt);
+      } else {
+        tiltRaf = null;
+      }
+    };
+
+    var requestTilt = function () {
+      if (!tiltRaf) tiltRaf = requestAnimationFrame(applyTilt);
+    };
+
+    hero.addEventListener("mousemove", function (e) {
+      var rect = hero.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      var nx = (e.clientX - rect.left) / rect.width;  // 0 (trái) .. 1 (phải)
+      var ny = (e.clientY - rect.top) / rect.height;  // 0 (trên) .. 1 (dưới)
+      tiltTY = (nx - 0.5) * 2 * MAX_TILT; // chuột sang phải thì mặt trước vòng quay sang phải
+      tiltTX = (0.5 - ny) * 2 * MAX_TILT; // chuột lên trên thì mặt trước vòng ngửa lên
+      requestTilt();
+    });
+
+    hero.addEventListener("mouseleave", function () {
+      tiltTX = 0;
+      tiltTY = 0;
+      requestTilt();
+    });
   }
 
   /* ---------- Cuộn mượt tới anchor ---------- */

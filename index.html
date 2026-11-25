@@ -12,30 +12,46 @@
   <link rel="stylesheet" href="css/styles.css">
   <script>document.documentElement.classList.add("js");</script>
 </head>
-<body>
+<body class="home">
 
-  <!-- ============ HERO ============ -->
-  <header class="hero">
-    <nav class="nav reveal" aria-label="Main">
-      <a class="nav-logo" href="#top" aria-label="Nam Bảo, home">
-        <img src="assets/logo.svg" alt="nam bao" width="135" height="30">
-      </a>
-      <ul class="nav-center">
-        <li><a href="/work" aria-current="page"><span data-roll>Work</span></a></li>
-        <li><a href="#about"><span data-roll>About</span></a></li>
-        <li><a href="/playground"><span data-roll>Playground</span></a></li>
-      </ul>
-      <a class="nav-contact" href="#contact"><span data-roll>Contact</span></a>
-    </nav>
+  <!-- ============ NAV: cố định trên cùng, inverted ============ -->
+  <!-- Nav tách khỏi Hero, là con trực tiếp của body, position
+       fixed, z-index cao nhất, mix-blend-mode difference với
+       chữ trắng nên tự đảo màu theo nền section bên dưới.
+       Trang /work dùng lại class .nav nhưng không có class
+       .home ở body nên nav ở đó vẫn như cũ, không bị đổi. -->
+  <nav class="nav reveal" aria-label="Main">
+    <a class="nav-logo" href="#top" aria-label="Nam Bảo, home">
+      <img src="assets/logo.svg" alt="nam bao" width="135" height="30">
+    </a>
+    <ul class="nav-center">
+      <li><a href="/work" aria-current="page"><span data-roll>Work</span></a></li>
+      <li><a href="#about"><span data-roll>About</span></a></li>
+      <li><a href="/playground"><span data-roll>Playground</span></a></li>
+    </ul>
+    <a class="nav-contact" href="#contact"><span data-roll>Contact</span></a>
+  </nav>
 
-    <div class="hero-content" id="top">
-      <div class="hero-clip reveal-clip">
-        <h1 class="hero-headline">I build systems that stay in people's mind.</h1>
-      </div>
-      <div class="hero-shapes reveal" style="--d:200ms" aria-hidden="true">
-        <span class="shape shape-circle"></span>
-        <img class="shape shape-triangle" src="assets/triangle.svg" alt="">
-        <span class="shape shape-square"></span>
+  <!-- ============ HERO: vòng 3D xoay (3D wheel gallery) ============ -->
+  <!-- Hero cũ (headline "I build systems..." và cụm shape tròn,
+       tam giác, vuông) đã bỏ. Giờ hero chỉ còn vòng xoay 3D
+       gồm 7 tile ảnh project xếp quanh một hình trụ đứng vô
+       hình, mặt hướng ra ngoài, xoay chậm liên tục quanh trục
+       đứng. Rê chuột trên hero làm cả vòng nghiêng theo cả hai
+       trục X và Y. KHÔNG có tương tác bằng cuộn: vòng không
+       nghe scroll, trang cuộn bình thường. -->
+  <header class="hero" id="top">
+    <div class="wheel-scene" aria-label="Selected works, rotating 3D gallery">
+      <div class="wheel-tilt">
+        <div class="wheel-spin">
+          <figure class="wheel-tile" style="--i:0"><img src="assets/work/vore.jpg" alt="Ba poster của Vore treo trên tường" width="1600" height="900"></figure>
+          <figure class="wheel-tile" style="--i:1"><img src="assets/work/egg01.jpg" alt="Hộp bạc EGG:01 cạnh chai thủy tinh gân sóng có lòng đỏ cam" width="1400" height="1356"></figure>
+          <figure class="wheel-tile" style="--i:2"><img src="assets/work/rmit25.jpg" alt="Billboard 25 Years Of Progress trên mặt tiền gỗ" width="1920" height="1080"></figure>
+          <figure class="wheel-tile" style="--i:3"><img src="assets/work/dothanh.jpg" alt="Laptop chạy website Phố Việt Cổ Truyện" width="1393" height="853"></figure>
+          <figure class="wheel-tile" style="--i:4"><img src="assets/work/tad.jpg" alt="Board tổng hợp các dự án của Tad.atelier" width="1400" height="989"></figure>
+          <figure class="wheel-tile" style="--i:5"><img src="assets/work/vibe.jpg" alt="Render 3D sảnh expo cam của VIBE" width="1000" height="558"></figure>
+          <figure class="wheel-tile" style="--i:6"><img src="assets/work/th28.jpg" alt="Bốn poster Tuổi Hồng 28 năm 2024 trên nền sọc hồng" width="1600" height="1067"></figure>
+        </div>
       </div>
     </div>
   </header>
@@ -165,18 +181,17 @@
     </section>
 
     <!-- ============ PRESS ============ -->
-    <!-- 6 bài, mới nhất lên trước. Chồng ngang từng card khi
-         ghim đúng kiểu Noho Stories: lúc đầu section cuộn lên
-         bình thường, tới khi ghim thì card sau trượt sang trái
-         đè lên card trước, để lại dải mép, lần lượt từng card
-         một (card 2 đè card 1, rồi card 3 đè card 2...), card
-         cuối dừng khi mép phải cách mép phải viewport 40px.
-         Tất cả 6 card đã nằm sát nhau gap 0 và nhìn thấy ngay
-         từ trạng thái ban đầu (card không dùng class .reveal
-         nên không hiện dần từng cái khi cuộn). Xem .press và
-         updatePress trong styles.css và main.js. -->
-    <section class="press" aria-labelledby="press-label">
-      <div class="press-pin">
+    <!-- Wrapper ngoài cao 300vh cung cấp độ dài cuộn. Bên trong
+         là section Press thật cao 100svh, sticky top 0, vừa
+         tham gia hiệu ứng trượt đè (trượt lên đè Awards, rồi
+         ghim lại), vừa giữ hiệu ứng chồng ngang từng card bên
+         trong (JS dịch từng card theo tiến độ cuộn qua wrapper
+         ngoài, xem updatePress trong main.js). 6 bài, mới nhất
+         lên trước. Tất cả 6 card đã nằm sát nhau gap 0 và nhìn
+         thấy ngay từ trạng thái ban đầu (card không dùng class
+         .reveal nên không hiện dần từng cái khi cuộn). -->
+    <div class="press-wrap">
+      <section class="press" aria-labelledby="press-label">
         <div class="press-inner">
           <h2 class="section-label reveal" id="press-label">PRESS</h2>
         </div>
@@ -230,8 +245,8 @@
           </span>
         </a>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
   </main>
 
   <!-- ============ FOOTER ============ -->

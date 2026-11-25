@@ -1,7 +1,24 @@
 /* ============================================================
-   Nam Bao Portfolio — v7
+   Nam Bao Portfolio — v9
    Token màu, cỡ chữ và vị trí lấy đúng từ khung
    "Nam Bao Portfolio" trong Figma (Page 11).
+   - v9: 3 thay đổi lớn theo ý Bảo. (1) Nav tách khỏi Hero,
+     position fixed trên cùng, mix-blend-mode difference
+     với chữ trắng nên tự đảo màu theo nền (chỉ áp dụng
+     khi body có class .home, trang /work giữ nav cũ).
+     Mỗi section chừa padding-top cho nav. (2) Tất cả
+     section làm hiệu ứng khối cứng trượt đè lên nhau
+     (sticky top 0, z-index tăng dần, nền đặc, min-height
+     100svh, không parallax/scale/mờ/bo góc), theo đúng
+     cơ chế webflow section 2 trượt lên đè hero đang ghim.
+     Press bọc trong wrapper 300vh, section trong sticky
+     100svh, hiệu ứng chồng ngang bên trong giữ nguyên.
+     (3) Hero bỏ headline và shape, thay bằng vòng xoay 3D
+     (3D wheel gallery, 7 tile ảnh project quanh hình trụ
+     đứng, xoay chậm liên tục, nghiêng theo chuột; KHÔNG
+     có tương tác bằng cuộn, trang cuộn bình thường).
+   - v8: Press chồng ngang từng card kiểu Noho Stories
+     (dải mép 220px, lần lượt 5 lần đè).
    - v7: nav hover sửa lại thành cuộn CÙNG LÚC (bỏ hẳn
      stagger 35ms của v6 vì Bảo cần các chữ trượt lên
      cùng một lúc như một khối, không lần lượt; v6 đã
@@ -152,14 +169,27 @@ ul { list-style: none; }
   transform: translateY(-100%);
 }
 
-/* ================= HERO ================= */
+/* ================= HERO: VÒNG 3D XOAY =================
+   Hero ghim lại (sticky top 0, z-index 1, thấp nhất) để
+   section About trượt lên đè nó khi cuộn, đúng cơ chế
+   webflow section 2 trượt lên đè hero đang ghim.
+   Hero cũ (headline và cụm shape) đã bỏ. Giờ hero chỉ
+   còn vòng xoay 3D (3D wheel gallery): 7 tile ảnh project
+   phẳng hình chữ nhật xếp quanh một hình trụ đứng vô hình,
+   mặt hướng ra ngoài, xoay chậm liên tục quanh trục đứng.
+   Rê chuột trên hero làm cả vòng nghiêng theo cả hai trục
+   X và Y (xem JS). KHÔNG có tương tác bằng cuộn. */
 
 .hero {
   background: var(--tan);
   min-height: 100svh;
+  position: sticky;
+  top: 0;
+  z-index: 1;
   display: flex;
-  flex-direction: column;
-  padding: 0 var(--pad);
+  align-items: center;
+  justify-content: center;
+  padding: 100px var(--pad) 40px; /* chừa chỗ cho nav cố định ở trên */
 }
 
 .nav {
@@ -188,73 +218,117 @@ ul { list-style: none; }
   text-decoration: none;
 }
 
-.hero-content {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 48px;
-  padding: 64px 0;
-}
+/* ================= NAV: CỐ ĐỊNH + INVERTED (chỉ homepage) =================
+   Nav tách khỏi Hero, là con trực tiếp của body, position
+   fixed trên cùng, z-index cao nhất. Chỉ áp dụng khi body
+   có class .home (trang /work không có class này nên nav ở
+   đó giữ nguyên như cũ, không bị đổi).
+   Màu inverted: nav dùng mix-blend-mode difference với chữ
+   trắng và nền trong suốt, nên chữ tự đảo màu theo nền của
+   section đang ở dưới nó (trên nền kem thì thành gần đen,
+   trên nền xanh lá và cam thì thành màu tương phản, luôn
+   đọc được). Logo là SVG đen nên dùng filter invert(1) để
+   thành trắng trước khi blend. Hover roll giữ nguyên kiểu
+   cùng lúc (delay 0ms, 0,3 giây mỗi ký tự). */
 
-.hero-clip { overflow: hidden; }
-
-.hero-headline {
-  max-width: 717px;
-  font-size: clamp(27px, 2.69vw, 52px);
-  font-weight: 700;
-  line-height: 1;
-}
-
-.js .hero-clip.reveal-clip .hero-headline {
-  transform: translateY(110%);
-  transition: transform 0.8s var(--ease-out) 0.1s;
-}
-
-.js .hero-clip.reveal-clip.is-visible .hero-headline { transform: none; }
-
-/* Cụm shape: vị trí tuyệt đối theo đúng Figma (khung 502x182).
-   Tròn (0, 11) 159x159. Tam giác là SVG xuất từ Figma,
-   đặt ở (158, 9) rộng 172. Vuông (353, 16) 150x150, bo 16. */
-.hero-shapes {
-  position: relative;
-  width: clamp(300px, 26.15vw, 502px);
-  aspect-ratio: 502 / 182;
-  flex-shrink: 0;
-}
-
-.shape { position: absolute; display: block; }
-
-.shape-circle {
+.home .nav {
+  position: fixed;
+  top: 0;
   left: 0;
-  top: 6.04%;
-  width: 31.67%;
-  aspect-ratio: 1;
-  background: var(--ink);
-  border-radius: 50%;
+  right: 0;
+  z-index: 1000;
+  padding: 40px var(--pad) 0;
+  mix-blend-mode: difference;
+  color: #fff;
 }
 
-.shape-triangle {
-  left: 31.47%;
-  top: 4.95%;
-  width: 34.26%;
-  height: auto;
+.home .nav-logo img { filter: invert(1); }
+
+/* ================= VÒNG 3D XOAY (3D WHEEL GALLERY) =================
+   Ba lớp wrapper lồng nhau để mỗi lớp xoay hoặc nghiêng trên
+   trục riêng, giống cấu trúc demo gốc (tự viết lại bằng CSS
+   3D transform thuần, không copy code, không dùng canvas hay
+   Three.js). .wheel-scene cho perspective. .wheel-tilt nghiêng
+   theo chuột (JS đặt rotateX/rotateY, tối đa khoảng 12 độ).
+   .wheel-spin xoay chậm liên tục quanh trục đứng (60 giây một
+   vòng, 6 độ mỗi giây). Mỗi tile là một ảnh phẳng hình chữ
+   nhật, đặt quanh chu vi hình trụ đứng vô hình (bán kính
+   520px), mặt hướng ra ngoài, xếp đều nhau 7 tile (mỗi tile
+   cách nhau 360/7 độ). Tile trước mặt đọc được rõ, tile bên
+   hông và sau bị foreshorten thành dải hẹp rồi xuất hiện lại
+   ở phía bên kia. backface-visibility hidden để tile quay ra
+   sau thì ẩn đi, không thấy mặt sau bị lật ngược. Không bóng
+   đổ, không viền, không phóng to khi hover, click không làm
+   gì. Chỉ dùng transform (GPU), tôn trọng prefers-reduced-
+   motion (tắt xoay và nghiêng, vòng đứng yên). */
+
+.wheel-scene {
+  --tile-w: 420px;
+  --tile-h: 280px;
+  --radius: 520px;
+  perspective: 1600px;
+  width: 100%;
+  height: 620px;
+  position: relative;
 }
 
-.shape-square {
-  left: 70.32%;
-  top: 8.79%;
-  width: 29.88%;
-  aspect-ratio: 1;
-  background: var(--ink);
-  border-radius: 10.67%; /* 16px ở 150px */
+.wheel-tilt {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  transform-style: preserve-3d;
+  will-change: transform;
 }
 
-/* ================= ABOUT ================= */
+.wheel-spin {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  transform-style: preserve-3d;
+  animation: wheel-spin 60s linear infinite;
+}
+
+@keyframes wheel-spin {
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(360deg); }
+}
+
+.wheel-tile {
+  position: absolute;
+  width: var(--tile-w);
+  height: var(--tile-h);
+  left: calc(var(--tile-w) / -2);
+  top: calc(var(--tile-h) / -2);
+  margin: 0;
+  transform: rotateY(calc(var(--i) * 51.4286deg)) translateZ(var(--radius));
+  backface-visibility: hidden;
+}
+
+.wheel-tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ================= ABOUT =================
+   Section ghim lại (sticky top 0, z-index 2) để section
+   Awards trượt lên đè nó khi cuộn. min-height 100svh để
+   khi ghim thì section lấp đầy viewport, không để lộ Hero
+   ở phía dưới. padding-top 100px để nội dung không bị nav
+   cố định che khi section đang ở đầu viewport. */
 
 .about {
   background: var(--green);
-  padding: 64px var(--pad) 120px;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  min-height: 100svh;
+  padding: 100px var(--pad) 120px;
 }
 
 .about-intro {
@@ -299,11 +373,19 @@ ul { list-style: none; }
   padding: 6px 0;
 }
 
-/* ================= AWARDS ================= */
+/* ================= AWARDS =================
+   Section ghim lại (sticky top 0, z-index 3) để section
+   Press trượt lên đè nó khi cuộn. min-height 100svh và
+   padding-top 100px như About (lấp đầy viewport khi ghim,
+   nội dung không bị nav che). */
 
 .awards {
   background: var(--cream);
-  padding: 64px var(--pad) 120px;
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  min-height: 100svh;
+  padding: 100px var(--pad) 120px;
 }
 
 /* Nhãn 16px cao 19px trong HTML (Figma là khung 38px vì có
@@ -335,48 +417,55 @@ ul { list-style: none; }
 
 .awards-table td:last-child { font-weight: 600; }
 
-/* ================= PRESS: GHIM + CHỒNG NGANG TỪNG CARD =================
-   Section cao 300vh, khung trong ghim lại (sticky) ở 100svh.
-   Lúc đầu section cuộn lên bình thường, không có chuyển động
-   ngang; tới khi ghim thì hiệu ứng chồng mới bắt đầu.
-   Cơ chế đúng kiểu Noho Stories, KHÔNG phải hàng cứng trượt
-   sang trái: mỗi card dính lại ở bên trái, card tiếp theo
-   trượt sang trái ĐÈ LÊN nó (z-index cao hơn), che nó dần
-   từ phía phải, chỉ để lại một dải mép nhỏ. Card 1 đứng yên
-   tại x=40, không trượt ra khỏi màn hình. Lần lượt: card 2
-   đè card 1, card 3 đè card 2, card 4 đè card 3, card 5 đè
-   card 4, card 6 đè card 5; mỗi lần đè chiếm một phần tiến
-   độ cuộn bằng nhau, không cùng lúc. Card đang đè giữ
-   nguyên chiều rộng đầy đủ, card bị che đứng yên và bị che
-   dần, chữ của card bị che bị cắt ngang tại đường ranh giới
-   một cách tự nhiên (do card đè lên che mất). Không bóng đổ,
-   không viền, không đổi tỉ lệ, không nghiêng. Card cuối dừng
-   khi mép phải cách mép phải viewport 40px, hiện đầy đủ và
-   không card nào đè lên nó. Dải mép và vị trí dừng tính động
-   theo chiều rộng khung (xem updatePress trong main.js);
-   ở viewport 1920 thì dải mép 220px, các mép trái dừng ở
+/* ================= PRESS: TRƯỢT ĐÈ + CHỒNG NGANG TỪNG CARD =================
+   Wrapper ngoài cao 300vh cung cấp độ dài cuộn. Bên trong
+   là section Press thật cao 100svh, sticky top 0, z-index 4,
+   vừa tham gia hiệu ứng trượt đè (trượt lên đè Awards, rồi
+   ghim lại, Footer trượt lên đè nó), vừa giữ hiệu ứng chồng
+   ngang từng card bên trong (JS dịch từng card theo tiến độ
+   cuộn qua wrapper ngoài, xem updatePress trong main.js).
+   Cơ chế chồng ngang đúng kiểu Noho Stories, KHÔNG phải
+   hàng cứng trượt sang trái: mỗi card dính lại ở bên trái,
+   card tiếp theo trượt sang trái ĐÈ LÊN nó (z-index cao
+   hơn), che nó dần từ phía phải, chỉ để lại một dải mép
+   nhỏ. Card 1 đứng yên tại x=40, không trượt ra khỏi màn
+   hình. Lần lượt: card 2 đè card 1, card 3 đè card 2,
+   card 4 đè card 3, card 5 đè card 4, card 6 đè card 5;
+   mỗi lần đè chiếm một phần tiến độ cuộn bằng nhau, không
+   cùng lúc. Card đang đè giữ nguyên chiều rộng đầy đủ,
+   card bị che đứng yên và bị che dần, chữ của card bị che
+   bị cắt ngang tại đường ranh giới một cách tự nhiên (do
+   card đè lên che mất). Không bóng đổ, không viền, không
+   đổi tỉ lệ, không nghiêng. Card cuối dừng khi mép phải
+   cách mép phải viewport 40px, hiện đầy đủ và không card
+   nào đè lên nó. Dải mép và vị trí dừng tính động theo
+   chiều rộng khung (xem updatePress trong main.js); ở
+   viewport 1920 thì dải mép 220px, các mép trái dừng ở
    x=40, 260, 480, 700, 920, card cuối ở x=1360 (mép phải
-   x=1880). Trạng thái ban đầu: tất cả 6 card đã nằm sát nhau
-   trong hàng (gap 0, chồng lấn 0) và nhìn thấy ngay, không
-   hiện dần từng cái khi cuộn (card không dùng class .reveal).
-   Không có thanh trượt ngang, không có slider.
+   x=1880). Trạng thái ban đầu: tất cả 6 card đã nằm sát
+   nhau trong hàng (gap 0, chồng lấn 0) và nhìn thấy ngay,
+   không hiện dần từng cái khi cuộn (card không dùng class
+   .reveal). Không có thanh trượt ngang, không có slider.
    Lưu ý: đây KHÔNG phải kiểu card chồng dọc lên nhau. */
+
+.press-wrap {
+  height: 300vh;
+  position: relative;
+  background: var(--cream);
+}
 
 .press {
   background: var(--cream);
-  height: 300vh;
-  position: relative;
-}
-
-.press-pin {
-  position: sticky;
-  top: 0;
   height: 100vh;
   height: 100svh;
+  position: sticky;
+  top: 0;
+  z-index: 4;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  padding-top: 80px; /* chừa chỗ cho nav cố định ở trên */
 }
 
 .press-inner { padding: 0 var(--pad); }
@@ -457,6 +546,8 @@ ul { list-style: none; }
 .footer {
   background: var(--orange);
   min-height: 100svh;
+  position: relative;
+  z-index: 5;
   display: flex;
   flex-direction: column;
   padding: clamp(48px, 11.7vh, 126px) var(--pad) clamp(24px, 5.3vh, 40px); /* lề dưới 40px, đúng margin Figma */
@@ -574,10 +665,18 @@ ul { list-style: none; }
   .nav-center a,
   .nav-contact { font-size: 10.5px; }
 
-  .hero-content {
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: center;
+  /* Tắt hiệu ứng ghim và trượt đè trên mobile: các section
+     xếp chồng bình thường, không sticky. */
+  .hero,
+  .about,
+  .awards { position: static; min-height: 0; }
+
+  /* Vòng 3D nhỏ lại trên mobile */
+  .wheel-scene {
+    --tile-w: 280px;
+    --tile-h: 187px;
+    --radius: 340px;
+    height: 420px;
   }
 
   .about-intro,
@@ -605,12 +704,13 @@ ul { list-style: none; }
   }
 
   /* Press: bỏ ghim, thẻ xếp dọc, không có thanh trượt */
-  .press { height: auto; padding: 64px 0 40px; }
-  .press-pin {
+  .press-wrap { height: auto; }
+  .press {
     position: static;
     height: auto;
     overflow: visible;
     justify-content: flex-start;
+    padding: 64px 0 40px;
   }
   .press-row { flex-direction: column; gap: 16px; transform: none !important; }
   .press-card { flex: 1 1 auto; width: 100%; height: auto; min-height: 320px; transform: none !important; }
@@ -622,7 +722,6 @@ ul { list-style: none; }
 @media (max-width: 640px) {
   .nav { flex-wrap: wrap; gap: 16px; padding-top: 32px; }
   .nav-center { gap: 24px; }
-  .hero-headline { font-size: 27px; }
   .about { padding-bottom: 40px; }
   .awards { padding-bottom: 40px; }
   .press-card { padding: 28px; }
@@ -632,16 +731,21 @@ ul { list-style: none; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .js .reveal,
-  .js .reveal--fade,
-  .js .hero-clip.reveal-clip .hero-headline {
+  .js .reveal--fade {
     opacity: 1;
     transform: none;
     transition: none;
   }
   .roll-letter { transition: none; }
   .cursor { display: none; }
-  .press { height: auto; }
-  .press-pin { position: static; height: auto; overflow: visible; }
+  /* Tắt ghim, trượt đè và vòng xoay: vòng đứng yên ở trạng
+     thái tĩnh, các section xếp chồng bình thường. */
+  .hero,
+  .about,
+  .awards { position: static; }
+  .wheel-spin { animation: none; }
+  .press-wrap { height: auto; }
+  .press { position: static; height: auto; overflow: visible; }
   .press-row { transform: none; }
   .press-card { transform: none !important; }
 }
