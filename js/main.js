@@ -1,12 +1,11 @@
-// Nam Bao Portfolio — v6
+// Nam Bao Portfolio — v7
 // 1. Chữ cuộn từng ký tự khi hover (nav, tên dự án và tag
 //    trên trang Work), theo nav của brandonyasin.com và
 //    motion gốc noho.ink (xem trực tiếp, không copy code):
-//    mỗi ký tự cuộn 0,3 giây, stagger 35ms mỗi ký tự để
-//    các chữ cuộn lần lượt rõ rệt thành làn sóng (15ms
-//    trước đó nhỏ hơn một khung hình nên nhìn như cùng
-//    trượt một lúc). Đã bỏ ở các hàng Awards trên homepage
-//    và mọi chỗ khác.
+//    mỗi ký tự cuộn 0,3 giây, KHÔNG stagger, mọi chữ
+//    cuộn CÙNG LÚC như một khối (delay 0ms cho mọi ký
+//    tự). Đã bỏ ở các hàng Awards trên homepage và mọi
+//    chỗ khác.
 // 2. Mọi element hiện dần khi cuộn vào khung nhìn.
 // 3. Con trỏ tròn "Read" trên thẻ Press, "Open" trên ảnh
 //    trang Work.
@@ -22,7 +21,7 @@
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var finePointer = window.matchMedia("(hover: hover)").matches;
 
-  /* ---------- 1. Chữ cuộn từng ký tự (lần lượt) ---------- */
+  /* ---------- 1. Chữ cuộn từng ký tự (cùng lúc) ---------- */
   document.querySelectorAll("[data-roll]").forEach(function (el) {
     var text = el.textContent;
     el.textContent = "";
@@ -30,10 +29,9 @@
       var copy = document.createElement("span");
       copy.className = "roll-copy";
       if (hidden) copy.setAttribute("aria-hidden", "true");
-      Array.from(text).forEach(function (ch, i) {
+      Array.from(text).forEach(function (ch) {
         var letter = document.createElement("span");
         letter.className = "roll-letter";
-        letter.style.setProperty("--i", i);
         letter.textContent = ch === " " ? " " : ch;
         copy.appendChild(letter);
       });

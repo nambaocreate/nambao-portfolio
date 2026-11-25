@@ -175,7 +175,7 @@
 
 /* Hover: tên dự án và tag cuộn từng ký tự như nav
    (xem [data-roll] trong styles.css: 0,3 giây mỗi ký tự,
-   stagger 35ms để các chữ cuộn lần lượt rõ rệt, ease-out).
+   KHÔNG stagger, mọi chữ cuộn cùng lúc, ease-out).
    Chỉ hover đúng vào chữ mới chạy. */
 .work-card-title:hover .roll-letter,
 .work-tag:hover .roll-letter {

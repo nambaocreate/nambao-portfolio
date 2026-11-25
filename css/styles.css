@@ -1,7 +1,13 @@
 /* ============================================================
-   Nam Bao Portfolio — v6
+   Nam Bao Portfolio — v7
    Token màu, cỡ chữ và vị trí lấy đúng từ khung
    "Nam Bao Portfolio" trong Figma (Page 11).
+   - v7: nav hover sửa lại thành cuộn CÙNG LÚC (bỏ hẳn
+     stagger 35ms của v6 vì Bảo cần các chữ trượt lên
+     cùng một lúc như một khối, không lần lượt; v6 đã
+     hiểu ngược ý anh). Mọi ký tự có delay 0ms, cùng bắt
+     đầu và cùng kết thúc trong 0,3 giây. Press giữ nguyên,
+     không sửa ở đợt này.
    - v6: nav hover sửa stagger lên 35ms mỗi ký tự để các
      chữ cuộn lần lượt rõ rệt thành làn sóng (15ms trước
      đó nhỏ hơn một khung hình 60fps nên nhìn như các chữ
@@ -45,10 +51,10 @@
    - Motion: chữ cuộn từng ký tự khi hover (nav, tên dự
      án và tag trên trang Work; tham khảo nav
      brandonyasin.com và motion gốc noho.ink: 0,3 giây
-     mỗi ký tự, stagger 35ms để các chữ cuộn lần lượt
-     rõ rệt, ease-out), mọi element hiện dần khi cuộn,
-     con trỏ tròn "Read" trên thẻ Press và "Open" trên
-     ảnh trang Work. Tôn trọng prefers-reduced-motion.
+     mỗi ký tự, KHÔNG stagger, mọi chữ cuộn cùng lúc
+     như một khối, ease-out), mọi element hiện dần khi
+     cuộn, con trỏ tròn "Read" trên thẻ Press và "Open"
+     trên ảnh trang Work. Tôn trọng prefers-reduced-motion.
    ============================================================ */
 
 :root {
@@ -112,19 +118,18 @@ ul { list-style: none; }
 
 .js .reveal--fade.is-visible { opacity: 1; }
 
-/* ================= MOTION: CHỮ CUỘN TỪNG KÝ TỰ (LẦN LƯỢT) =================
+/* ================= MOTION: CHỮ CUỘN TỪNG KÝ TỰ (CÙNG LÚC) =================
    Mỗi chữ có 2 bản giống hệt nhau xếp chồng, mỗi ký tự là
-   một span riêng với biến --i riêng (JS gán --i theo thứ tự
-   ký tự). Khi hover, từng ký tự trượt lên 1 dòng với độ trễ
-   35ms mỗi ký tự, đủ lớn để thấy rõ các chữ cuộn lần lượt
-   từ trái sang phải thành một làn sóng (15ms trước đó nhỏ
-   hơn một khung hình 60fps là 16,7ms nên nhìn như các chữ
-   cùng trượt một lúc). Mỗi ký tự cuộn trong 0,3 giây, easing
-   ease-out (bắt đầu nhanh, đáp mềm, không nảy). Tham khảo
-   nav của brandonyasin.com (xem trực tiếp, không copy code)
-   và motion gốc noho.ink (stagger 35ms). Áp dụng cho nav và
-   tên dự án + tag trên card trang Work. Trên homepage đã bỏ
-   hover này ở mọi chỗ khác, đặc biệt là các hàng Awards. */
+   một span riêng. Khi hover, mọi ký tự trượt lên 1 dòng
+   CÙNG MỘT LÚC như một khối, không có độ trễ lần lượt
+   giữa các ký tự (delay 0ms cho mọi ký tự, theo đúng ý
+   Bảo: cùng lúc, không lần lượt). Mỗi ký tự cuộn trong
+   0,3 giây, easing ease-out (bắt đầu nhanh, đáp mềm,
+   không nảy). Tham khảo nav của brandonyasin.com (xem
+   trực tiếp, không copy code) và motion gốc noho.ink.
+   Áp dụng cho nav và tên dự án + tag trên card trang
+   Work. Trên homepage đã bỏ hover này ở mọi chỗ khác,
+   đặc biệt là các hàng Awards. */
 
 [data-roll] {
   display: inline-block;
@@ -140,7 +145,7 @@ ul { list-style: none; }
 .roll-letter {
   display: inline-block;
   transition: transform 0.3s var(--ease-out);
-  transition-delay: calc(var(--i) * 35ms);
+  transition-delay: 0ms;
 }
 
 .nav a:hover .roll-letter {
