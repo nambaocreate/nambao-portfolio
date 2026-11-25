@@ -50,13 +50,13 @@
     <div class="hero-wheel" aria-label="Selected works, rotating 3D gallery">
       <div class="hw-tilt">
         <div class="hw-spin">
-          <figure class="hw-item"><img src="assets/work/vore.jpg" alt="Ba poster của Vore treo trên tường" width="1600" height="900" draggable="false"></figure>
-          <figure class="hw-item"><img src="assets/work/egg01.jpg" alt="Hộp bạc EGG:01 cạnh chai thủy tinh gân sóng có lòng đỏ cam" width="1400" height="1356" draggable="false"></figure>
-          <figure class="hw-item"><img src="assets/work/rmit25.jpg" alt="Billboard 25 Years Of Progress trên mặt tiền gỗ" width="1920" height="1080" draggable="false"></figure>
-          <figure class="hw-item"><img src="assets/work/dothanh.jpg" alt="Laptop chạy website Phố Việt Cổ Truyện" width="1393" height="853" draggable="false"></figure>
-          <figure class="hw-item"><img src="assets/work/tad.jpg" alt="Board tổng hợp các dự án của Tad.atelier" width="1400" height="989" draggable="false"></figure>
-          <figure class="hw-item"><img src="assets/work/vibe.jpg" alt="Render 3D sảnh expo cam của VIBE" width="1000" height="558" draggable="false"></figure>
-          <figure class="hw-item"><img src="assets/work/th28.jpg" alt="Bốn poster Tuổi Hồng 28 năm 2024 trên nền sọc hồng" width="1600" height="1067" draggable="false"></figure>
+          <figure class="hw-item" data-title="Vore" data-category="Food & beverage" data-tagline="Tagline placeholder — one line about the project"><img src="assets/work/vore.jpg" alt="Ba poster của Vore treo trên tường" width="1600" height="900" draggable="false"></figure>
+          <figure class="hw-item" data-title="EGG:01" data-category="Food & beverage" data-tagline="Tagline placeholder — one line about the project"><img src="assets/work/egg01.jpg" alt="Hộp bạc EGG:01 cạnh chai thủy tinh gân sóng có lòng đỏ cam" width="1400" height="1356" draggable="false"></figure>
+          <figure class="hw-item" data-title="RMIT25" data-category="Education" data-tagline="Tagline placeholder — one line about the project"><img src="assets/work/rmit25.jpg" alt="Billboard 25 Years Of Progress trên mặt tiền gỗ" width="1920" height="1080" draggable="false"></figure>
+          <figure class="hw-item" data-title="Đô Thành Cổ Tích" data-category="Art" data-tagline="Tagline placeholder — one line about the project"><img src="assets/work/dothanh.jpg" alt="Laptop chạy website Phố Việt Cổ Truyện" width="1393" height="853" draggable="false"></figure>
+          <figure class="hw-item" data-title="Tad.atelier" data-category="Architecture" data-tagline="Tagline placeholder — one line about the project"><img src="assets/work/tad.jpg" alt="Board tổng hợp các dự án của Tad.atelier" width="1400" height="989" draggable="false"></figure>
+          <figure class="hw-item" data-title="VIBE Expo" data-category="Architecture" data-tagline="Tagline placeholder — one line about the project"><img src="assets/work/vibe.jpg" alt="Render 3D sảnh expo cam của VIBE" width="1000" height="558" draggable="false"></figure>
+          <figure class="hw-item" data-title="Tuổi Hồng 28" data-category="Entertainment" data-tagline="Tagline placeholder — one line about the project"><img src="assets/work/th28.jpg" alt="Bốn poster Tuổi Hồng 28 năm 2024 trên nền sọc hồng" width="1600" height="1067" draggable="false"></figure>
         </div>
       </div>
     </div>
@@ -285,12 +285,15 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <!-- Khởi tạo vòng ảnh hero của Claude: layout 'blades'
        mặc định (cánh quạt đứng tỏa ra từ trục đứng), mặt
-       sau ảnh vẫn hiện (backface 'visible'), các options
-       còn lại giữ mặc định (speed 16, tilt, pointerTilt,
-       wheelBoost, intro). -->
+       sau ảnh vẫn hiện (backface 'visible'). Bỏ nghiêng
+       trục Z theo yêu cầu của Bảo (chỉ nghiêng về phía
+       trước): tilt.z 0, pointerTilt.z 0, sway 0. Các
+       options còn lại giữ mặc định (speed 16, tilt.x -14,
+       pointerTilt.x 14, pointerTilt.y 24, wheelBoost,
+       intro). -->
   <script type="module">
     import { initHeroWheel } from "./js/heroWheel.js";
-    initHeroWheel(document.querySelector(".hero-wheel"), { layout: "blades", backface: "visible" });
+    initHeroWheel(document.querySelector(".hero-wheel"), { layout: "blades", backface: "visible", tilt: { z: 0 }, pointerTilt: { z: 0 }, sway: 0 });
   </script>
 </body>
 </html>

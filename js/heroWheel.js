@@ -1,16 +1,27 @@
 /**
- * Hero Wheel Gallery — vòng ảnh 3D tự quay cho section hero.
+ * Hero Wheel Gallery v2 — vòng ảnh 3D tự quay cho section hero.
  *  - Ảnh xếp quanh một trục đứng (kiểu cánh quạt / cửa xoay) và tự quay liên tục.
- *  - Rê chuột: cả cụm nghiêng theo con trỏ.
+ *  - Rê chuột: cả cụm nghiêng theo con trỏ trên cả 3 trục X / Y / Z, chuyển động
+ *    kiểu lò xo (có quán tính, hơi vượt rồi bật lại). Vẩy chuột nhanh thì trục Z lắc theo.
  *  - Cuộn chuột / vuốt: quay nhanh hơn rồi chậm dần về tốc độ gốc.
+ *  - Mặt sau mỗi card hiện ảnh đúng chiều (không bị lật gương).
+ *  - Hover vào card: card nhấc lên, vòng quay chậm lại, hai bên hero hiện tên + tagline.
+ *  - Kéo bằng chuột: nhấn giữ chuột trái và kéo ngang để xoay vòng, thả ra có trớn
+ *    (thêm ở site, không có trong bản gốc của Claude).
  *
- * Phụ thuộc: GSAP core (gsap.ticker). Truyền vào qua options.gsap hoặc dùng window.gsap.
+ * Phụ thuộc: GSAP core. Truyền vào qua options.gsap hoặc dùng window.gsap.
  *
- * HTML cần có:
+ * HTML tối thiểu (JS tự bọc thêm .hw-card / .hw-face):
  * <div class="hero-wheel">
  *   <div class="hw-tilt">
  *     <div class="hw-spin">
- *       <figure class="hw-item"><img src="..." alt=""></figure>
+ *       <figure class="hw-item"
+ *               data-title="Vore"
+ *               data-category="Food & beverage"
+ *               data-tagline="Một dòng mô tả ngắn"
+ *               data-href="/work/vore">            <!-- data-href không bắt buộc -->
+ *         <img src="..." alt="">
+ *       </figure>
  *       ...
  *     </div>
  *   </div>
@@ -18,21 +29,33 @@
  */
 
 const DEFAULTS = {
-  layout: 'blades',          // 'blades' = cánh quạt (giống video tham khảo) | 'cylinder' = ảnh dán quanh trụ, mặt hướng ra ngoài
-  gap: 0.14,                 // blades: khoảng hở giữa trục và mép ảnh, tính theo bề rộng ảnh
-  radiusScale: 1.0,          // cylinder: hệ số bán kính (1 = các ảnh vừa chạm mép nhau)
-  speed: 16,                 // tốc độ quay gốc, độ/giây
-  direction: 1,              // 1 hoặc -1
-  tilt: { x: -14, z: -10 }, // độ nghiêng sẵn của cả cụm (độ)
-  pointerTilt: { x: 12, y: 22 }, // biên độ nghiêng theo chuột (độ)
-  pointerEase: 5,            // độ "mượt" khi nghiêng theo chuột (càng lớn càng bám nhanh)
-  wheelBoost: 0.9,           // độ/giây cộng thêm cho mỗi px cuộn
-  maxBoost: 540,             // giới hạn tốc độ cộng thêm
-  boostDecay: 2.2,           // tốc độ hãm về tốc độ gốc (1/giây)
-  intro: true,               // ảnh bung ra khi vào trang
-  backface: 'visible',       // 'visible' | 'hidden'
-  pauseOffscreen: true,      // dừng tính toán khi hero ra khỏi màn hình
+  layout: 'blades',              // 'blades' = cánh quạt | 'cylinder' = ảnh dán quanh trụ
+  gap: 0.14,                     // blades: khoảng hở giữa trục và mép ảnh (theo bề rộng ảnh)
+  radiusScale: 1.0,              // cylinder: hệ số bán kính
+  speed: 16,                     // tốc độ quay gốc, độ/giây
+  direction: 1,                  // 1 hoặc -1
+  tilt: { x: -14, z: -10 },      // độ nghiêng sẵn của cả cụm (độ)
+  pointerTilt: { x: 14, y: 24, z: 12 }, // biên độ nghiêng theo chuột trên từng trục (độ)
+  sway: 0.9,                     // độ lắc trục Z khi vẩy chuột nhanh (0 = tắt)
+  spring: { stiffness: 55, damping: 8 }, // lò xo cho độ nghiêng: damping thấp = nảy nhiều hơn
+  wheelBoost: 0.9,               // độ/giây cộng thêm cho mỗi px cuộn
+  maxBoost: 540,
+  boostDecay: 2.2,
+  intro: true,
+  backface: 'visible',           // 'visible' = mặt sau hiện ảnh đúng chiều | 'mirror' = lật gương (kiểu cũ) | 'hidden'
+  hover: true,                   // bật hiệu ứng hover + caption
+  hoverLift: 34,                 // px nhấc lên khi hover
+  hoverOut: 26,                  // px card trượt ra xa trục khi hover
+  hoverScale: 1.06,
+  hoverSpeed: 0.08,              // tốc độ quay khi đang hover (x tốc độ gốc)
+  dimOthers: 0.35,               // độ mờ các card còn lại khi hover (1 = không mờ)
+  taglineFallback: 'Tagline placeholder — one line about the project',
+  pauseOffscreen: true,
 };
+
+// Kéo bằng chuột để xoay vòng (thêm ở site, bản gốc của Claude chưa có).
+// Độ xoay cho mỗi px kéo ngang: kéo khoảng 170px thì vòng xoay được 1 card (51 độ).
+const DRAG_FACTOR = 0.3;
 
 export function initHeroWheel(root, options = {}) {
   const gsap = options.gsap || (typeof window !== 'undefined' ? window.gsap : null);
@@ -46,6 +69,7 @@ export function initHeroWheel(root, options = {}) {
     ...options,
     tilt: { ...DEFAULTS.tilt, ...(options.tilt || {}) },
     pointerTilt: { ...DEFAULTS.pointerTilt, ...(options.pointerTilt || {}) },
+    spring: { ...DEFAULTS.spring, ...(options.spring || {}) },
   };
 
   const tiltEl = root.querySelector('.hw-tilt');
@@ -57,9 +81,63 @@ export function initHeroWheel(root, options = {}) {
   }
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const clamp = gsap.utils.clamp(-o.maxBoost, o.maxBoost);
+  const clampBoost = gsap.utils.clamp(-o.maxBoost, o.maxBoost);
+  const cleanups = [];
 
   root.classList.toggle('hw-backface-hidden', o.backface === 'hidden');
+  root.classList.toggle('hw-backface-mirror', o.backface === 'mirror');
+  root.style.setProperty('--hw-dim', String(o.dimOthers));
+
+  // ---------- Dựng card 2 mặt ----------
+  // figure.hw-item > .hw-card > .hw-face.hw-front (ảnh) + .hw-face.hw-back (bản sao, xoay 180°)
+  const cards = items.map((item) => {
+    let card = item.querySelector(':scope > .hw-card');
+    if (!card) {
+      card = document.createElement('div');
+      card.className = 'hw-card';
+      const front = document.createElement('div');
+      front.className = 'hw-face hw-front';
+      Array.from(item.childNodes).forEach((n) => front.appendChild(n));
+      card.appendChild(front);
+      item.appendChild(card);
+    }
+    const front = card.querySelector('.hw-front');
+    let back = card.querySelector('.hw-back');
+    if (!back && o.backface === 'visible') {
+      back = front.cloneNode(true);
+      back.className = 'hw-face hw-back';
+      back.setAttribute('aria-hidden', 'true');
+      back.querySelectorAll('img').forEach((img) => { img.alt = ''; });
+      card.appendChild(back);
+    }
+    if (back) back.hidden = o.backface !== 'visible';
+    return card;
+  });
+
+  // ---------- Caption 2 bên ----------
+  let caption = null;
+  let capLeft = null;
+  let capRight = null;
+  if (o.hover) {
+    caption = root.querySelector(':scope > .hw-caption');
+    if (!caption) {
+      caption = document.createElement('div');
+      caption.className = 'hw-caption';
+      caption.setAttribute('aria-live', 'polite');
+      caption.innerHTML =
+        '<div class="hw-cap hw-cap-left">' +
+          '<span class="hw-cap-line"><span class="hw-cap-category"></span></span>' +
+          '<span class="hw-cap-line"><span class="hw-cap-title"></span></span>' +
+        '</div>' +
+        '<div class="hw-cap hw-cap-right">' +
+          '<span class="hw-cap-line"><span class="hw-cap-tagline"></span></span>' +
+        '</div>';
+      root.appendChild(caption);
+      cleanups.push(() => caption.remove());
+    }
+    capLeft = caption.querySelector('.hw-cap-left');
+    capRight = caption.querySelector('.hw-cap-right');
+  }
 
   // ---------- Bố trí ảnh trong không gian 3D ----------
   function layout() {
@@ -78,44 +156,230 @@ export function initHeroWheel(root, options = {}) {
   }
   layout();
 
-  // ---------- Trạng thái chuyển động ----------
+  // ---------- Trạng thái ----------
   const state = {
     angle: 0,
     boost: 0,
-    px: 0, py: 0,   // vị trí chuột mục tiêu (-1..1)
-    cx: 0, cy: 0,   // vị trí chuột đã làm mượt
     speed: reduceMotion ? o.speed * 0.25 : o.speed,
+    speedMul: 1,
+    // vị trí chuột chuẩn hoá -1..1
+    px: 0, py: 0, inside: false, clientX: -1, clientY: -1,
+    // 3 lò xo cho góc nghiêng
+    rx: { v: o.tilt.x, vel: 0 },
+    ry: { v: 0, vel: 0 },
+    rz: { v: o.tilt.z, vel: 0 },
+    pvx: 0, // vận tốc ngang của chuột (đã làm mượt)
+    hovered: null,
+    capY: null,
+    frame: 0,
+    // kéo bằng chuột
+    dragging: false,
+    dragLastX: 0,
+    dragLastT: 0,
+    dragVel: 0,   // vận tốc kéo đã làm mượt, px/giây
+    dragDist: 0,  // tổng quãng đường kéo, px (để chặn click sau khi kéo)
+    dragEndT: 0,  // thời điểm thả chuột
   };
+
+  function stepSpring(s, target, dt) {
+    s.vel += (target - s.v) * o.spring.stiffness * dt;
+    s.vel *= Math.exp(-o.spring.damping * dt);
+    s.v += s.vel * dt;
+  }
 
   function render() {
     spinEl.style.transform = `rotateY(${state.angle}deg)`;
-    const rx = o.tilt.x - state.cy * o.pointerTilt.x;
-    const ry = state.cx * o.pointerTilt.y;
-    tiltEl.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(${o.tilt.z}deg)`;
+    tiltEl.style.transform =
+      `rotateX(${state.rx.v}deg) rotateY(${state.ry.v}deg) rotateZ(${state.rz.v}deg)`;
   }
 
   function tick(_time, deltaMs) {
-    const dt = Math.min(deltaMs / 1000, 0.1);
-    state.boost *= Math.exp(-o.boostDecay * dt);
-    state.angle += (state.speed * o.direction + state.boost) * dt;
-    const k = 1 - Math.exp(-o.pointerEase * dt);
-    state.cx += (state.px - state.cx) * k;
-    state.cy += (state.py - state.cy) * k;
+    const dt = Math.min(deltaMs / 1000, 0.05);
+    state.frame++;
+
+    // quay (tạm dừng quay tự động trong lúc kéo để kéo cảm giác trực tiếp,
+    // vòng không tự quay giật lại tay người kéo)
+    const targetMul = state.hovered ? o.hoverSpeed : 1;
+    state.speedMul += (targetMul - state.speedMul) * (1 - Math.exp(-6 * dt));
+    state.boost *= Math.exp(-(state.hovered ? o.boostDecay * 4 : o.boostDecay) * dt);
+    if (!state.dragging) {
+      state.angle += (state.speed * o.direction + state.boost) * state.speedMul * dt;
+    }
+
+    // nghiêng 3 trục
+    if (reduceMotion) {
+      state.rx.v = o.tilt.x; state.ry.v = 0; state.rz.v = o.tilt.z;
+    } else {
+      stepSpring(state.rx, o.tilt.x - state.py * o.pointerTilt.x, dt);
+      stepSpring(state.ry, state.px * o.pointerTilt.y, dt);
+      state.pvx *= Math.exp(-5 * dt);
+      stepSpring(state.rz,
+        o.tilt.z
+          - state.px * o.pointerTilt.z                       // chuột trái/phải -> nghiêng Z
+          + state.px * state.py * o.pointerTilt.z * 0.5      // góc màn hình -> nghiêng thêm
+          - state.pvx * o.sway * 5,                          // vẩy nhanh -> lắc
+        dt);
+    }
     render();
+
+    // hover: kiểm tra card dưới con trỏ (card vẫn quay dù chuột đứng yên).
+    // Không kiểm tra trong lúc kéo để caption không nhấp nháy.
+    if (o.hover && state.inside && !state.dragging && state.frame % 3 === 0) hitTest();
+    if (state.hovered) positionCaption(dt);
+  }
+
+  // ---------- Hover ----------
+  function hitTest() {
+    if (state.clientX < 0) return;
+    const el = document.elementFromPoint(state.clientX, state.clientY);
+    const item = el && root.contains(el) ? el.closest('.hw-item') : null;
+    if (item !== state.hovered) setHover(item);
+  }
+
+  function setText(sel, text) {
+    const el = caption.querySelector(sel);
+    el.textContent = text || '';
+    el.parentElement.hidden = !text;
+  }
+
+  function setHover(item) {
+    const prev = state.hovered;
+    state.hovered = item;
+
+    if (prev) {
+      const c = prev.querySelector('.hw-card');
+      prev.classList.remove('is-hover');
+      gsap.to(c, { x: 0, y: 0, z: 0, scale: 1, duration: 0.6, ease: 'power3.out', overwrite: 'auto' });
+    }
+
+    root.classList.toggle('hw-has-hover', !!item);
+    root.style.cursor = item && item.dataset.href ? 'pointer' : '';
+
+    if (item) {
+      item.classList.add('is-hover');
+      const c = item.querySelector('.hw-card');
+      const out = o.layout === 'cylinder' ? { z: o.hoverOut } : { x: o.hoverOut };
+      gsap.to(c, { ...out, y: -o.hoverLift, scale: o.hoverScale, duration: 0.6, ease: 'power3.out', overwrite: 'auto' });
+
+      setText('.hw-cap-category', item.dataset.category);
+      setText('.hw-cap-title', item.dataset.title || item.querySelector('img')?.alt);
+      setText('.hw-cap-tagline', item.dataset.tagline || o.taglineFallback);
+      state.capY = null;
+      positionCaption(0);
+
+      const lines = caption.querySelectorAll('.hw-cap-line > span');
+      gsap.killTweensOf(lines);
+      gsap.fromTo(lines,
+        { yPercent: 110 },
+        { yPercent: 0, duration: 0.7, ease: 'expo.out', stagger: 0.05 });
+      caption.classList.add('is-visible');
+    } else if (caption) {
+      const lines = caption.querySelectorAll('.hw-cap-line > span');
+      gsap.killTweensOf(lines);
+      gsap.to(lines, {
+        yPercent: -110, duration: 0.35, ease: 'power2.in', stagger: 0.03,
+        onComplete: () => { if (!state.hovered) caption.classList.remove('is-visible'); },
+      });
+    }
+  }
+
+  function positionCaption(dt) {
+    if (!caption || !state.hovered) return;
+    const rr = root.getBoundingClientRect();
+    const cr = state.hovered.querySelector('.hw-front').getBoundingClientRect();
+    const target = cr.top + cr.height / 2 - rr.top;
+    state.capY = state.capY == null ? target : state.capY + (target - state.capY) * (1 - Math.exp(-8 * dt));
+    caption.style.setProperty('--hw-cap-y', `${state.capY}px`);
   }
 
   // ---------- Input ----------
   function addBoost(px) {
     if (reduceMotion) return;
-    state.boost = clamp(state.boost + px * o.wheelBoost * o.direction);
+    state.boost = clampBoost(state.boost + px * o.wheelBoost * o.direction);
   }
 
+  let lastMove = { x: 0, t: 0 };
   function onPointerMove(e) {
     if (e.pointerType === 'touch') return;
-    state.px = (e.clientX / window.innerWidth) * 2 - 1;
+    const nx = (e.clientX / window.innerWidth) * 2 - 1;
+    state.px = nx;
     state.py = (e.clientY / window.innerHeight) * 2 - 1;
+    state.clientX = e.clientX;
+    state.clientY = e.clientY;
+
+    // vận tốc chuột theo trục ngang -> trục Z lắc theo
+    const now = performance.now();
+    const dtm = Math.max(now - lastMove.t, 8);
+    if (lastMove.t && dtm < 120) {
+      const v = gsap.utils.clamp(-3, 3, ((nx - lastMove.x) / dtm) * 1000); // màn hình / giây
+      state.pvx += (v - state.pvx) * 0.35;
+    }
+    lastMove = { x: nx, t: now };
+
+    // Kéo: xoay vòng theo độ dịch chuyển ngang, theo dõi vận tốc để làm trớn lúc thả
+    if (state.dragging) {
+      const dx = e.clientX - state.dragLastX;
+      const dtd = Math.max(now - state.dragLastT, 1);
+      const v = (dx / dtd) * 1000; // px/giây
+      state.dragVel = state.dragVel * 0.65 + v * 0.35;
+      state.dragLastX = e.clientX;
+      state.dragLastT = now;
+      state.dragDist += Math.abs(dx);
+      state.angle += dx * DRAG_FACTOR;
+    }
+
+    const r = root.getBoundingClientRect();
+    state.inside = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+    if (o.hover && !state.dragging) {
+      if (state.inside) hitTest();
+      else if (state.hovered) setHover(null);
+    }
   }
-  function onPointerLeave() { state.px = 0; state.py = 0; }
+  function onPointerLeave() {
+    state.px = 0; state.py = 0; state.inside = false; state.clientX = -1;
+    if (state.hovered) setHover(null);
+  }
+  // Cảm ứng: chạm vào card để xem caption, chạm chỗ khác để ẩn
+  function onPointerDown(e) {
+    if (e.pointerType !== 'touch' || !o.hover) return;
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    const item = el && root.contains(el) ? el.closest('.hw-item') : null;
+    setHover(item === state.hovered ? null : item);
+  }
+  // Kéo bằng chuột (chỉ chuột trái): nhấn giữ và kéo ngang để xoay vòng.
+  // Không dùng cho chạm (chạm đã có chạm để hiện caption và vuốt để tăng tốc,
+  // thêm kéo chạm sẽ xung đột với cuộn trang). Không preventDefault để không
+  // chặn cuộn trang. Dùng setPointerCapture để vẫn nhận pointermove khi chuột
+  // ra ngoài vùng wheel.
+  function onDragStart(e) {
+    if (e.pointerType !== 'mouse' || e.button !== 0 || state.dragging) return;
+    state.dragging = true;
+    state.dragLastX = e.clientX;
+    state.dragLastT = performance.now();
+    state.dragVel = 0;
+    state.dragDist = 0;
+    if (state.hovered) setHover(null); // tắt hover để caption không nhấp nháy khi kéo
+    root.classList.add('hw-dragging');
+    try { root.setPointerCapture(e.pointerId); } catch (_) { /* trình duyệt cũ */ }
+  }
+  function onDragEnd() {
+    if (!state.dragging) return;
+    state.dragging = false;
+    state.dragEndT = performance.now();
+    root.classList.remove('hw-dragging');
+    // Quán tính: cộng vận tốc lúc thả vào boost để vòng trớn thêm rồi chậm dần.
+    // Chỉ trớn khi lần di chuyển cuối còn mới (dưới 120ms).
+    if (performance.now() - state.dragLastT < 120) {
+      state.boost = clampBoost(state.boost + state.dragVel * DRAG_FACTOR);
+    }
+    state.dragVel = 0;
+  }
+  function onClick(e) {
+    // Bỏ qua click ngay sau một lần kéo thật (tránh mở link do vô tình kéo qua card)
+    if (state.dragDist > 5 && performance.now() - state.dragEndT < 100) return;
+    const item = e.target.closest && e.target.closest('.hw-item');
+    if (item && item === state.hovered && item.dataset.href) window.location.href = item.dataset.href;
+  }
 
   function onWheel(e) {
     const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? window.innerHeight : 1;
@@ -132,65 +396,69 @@ export function initHeroWheel(root, options = {}) {
   }
   function onTouchEnd() { lastTouchY = null; }
 
-  if (!reduceMotion) {
-    window.addEventListener('pointermove', onPointerMove, { passive: true });
-    document.documentElement.addEventListener('pointerleave', onPointerLeave);
+  function listen(target, type, fn, opts) {
+    target.addEventListener(type, fn, opts);
+    cleanups.push(() => target.removeEventListener(type, fn, opts));
   }
-  window.addEventListener('wheel', onWheel, { passive: true });
-  window.addEventListener('touchstart', onTouchStart, { passive: true });
-  window.addEventListener('touchmove', onTouchMove, { passive: true });
-  window.addEventListener('touchend', onTouchEnd, { passive: true });
+  listen(window, 'pointermove', onPointerMove, { passive: true });
+  listen(document.documentElement, 'pointerleave', onPointerLeave);
+  listen(root, 'pointerdown', onPointerDown);
+  listen(root, 'pointerdown', onDragStart);
+  listen(window, 'pointerup', onDragEnd);
+  listen(window, 'pointercancel', onDragEnd);
+  listen(root, 'click', onClick);
+  listen(window, 'wheel', onWheel, { passive: true });
+  listen(window, 'touchstart', onTouchStart, { passive: true });
+  listen(window, 'touchmove', onTouchMove, { passive: true });
+  listen(window, 'touchend', onTouchEnd, { passive: true });
 
   // ---------- Chạy / dừng ----------
   let running = false;
   function start() { if (!running) { gsap.ticker.add(tick); running = true; } }
   function stop() { if (running) { gsap.ticker.remove(tick); running = false; } }
 
-  let io = null;
   if (o.pauseOffscreen && 'IntersectionObserver' in window) {
-    io = new IntersectionObserver(([entry]) => (entry.isIntersecting ? start() : stop()));
+    const io = new IntersectionObserver(([entry]) => (entry.isIntersecting ? start() : stop()));
     io.observe(root);
+    cleanups.push(() => io.disconnect());
   } else {
     start();
   }
 
-  let ro = null;
   if ('ResizeObserver' in window) {
-    ro = new ResizeObserver(() => layout());
+    const ro = new ResizeObserver(() => layout());
     ro.observe(root);
+    cleanups.push(() => ro.disconnect());
   }
 
   // ---------- Intro ----------
-  let introTl = null;
   render();
   if (o.intro && !reduceMotion) {
-    const media = items.map((el) => el.firstElementChild || el);
-    introTl = gsap.timeline();
-    introTl
-      .fromTo(media,
-        { scale: 0.3, opacity: 0 },
-        { scale: 1, opacity: 1, duration: 1.4, ease: 'expo.out', stagger: { each: 0.06, from: 'random' } })
+    const faces = root.querySelectorAll('.hw-face');
+    const tl = gsap.timeline();
+    tl.fromTo(cards, { scale: 0.3 }, { scale: 1, duration: 1.4, ease: 'expo.out', stagger: { each: 0.06, from: 'random' } }, 0)
+      .fromTo(faces, { opacity: 0 }, { opacity: 1, duration: 0.8, ease: 'power2.out', clearProps: 'opacity' }, 0)
       .add(() => { state.boost = 260 * o.direction; }, 0);
+    cleanups.push(() => tl.kill());
   }
 
   return {
-    /** Thêm vòng quay tức thời (độ/giây), ví dụ khi bấm nút */
+    /** Thêm vòng quay tức thời (độ/giây) */
     boost(v) { addBoost(v / o.wheelBoost); },
     /** Đổi tốc độ gốc (độ/giây) */
     setSpeed(v) { state.speed = v; },
-    /** Tính lại bố cục, gọi sau khi thêm/bớt ảnh */
+    /** Tính lại bố cục, gọi sau khi đổi kích thước card */
     refresh() { layout(); },
     destroy() {
       stop();
-      io && io.disconnect();
-      ro && ro.disconnect();
-      introTl && introTl.kill();
-      window.removeEventListener('pointermove', onPointerMove);
-      document.documentElement.removeEventListener('pointerleave', onPointerLeave);
-      window.removeEventListener('wheel', onWheel);
-      window.removeEventListener('touchstart', onTouchStart);
-      window.removeEventListener('touchmove', onTouchMove);
-      window.removeEventListener('touchend', onTouchEnd);
+      if (state.hovered) {
+        state.hovered.classList.remove('is-hover');
+        gsap.set(state.hovered.querySelector('.hw-card'), { clearProps: 'transform' });
+      }
+      root.classList.remove('hw-has-hover');
+      root.classList.remove('hw-dragging');
+      root.style.cursor = '';
+      cleanups.forEach((fn) => fn());
     },
   };
 }

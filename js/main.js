@@ -1,4 +1,4 @@
-// Nam Bao Portfolio — v13
+// Nam Bao Portfolio — v15
 // 1. Chữ cuộn từng ký tự khi hover (nav, tên dự án và tag
 //    trên trang Work), theo nav của brandonyasin.com và
 //    motion gốc noho.ink (xem trực tiếp, không copy code):
@@ -16,16 +16,34 @@
 //    để lại dải mép, lần lượt từng card một, gap 0, tất cả
 //    card có mặt từ trạng thái ban đầu, không hiện dần
 //    từng cái).
-// 5. Vòng ảnh 3D ở hero là code Claude (heroWheel.js +
+// 5. Vòng ảnh 3D ở hero là code Claude v2 (heroWheel.js +
 //    hero-wheel.css, layout 'blades'): mỗi ảnh là một cánh
 //    quạt đứng tỏa ra từ trục đứng như cửa xoay, ảnh đứng
 //    thẳng chứ KHÔNG nằm phẳng, vòng tự quay liên tục
 //    (16 độ/giây). Rê chuột làm cả cụm nghiêng theo con
-//    trỏ có độ trễ mượt; cuộn chuột hoặc vuốt làm vòng quay
-//    nhanh hơn rồi chậm dần về tốc độ gốc (listener passive
-//    nên KHÔNG chặn cuộn, trang cuộn xuống About bình
-//    thường); vào trang các ảnh bung ra theo thứ tự ngẫu
-//    nhiên. Khởi tạo trong index.html (script module gọi
+//    trỏ kiểu lò xo (có quán tính, hơi vượt rồi bật lại).
+//    Chỉ nghiêng về phía trước (trục X, tilt.x -14 và
+//    pointerTilt.x 14) và xoay ngang (trục Y,
+//    pointerTilt.y 24); trục Z luôn bằng 0 (tilt.z 0,
+//    pointerTilt.z 0, sway 0 trong dòng khởi tạo ở
+//    index.html) nên cụm không còn nghiêng trái. Kéo
+//    bằng chuột: nhấn giữ chuột trái và kéo ngang để xoay
+//    vòng, thả ra có trớn (quán tính cộng vào boost rồi
+//    chậm dần); trong lúc kéo vòng tạm dừng quay tự động
+//    và caption không hiện. Mỗi card có 2 mặt: mặt sau
+//    là bản sao của ảnh
+//    xoay 180 độ nên nhìn từ phía sau ảnh vẫn đúng chiều,
+//    không bị lật gương. Hover vào card: card nhấc lên,
+//    trượt ra xa trục, có bóng đổ, các card khác mờ đi,
+//    vòng quay chậm lại, bên trái hero hiện category +
+//    tên work, bên phải hiện tagline, chữ trượt lên từ
+//    dưới và chạy theo độ cao của card; trên mobile chạm
+//    vào card để hiện tên và tagline ở đáy hero, chạm lần
+//    nữa để ẩn. Cuộn chuột hoặc vuốt làm vòng quay nhanh
+//    hơn rồi chậm dần về tốc độ gốc (listener passive nên
+//    KHÔNG chặn cuộn, trang cuộn xuống About bình thường);
+//    vào trang các ảnh bung ra theo thứ tự ngẫu nhiên.
+//    Khởi tạo trong index.html (script module gọi
 //    initHeroWheel), không còn logic wheel nào trong file
 //    này.
 // 6. Nav chữ đen cho mọi section: đã bỏ hẳn mix-blend-mode
