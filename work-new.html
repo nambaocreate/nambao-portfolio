@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Selected Works — Nam Bảo (Staging)</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <meta name="description" content="Selected works by Nam Bảo (staging, theo Figma Frame 26): Vore, EGG:01, RMIT25, Đô Thành Cổ Tích, Tad.atelier, VIBE Expo and Tuổi Hồng 28.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/work-new.css">
+  <script>document.documentElement.classList.add("js");</script>
+</head>
+<body class="work-new-page">
+
+  <!-- ============ STAGING: trang Work mới theo Figma Frame 26 ============
+       File RIÊNG, không động tới work.html / css/work.css / js/work.js
+       đang live. Nav giữ nguyên markup như trang /work, chỉ nằm
+       trong viewer ghim (sticky) nên luôn thấy khi cuộn qua dự án. -->
+
+  <div class="wn-track" id="wn-track">
+    <div class="wn-viewer" id="wn-viewer">
+
+      <nav class="nav wn-nav" aria-label="Main">
+        <a class="nav-logo" href="/" aria-label="Nam Bảo, home">
+          <img src="assets/logo.svg" alt="nam bao" width="135" height="30">
+        </a>
+        <ul class="nav-center">
+          <li><a href="/work" aria-current="page"><span data-roll>Work</span></a></li>
+          <li><a href="/#about"><span data-roll>About</span></a></li>
+          <li><a href="/playground"><span data-roll>Playground</span></a></li>
+        </ul>
+        <a class="nav-contact" href="#contact"><span data-roll>Contact</span></a>
+      </nav>
+
+      <!-- Hàng trên: nhãn SELECTED WORKS trái, số thứ tự phải -->
+      <div class="wn-top">
+        <p class="wn-label">Selected Works</p>
+        <p class="wn-count" id="wn-count" aria-live="polite">01/07</p>
+      </div>
+
+      <!-- Hàng chính: thông tin trái, ảnh lớn phải -->
+      <div class="wn-main">
+        <div class="wn-left">
+          <div class="wn-info" id="wn-info">
+            <h1 class="wn-title" id="wn-title">Vore</h1>
+            <p class="wn-meta" id="wn-meta">
+              <span class="wn-year" id="wn-year"></span><span class="wn-dash" id="wn-dash" aria-hidden="true"></span><span class="wn-cat" id="wn-cat">Food &amp; beverage</span>
+            </p>
+            <ul class="wn-tags" id="wn-tags"></ul>
+          </div>
+
+          <!-- Hàng dưới: filter trái, thumbnail phải -->
+          <div class="wn-bottom">
+            <p class="wn-industry">[Industry]</p>
+            <ul class="wn-filters" id="wn-filters"></ul>
+            <div class="wn-thumbs" id="wn-thumbs" aria-label="Các dự án tiếp theo"></div>
+          </div>
+        </div>
+
+        <div class="wn-media work-media" id="wn-media" role="button" tabindex="0" aria-label="Xem ảnh lớn">
+          <img id="wn-img" src="assets/work/vore.jpg" alt="Ba poster của Vore treo trên tường" width="1600" height="900">
+          <span class="wn-media-hint">Click to view</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============ Xem ảnh full (transition sang case study) ============
+       Bản staging chưa có trang case study nên bấm ảnh sẽ phóng
+       full màn hình để xem ảnh lớn; bấm lại, bấm nút đóng hoặc
+       Esc để quay lại. Khi trang case study được xây, chỗ này
+       sẽ nối sang trang đó thay vì mở lightbox. -->
+  <div class="wn-lightbox" id="wn-lightbox" hidden>
+    <figure class="wn-lightbox-frame">
+      <img id="wn-lightbox-img" src="assets/work/vore.jpg" alt="">
+    </figure>
+    <button type="button" class="wn-lightbox-close" id="wn-lightbox-close" aria-label="Đóng">Close</button>
+    <p class="wn-lightbox-cap" id="wn-lightbox-cap"></p>
+  </div>
+
+  <div class="cursor" aria-hidden="true"><span data-cursor-label="read">Read</span><span data-cursor-label="open">Open</span></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="js/work-new.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
