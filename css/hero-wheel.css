@@ -18,15 +18,23 @@
   user-select: none;
   -webkit-user-select: none;
   cursor: grab;
-  /* Đưa toàn bộ vòng lên trên 78px để căn giữa khung hình theo chiều dọc, đã trừ hao nav bar:
-     vòng nghiêng rotateX -14 độ nên các cánh trước (hướng về phía người xem) bị đẩy xuống trong
-     hình chiếu, tâm hình ảnh của vòng nằm thấp hơn tâm khung chứa khoảng 83px (đo thật ở v13,
+  /* Vị trí dọc: dịch toàn bộ vòng lên trên 50px để căn giữa khung hình theo chiều dọc,
+     đã trừ hao nav bar. Vị trí gốc (0px) bị chê hơi lệch xuống dưới (đo thật ở v13,
      viewport 1919x998: vòng ở y 314-910, tâm y 612, trong khi tâm khoảng trống dưới nav
-     (đáy nav y 70 tới đáy hero y 998) là y 534). Dịch lên 78px thì đỉnh vòng khoảng y 236,
-     đáy khoảng y 832, khoảng trống trên (từ đáy nav) và dưới (tới đáy hero) đều khoảng 166px.
+     (đáy nav y 70 tới đáy hero y 998) là y 534, lệch xuống khoảng 78px). Mức -78px thì
+     bị chê đưa lố (cao quá), nên -50px nằm giữa hai mức đó, hạ xuống 28px so với -78px.
      Chỉ dịch chuyển khung chứa, không chạm tới transform 3D của .hw-tilt/.hw-spin bên trong
      nên không ảnh hưởng quay, nghiêng, drag hay hover. */
-  transform: translateY(-78px);
+  transform: translateY(-50px);
+}
+
+/* Ẩn vòng lúc mới load để không thấy ảnh bể trước khi JS xếp xong layout 3D.
+   JS thêm class is-ready sau khi layout() chạy xong và intro tween đã đặt sẵn
+   giá trị bắt đầu (mặt ảnh opacity 0). Dùng visibility trên chính .hero-wheel:
+   visibility không làm phẳng preserve-3d như opacity, và không đặt lên
+   .hw-card/.hw-item/.hw-spin/.hw-tilt (cấm theo prompt v2). */
+.hero-wheel:not(.is-ready) {
+  visibility: hidden;
 }
 
 /* Đang kéo bằng chuột: con trỏ grabbing (class do JS thêm khi bắt đầu kéo) */

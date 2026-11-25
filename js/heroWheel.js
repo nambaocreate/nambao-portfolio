@@ -61,6 +61,9 @@ export function initHeroWheel(root, options = {}) {
   const gsap = options.gsap || (typeof window !== 'undefined' ? window.gsap : null);
   if (!root || !gsap) {
     console.warn('[heroWheel] thiếu root element hoặc GSAP');
+    // GSAP không load được thì vẫn hiện vòng (ảnh chưa xếp 3D, chỉ xếp chồng
+    // ở giữa) thay vì để vòng bị ẩn vĩnh viễn vì thiếu class is-ready.
+    if (root) root.classList.add('is-ready');
     return { destroy() {} };
   }
 
@@ -442,6 +445,13 @@ export function initHeroWheel(root, options = {}) {
     cleanups.push(() => tl.kill());
   }
 
+  // Hiện vòng lên sau khi layout() đã xếp xong và intro tween đã đặt sẵn
+  // giá trị bắt đầu (mặt ảnh opacity 0, card scale 0.3). Thứ tự này quan trọng:
+  // tạo intro tween trước rồi mới thêm is-ready, để không có khoảnh khắc nào
+  // vòng hiện ra với ảnh ở opacity đầy đủ nhưng chưa xếp. Nếu intro tắt hoặc
+  // reduceMotion thì vòng hiện ra ở dạng đã xếp xong.
+  root.classList.add('is-ready');
+
   return {
     /** Thêm vòng quay tức thời (độ/giây) */
     boost(v) { addBoost(v / o.wheelBoost); },
@@ -457,6 +467,7 @@ export function initHeroWheel(root, options = {}) {
       }
       root.classList.remove('hw-has-hover');
       root.classList.remove('hw-dragging');
+      root.classList.remove('is-ready');
       root.style.cursor = '';
       cleanups.forEach((fn) => fn());
     },
