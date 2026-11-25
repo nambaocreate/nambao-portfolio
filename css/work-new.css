@@ -35,18 +35,27 @@
      tất cả ALIGN LỀ DƯỚI (bottom: 0, chỉ lệch ngang, không
      lệch dọc) theo yêu cầu của Bảo.
 
-   Cơ chế (theo note của Bảo trong section, bản staging v2):
+   Cơ chế (theo note của Bảo trong section, bản staging v3):
    - Viewer là một màn hình cố định (track chỉ 100vh, trang
      không cuộn); lăn chuột 1 lần (wheel tick) thì sang đúng
-     1 dự án, kèm khóa 0.8 giây để không nhảy cóc khi lăn nhanh.
-     Bấm thumbnail hoặc phím mũi tên cũng chuyển được.
+     1 dự án. Các lần lăn trong lúc khóa được xếp hàng rồi
+     chuyển tiếp sau khi animation xong, nên lăn nhanh 3 lần
+     thì qua đúng 3 dự án, không bị mất nhịp. Bấm thumbnail
+     hoặc phím mũi tên cũng chuyển được.
    - Thumbnail của dự án tiếp theo slide và phóng to để
      chồng lên ảnh lớn bên phải (hiệu ứng bay bằng GSAP,
      0.7 giây); đồng thời thumbnail theo sau (mid, back)
      phóng to và dịch lên trước cùng nhịp để lấp khoảng
-     trống, không bị giật.
+     trống, không bị giật. Stack luôn có sẵn 1 thumbnail
+     dự trữ (reserve) ẩn sau thumbnail back nên không tụt
+     xuống 2 rồi mới thêm cái thứ 3.
    - Bấm filter thì chỉ còn dự án thuộc sector đó (cả khi
-     cuộn lẫn thumbnail), bấm All để về lại tất cả.
+     cuộn lẫn thumbnail), bấm All để về lại tất cả; thumbnail
+     của dự án đích cũng bay lên ảnh lớn như khi scroll (chạy
+     được khi chạm trên iPad/mobile).
+   - Số thứ tự đổi cùng lúc với tiêu đề, meta, tag và ảnh,
+     không chạy trước nội dung. Ảnh cũ mờ dần hoặc trượt đi
+     mượt, không nháy thành khung xám hay crop phóng to.
    - Hover ảnh lớn: tương tác như thẻ (nhấc lên, nghiêng
      theo chuột, bóng đổ, ảnh bên trong zoom nhẹ), theo
      note "giống mục selected work của radiance.family".
@@ -268,9 +277,12 @@
 .wn-filter.is-active { opacity: 1; }
 
 /* ---------- Thumbnail xếp chồng, ALIGN LỀ DƯỚI ----------
-   3 thumbnail của 3 dự án TIẾP THEO theo thứ tự, xếp
+   3 thumbnail hiện của 3 dự án TIẾP THEO theo thứ tự, xếp
    chồng lệch ngang như Figma: cái trước (dự án kế tiếp)
    to nhất và ở phải nhất, cái sau nhỏ dần, lệch trái.
+   Thêm 1 thumbnail dự trữ (reserve) là dự án thứ 4 tiếp
+   theo, đã đặt sẵn ở vị trí back và ẩn sau thumbnail back
+   để stack không tụt xuống 2 rồi mới thêm cái thứ 3.
    Tất cả có lề dưới thẳng hàng (bottom: 0, chỉ lệch
    ngang, không lệch dọc). Tỉ lệ khung ~1.3, bo 5px,
    ảnh cover. Bấm thumbnail để nhảy tới dự án đó. */
@@ -290,7 +302,7 @@
   left: 0;
   border: 0;
   padding: 0;
-  background: #d9d9d9;
+  background: transparent;
   border-radius: 5px;
   overflow: hidden;
   cursor: pointer;
@@ -330,6 +342,20 @@
   z-index: 3;
 }
 
+/* Thumbnail dự trữ: dự án thứ 4 tiếp theo, đã đặt sẵn ở vị trí back
+   (sau thumbnail back), ẩn sau nó (opacity 0, z-index 0, không bấm
+   được) để khi thumbnail trước bay đi thì nó đã có sẵn ở vị trí back,
+   stack không tụt xuống 2 rồi mới thêm cái thứ 3 (đó là nguồn của
+   flash ở bản trước). JS làm mờ dần nó lên trong lúc bay. */
+.wn-thumb--reserve {
+  width: 118px;
+  aspect-ratio: 1.3;
+  transform: translate(0, 0);
+  z-index: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .wn-thumb:hover {
   transform: translate(var(--tx, 0), var(--ty, 0)) translateY(-4px);
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
@@ -353,7 +379,7 @@
   position: relative;
   border-radius: 10px;
   overflow: hidden;
-  background: #d9d9d9;
+  background: transparent;
   aspect-ratio: 910 / 548;
   cursor: pointer;
   transform-style: preserve-3d;
