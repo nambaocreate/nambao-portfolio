@@ -17,6 +17,12 @@
   overflow: hidden;
   user-select: none;
   -webkit-user-select: none;
+  cursor: grab;
+}
+
+/* Đang kéo bằng chuột: con trỏ grabbing (class do JS thêm khi bắt đầu kéo) */
+.hero-wheel.hw-dragging {
+  cursor: grabbing;
 }
 
 .hero-wheel .hw-tilt,

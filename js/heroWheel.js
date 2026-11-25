@@ -6,6 +6,8 @@
  *  - Cuộn chuột / vuốt: quay nhanh hơn rồi chậm dần về tốc độ gốc.
  *  - Mặt sau mỗi card hiện ảnh đúng chiều (không bị lật gương).
  *  - Hover vào card: card nhấc lên, vòng quay chậm lại, hai bên hero hiện tên + tagline.
+ *  - Kéo bằng chuột: nhấn giữ chuột trái và kéo ngang để xoay vòng, thả ra có trớn
+ *    (thêm ở site, không có trong bản gốc của Claude).
  *
  * Phụ thuộc: GSAP core. Truyền vào qua options.gsap hoặc dùng window.gsap.
  *
@@ -50,6 +52,10 @@ const DEFAULTS = {
   taglineFallback: 'Tagline placeholder — one line about the project',
   pauseOffscreen: true,
 };
+
+// Kéo bằng chuột để xoay vòng (thêm ở site, bản gốc của Claude chưa có).
+// Độ xoay cho mỗi px kéo ngang: kéo khoảng 170px thì vòng xoay được 1 card (51 độ).
+const DRAG_FACTOR = 0.3;
 
 export function initHeroWheel(root, options = {}) {
   const gsap = options.gsap || (typeof window !== 'undefined' ? window.gsap : null);
@@ -166,6 +172,13 @@ export function initHeroWheel(root, options = {}) {
     hovered: null,
     capY: null,
     frame: 0,
+    // kéo bằng chuột
+    dragging: false,
+    dragLastX: 0,
+    dragLastT: 0,
+    dragVel: 0,   // vận tốc kéo đã làm mượt, px/giây
+    dragDist: 0,  // tổng quãng đường kéo, px (để chặn click sau khi kéo)
+    dragEndT: 0,  // thời điểm thả chuột
   };
 
   function stepSpring(s, target, dt) {
@@ -184,11 +197,14 @@ export function initHeroWheel(root, options = {}) {
     const dt = Math.min(deltaMs / 1000, 0.05);
     state.frame++;
 
-    // quay
+    // quay (tạm dừng quay tự động trong lúc kéo để kéo cảm giác trực tiếp,
+    // vòng không tự quay giật lại tay người kéo)
     const targetMul = state.hovered ? o.hoverSpeed : 1;
     state.speedMul += (targetMul - state.speedMul) * (1 - Math.exp(-6 * dt));
     state.boost *= Math.exp(-(state.hovered ? o.boostDecay * 4 : o.boostDecay) * dt);
-    state.angle += (state.speed * o.direction + state.boost) * state.speedMul * dt;
+    if (!state.dragging) {
+      state.angle += (state.speed * o.direction + state.boost) * state.speedMul * dt;
+    }
 
     // nghiêng 3 trục
     if (reduceMotion) {
@@ -206,8 +222,9 @@ export function initHeroWheel(root, options = {}) {
     }
     render();
 
-    // hover: kiểm tra card dưới con trỏ (card vẫn quay dù chuột đứng yên)
-    if (o.hover && state.inside && state.frame % 3 === 0) hitTest();
+    // hover: kiểm tra card dưới con trỏ (card vẫn quay dù chuột đứng yên).
+    // Không kiểm tra trong lúc kéo để caption không nhấp nháy.
+    if (o.hover && state.inside && !state.dragging && state.frame % 3 === 0) hitTest();
     if (state.hovered) positionCaption(dt);
   }
 
@@ -299,9 +316,21 @@ export function initHeroWheel(root, options = {}) {
     }
     lastMove = { x: nx, t: now };
 
+    // Kéo: xoay vòng theo độ dịch chuyển ngang, theo dõi vận tốc để làm trớn lúc thả
+    if (state.dragging) {
+      const dx = e.clientX - state.dragLastX;
+      const dtd = Math.max(now - state.dragLastT, 1);
+      const v = (dx / dtd) * 1000; // px/giây
+      state.dragVel = state.dragVel * 0.65 + v * 0.35;
+      state.dragLastX = e.clientX;
+      state.dragLastT = now;
+      state.dragDist += Math.abs(dx);
+      state.angle += dx * DRAG_FACTOR;
+    }
+
     const r = root.getBoundingClientRect();
     state.inside = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
-    if (o.hover) {
+    if (o.hover && !state.dragging) {
       if (state.inside) hitTest();
       else if (state.hovered) setHover(null);
     }
@@ -317,7 +346,37 @@ export function initHeroWheel(root, options = {}) {
     const item = el && root.contains(el) ? el.closest('.hw-item') : null;
     setHover(item === state.hovered ? null : item);
   }
+  // Kéo bằng chuột (chỉ chuột trái): nhấn giữ và kéo ngang để xoay vòng.
+  // Không dùng cho chạm (chạm đã có chạm để hiện caption và vuốt để tăng tốc,
+  // thêm kéo chạm sẽ xung đột với cuộn trang). Không preventDefault để không
+  // chặn cuộn trang. Dùng setPointerCapture để vẫn nhận pointermove khi chuột
+  // ra ngoài vùng wheel.
+  function onDragStart(e) {
+    if (e.pointerType !== 'mouse' || e.button !== 0 || state.dragging) return;
+    state.dragging = true;
+    state.dragLastX = e.clientX;
+    state.dragLastT = performance.now();
+    state.dragVel = 0;
+    state.dragDist = 0;
+    if (state.hovered) setHover(null); // tắt hover để caption không nhấp nháy khi kéo
+    root.classList.add('hw-dragging');
+    try { root.setPointerCapture(e.pointerId); } catch (_) { /* trình duyệt cũ */ }
+  }
+  function onDragEnd() {
+    if (!state.dragging) return;
+    state.dragging = false;
+    state.dragEndT = performance.now();
+    root.classList.remove('hw-dragging');
+    // Quán tính: cộng vận tốc lúc thả vào boost để vòng trớn thêm rồi chậm dần.
+    // Chỉ trớn khi lần di chuyển cuối còn mới (dưới 120ms).
+    if (performance.now() - state.dragLastT < 120) {
+      state.boost = clampBoost(state.boost + state.dragVel * DRAG_FACTOR);
+    }
+    state.dragVel = 0;
+  }
   function onClick(e) {
+    // Bỏ qua click ngay sau một lần kéo thật (tránh mở link do vô tình kéo qua card)
+    if (state.dragDist > 5 && performance.now() - state.dragEndT < 100) return;
     const item = e.target.closest && e.target.closest('.hw-item');
     if (item && item === state.hovered && item.dataset.href) window.location.href = item.dataset.href;
   }
@@ -344,6 +403,9 @@ export function initHeroWheel(root, options = {}) {
   listen(window, 'pointermove', onPointerMove, { passive: true });
   listen(document.documentElement, 'pointerleave', onPointerLeave);
   listen(root, 'pointerdown', onPointerDown);
+  listen(root, 'pointerdown', onDragStart);
+  listen(window, 'pointerup', onDragEnd);
+  listen(window, 'pointercancel', onDragEnd);
   listen(root, 'click', onClick);
   listen(window, 'wheel', onWheel, { passive: true });
   listen(window, 'touchstart', onTouchStart, { passive: true });
@@ -394,6 +456,7 @@ export function initHeroWheel(root, options = {}) {
         gsap.set(state.hovered.querySelector('.hw-card'), { clearProps: 'transform' });
       }
       root.classList.remove('hw-has-hover');
+      root.classList.remove('hw-dragging');
       root.style.cursor = '';
       cleanups.forEach((fn) => fn());
     },

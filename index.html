@@ -285,12 +285,15 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <!-- Khởi tạo vòng ảnh hero của Claude: layout 'blades'
        mặc định (cánh quạt đứng tỏa ra từ trục đứng), mặt
-       sau ảnh vẫn hiện (backface 'visible'), các options
-       còn lại giữ mặc định (speed 16, tilt, pointerTilt,
-       wheelBoost, intro). -->
+       sau ảnh vẫn hiện (backface 'visible'). Bỏ nghiêng
+       trục Z theo yêu cầu của Bảo (chỉ nghiêng về phía
+       trước): tilt.z 0, pointerTilt.z 0, sway 0. Các
+       options còn lại giữ mặc định (speed 16, tilt.x -14,
+       pointerTilt.x 14, pointerTilt.y 24, wheelBoost,
+       intro). -->
   <script type="module">
     import { initHeroWheel } from "./js/heroWheel.js";
-    initHeroWheel(document.querySelector(".hero-wheel"), { layout: "blades", backface: "visible" });
+    initHeroWheel(document.querySelector(".hero-wheel"), { layout: "blades", backface: "visible", tilt: { z: 0 }, pointerTilt: { z: 0 }, sway: 0 });
   </script>
 </body>
 </html>
