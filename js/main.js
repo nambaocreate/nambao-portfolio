@@ -1,15 +1,19 @@
-// Nam Bao Portfolio — v5
+// Nam Bao Portfolio — v6
 // 1. Chữ cuộn từng ký tự khi hover (nav, tên dự án và tag
-//    trên trang Work), tinh chỉnh theo nav của
-//    brandonyasin.com (xem trực tiếp, không copy code):
-//    tổng khoảng 0,3 giây, stagger nhẹ 15ms mỗi ký tự,
-//    ease-out. Đã bỏ ở các hàng Awards trên homepage
+//    trên trang Work), theo nav của brandonyasin.com và
+//    motion gốc noho.ink (xem trực tiếp, không copy code):
+//    mỗi ký tự cuộn 0,3 giây, stagger 35ms mỗi ký tự để
+//    các chữ cuộn lần lượt rõ rệt thành làn sóng (15ms
+//    trước đó nhỏ hơn một khung hình nên nhìn như cùng
+//    trượt một lúc). Đã bỏ ở các hàng Awards trên homepage
 //    và mọi chỗ khác.
 // 2. Mọi element hiện dần khi cuộn vào khung nhìn.
 // 3. Con trỏ tròn "Read" trên thẻ Press, "Open" trên ảnh
 //    trang Work.
-// 4. Press là xấp bài chồng dọc (CSS position sticky,
-//    không còn logic JS trượt ngang).
+// 4. Press là hàng ngang ghim theo cuộn như Noho Stories
+//    (section cao 200vh, khung trong sticky 100svh, cuộn
+//    dọc trượt hàng thẻ sang trái, gap 0, tất cả card có
+//    mặt từ trạng thái ban đầu, không hiện dần từng cái).
 // Tôn trọng prefers-reduced-motion và thiết bị cảm ứng.
 
 (function () {
@@ -18,7 +22,7 @@
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var finePointer = window.matchMedia("(hover: hover)").matches;
 
-  /* ---------- 1. Chữ cuộn từng ký tự (tinh chỉnh) ---------- */
+  /* ---------- 1. Chữ cuộn từng ký tự (lần lượt) ---------- */
   document.querySelectorAll("[data-roll]").forEach(function (el) {
     var text = el.textContent;
     el.textContent = "";
@@ -111,6 +115,45 @@
       media.addEventListener("mouseenter", function () { cursor.classList.add("cursor--open"); });
       media.addEventListener("mouseleave", function () { cursor.classList.remove("cursor--open"); });
     });
+  }
+
+  /* ---------- 4. Press ghim ngang theo cuộn ---------- */
+  var press = document.querySelector(".press");
+  var pressRow = document.querySelector(".press-row");
+  var pressTicking = false;
+
+  function updatePress() {
+    pressTicking = false;
+    if (!press || !pressRow) return;
+    if (reduceMotion || window.innerWidth <= 900) {
+      pressRow.style.transform = "";
+      return;
+    }
+    var total = press.offsetHeight - window.innerHeight;
+    if (total <= 0) return;
+    var rect = press.getBoundingClientRect();
+    var progress = Math.min(Math.max(-rect.top / total, 0), 1);
+    // Tính điểm dừng từ mép phải của thẻ cuối + lề phải 40px,
+    // không dùng scrollWidth vì flex container bỏ qua padding
+    // phải khi tính vùng cuộn, làm thẻ cuối dừng sát mép màn hình.
+    var last = pressRow.lastElementChild;
+    var padRight = parseFloat(window.getComputedStyle(pressRow).paddingRight) || 0;
+    var maxX = last.offsetLeft + last.offsetWidth + padRight - pressRow.clientWidth;
+    if (maxX <= 0) return;
+    pressRow.style.transform = "translate3d(" + (-progress * maxX).toFixed(1) + "px, 0, 0)";
+  }
+
+  function requestPress() {
+    if (!pressTicking) {
+      pressTicking = true;
+      requestAnimationFrame(updatePress);
+    }
+  }
+
+  if (press && pressRow) {
+    window.addEventListener("scroll", requestPress, { passive: true });
+    window.addEventListener("resize", requestPress);
+    updatePress();
   }
 
   /* ---------- Cuộn mượt tới anchor ---------- */

@@ -1,7 +1,14 @@
 /* ============================================================
-   Nam Bao Portfolio — v5
+   Nam Bao Portfolio — v6
    Token màu, cỡ chữ và vị trí lấy đúng từ khung
    "Nam Bao Portfolio" trong Figma (Page 11).
+   - v6: nav hover sửa stagger lên 35ms mỗi ký tự để các
+     chữ cuộn lần lượt rõ rệt thành làn sóng (15ms trước
+     đó nhỏ hơn một khung hình 60fps nên nhìn như các chữ
+     cùng trượt một lúc); Press trở lại kiểu ghim ngang
+     như Noho Stories (bỏ xấp bài chồng dọc), 6 card nằm
+     sát nhau gap 0 và có mặt đầy đủ ngay từ trạng thái
+     ban đầu, không hiện dần từng cái khi cuộn.
    - v5: lề trang thu còn 40px (đúng margin Figma, trước
      là 80px), gap nhóm link nav 120 xuống 90px (chữ đã
      giảm còn 75% nên gap thu theo tỉ lệ cho giống Figma),
@@ -29,17 +36,19 @@
      tam giác là file SVG xuất từ Figma (bo góc 9),
      vuông bo góc 16, tròn là hình tròn. Đáy các shape
      gần như thẳng hàng, tam giác nhô lên trên một chút.
-   - Press: 6 bài, xấp bài chồng dọc khi cuộn (mỗi card
-     sticky với top offset riêng, card sau đè lên card
-     trước). Trên mobile thẻ xếp dọc, tắt sticky.
+   - Press: 6 bài, ghim ngang theo cuộn (section cao 200vh,
+     khung trong sticky 100svh, cuộn dọc trượt hàng thẻ
+     sang trái, gap 0, tất cả card có mặt từ đầu, không
+     hiện dần từng cái). Trên mobile thẻ xếp dọc, bỏ ghim.
    - Footer: min-height 100svh, nội dung co giãn để vừa
      đúng một màn hình, logo ôm sát đáy.
-   - Motion: chữ cuộn từng ký tự tinh chỉnh khi hover
-     (nav, tên dự án và tag trên trang Work; tham khảo
-     nav brandonyasin.com: 0,3 giây, stagger 15ms,
-     ease-out), mọi element hiện dần khi cuộn, con trỏ
-     tròn "Read" trên thẻ Press và "Open" trên ảnh trang
-     Work. Tôn trọng prefers-reduced-motion.
+   - Motion: chữ cuộn từng ký tự khi hover (nav, tên dự
+     án và tag trên trang Work; tham khảo nav
+     brandonyasin.com và motion gốc noho.ink: 0,3 giây
+     mỗi ký tự, stagger 35ms để các chữ cuộn lần lượt
+     rõ rệt, ease-out), mọi element hiện dần khi cuộn,
+     con trỏ tròn "Read" trên thẻ Press và "Open" trên
+     ảnh trang Work. Tôn trọng prefers-reduced-motion.
    ============================================================ */
 
 :root {
@@ -103,15 +112,17 @@ ul { list-style: none; }
 
 .js .reveal--fade.is-visible { opacity: 1; }
 
-/* ================= MOTION: CHỮ CUỘN TỪNG KÝ TỰ (TINH CHỈNH) =================
+/* ================= MOTION: CHỮ CUỘN TỪNG KÝ TỰ (LẦN LƯỢT) =================
    Mỗi chữ có 2 bản giống hệt nhau xếp chồng, mỗi ký tự là
-   một span riêng. Khi hover, từng ký tự trượt lên 1 dòng
-   với độ trễ rất nhẹ 15ms mỗi ký tự (chỉ hơi gợn sóng,
-   không cascade mạnh), tổng khoảng 0,3 giây, easing
+   một span riêng với biến --i riêng (JS gán --i theo thứ tự
+   ký tự). Khi hover, từng ký tự trượt lên 1 dòng với độ trễ
+   35ms mỗi ký tự, đủ lớn để thấy rõ các chữ cuộn lần lượt
+   từ trái sang phải thành một làn sóng (15ms trước đó nhỏ
+   hơn một khung hình 60fps là 16,7ms nên nhìn như các chữ
+   cùng trượt một lúc). Mỗi ký tự cuộn trong 0,3 giây, easing
    ease-out (bắt đầu nhanh, đáp mềm, không nảy). Tham khảo
-   nav của brandonyasin.com (xem trực tiếp, không copy
-   code): bản đó cũng là split-flap / roll-up, tổng khoảng
-   300-400ms, stagger 15-30ms mỗi ký tự. Áp dụng cho nav và
+   nav của brandonyasin.com (xem trực tiếp, không copy code)
+   và motion gốc noho.ink (stagger 35ms). Áp dụng cho nav và
    tên dự án + tag trên card trang Work. Trên homepage đã bỏ
    hover này ở mọi chỗ khác, đặc biệt là các hàng Awards. */
 
@@ -129,7 +140,7 @@ ul { list-style: none; }
 .roll-letter {
   display: inline-block;
   transition: transform 0.3s var(--ease-out);
-  transition-delay: calc(var(--i) * 15ms);
+  transition-delay: calc(var(--i) * 35ms);
 }
 
 .nav a:hover .roll-letter {
@@ -319,49 +330,52 @@ ul { list-style: none; }
 
 .awards-table td:last-child { font-weight: 600; }
 
-/* ================= PRESS: XẤP BÀI CHỒNG DỌC KHI CUỘN =================
-   6 card xếp dọc thành xấp bài. Mỗi card sticky với top
-   offset riêng (tăng dần 24px), khi cuộn xuống card sau
-   trượt lên đè lên card trước, chỉ còn lộ một dải mép
-   của card trước. Card giữ 520x394 theo component Press
-   Card trong Figma, màu nền xen kẽ. Không có ghim ngang,
-   không có translateX theo cuộn. Chỉ dùng position sticky
-   nên không động vào layout khi cuộn, không giật. */
+/* ================= PRESS: GHIM + TRƯỢT NGANG THEO CUỘN =================
+   Section cao 200vh, khung trong ghim lại (sticky) ở 100svh.
+   Cuộn dọc đẩy hàng thẻ trượt ngang, giống mục Noho Stories.
+   Các card nằm sát nhau, gap 0 (dính trực tiếp, ranh giới
+   chỉ là đổi màu nền, không border, không shadow, không
+   khoảng cách). Trạng thái ban đầu: tất cả 6 card đã nằm
+   sát nhau trong hàng và nhìn thấy ngay, không hiện dần
+   từng cái khi cuộn (card không dùng class .reveal).
+   Không có thanh trượt ngang, không có slider.
+   Lưu ý: đây KHÔNG phải kiểu card chồng dọc lên nhau. */
 
 .press {
   background: var(--cream);
-  padding: 64px 0 120px;
+  height: 200vh;
+  position: relative;
+}
+
+.press-pin {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .press-inner { padding: 0 var(--pad); }
 
-.press-stack {
+.press-row {
   display: flex;
-  flex-direction: column;
-  gap: 32px;
+  gap: 0;
   margin-top: 48px;
+  padding: 0 var(--pad);
+  will-change: transform;
 }
 
 .press-card {
-  position: sticky;
-  flex: 0 0 auto;
-  width: 520px;
-  max-width: 100%;
+  flex: 0 0 520px;
   height: 394px;
   padding: 40px;
   display: flex;
   flex-direction: column;
   text-decoration: none;
 }
-
-/* Top offset tăng dần để mỗi card sau đè lên card trước
-   nhưng vẫn lộ một dải mép 24px của card trước. */
-.press-stack .press-card:nth-child(1) { top: 120px; }
-.press-stack .press-card:nth-child(2) { top: 144px; }
-.press-stack .press-card:nth-child(3) { top: 168px; }
-.press-stack .press-card:nth-child(4) { top: 192px; }
-.press-stack .press-card:nth-child(5) { top: 216px; }
-.press-stack .press-card:nth-child(6) { top: 240px; }
 
 .press-card-green { background: var(--green); }
 .press-card-orange { background: var(--orange); }
@@ -560,11 +574,16 @@ ul { list-style: none; }
     opacity: 0.55;
   }
 
-  /* Press: xấp bài chồng dọc, trên mobile tắt sticky để
-     thẻ xếp dọc bình thường. */
-  .press { padding: 64px 0 40px; }
-  .press-stack { gap: 16px; }
-  .press-card { position: static; flex: 1 1 auto; width: 100%; height: auto; min-height: 320px; }
+  /* Press: bỏ ghim, thẻ xếp dọc, không có thanh trượt */
+  .press { height: auto; padding: 64px 0 40px; }
+  .press-pin {
+    position: static;
+    height: auto;
+    overflow: visible;
+    justify-content: flex-start;
+  }
+  .press-row { flex-direction: column; gap: 16px; transform: none !important; }
+  .press-card { flex: 1 1 auto; width: 100%; height: auto; min-height: 320px; }
 
   .footer-top { flex-direction: column; gap: 48px; }
   .footer-cols { grid-template-columns: 1fr; gap: 48px; }
@@ -591,5 +610,7 @@ ul { list-style: none; }
   }
   .roll-letter { transition: none; }
   .cursor { display: none; }
-  .press-card { position: static; }
+  .press { height: auto; }
+  .press-pin { position: static; height: auto; overflow: visible; }
+  .press-row { transform: none; }
 }
