@@ -1,7 +1,30 @@
 /* ============================================================
-   Nam Bao Portfolio — v12
+   Nam Bao Portfolio — v13
    Token màu, cỡ chữ và vị trí lấy đúng từ khung
    "Nam Bao Portfolio" trong Figma (Page 11).
+   - v13: thay toàn bộ hero wheel bằng code Claude viết sẵn
+     (Bảo gửi 5 file, Claude viết lại vì hero v12 vẫn bị
+     chê sai). Dùng heroWheel.js + hero-wheel.css của
+     Claude, layout 'blades' mặc định: mỗi ảnh là một cánh
+     quạt đứng tỏa ra từ trục đứng như cửa xoay, ảnh đứng
+     thẳng chứ KHÔNG nằm phẳng như bông hoa v12. Vòng tự
+     quay liên tục (16 độ/giây); rê chuột nghiêng cả cụm
+     theo con trỏ có độ trễ mượt (pointerTilt x 12, y 22,
+     nghiêng sẵn x -14, z -10); cuộn chuột hoặc vuốt làm
+     vòng quay nhanh hơn rồi chậm dần về tốc độ gốc
+     (wheelBoost 0.9, maxBoost 540, boostDecay 2.2,
+     listener passive nên KHÔNG chặn cuộn trang); vào
+     trang các ảnh bung ra theo thứ tự ngẫu nhiên (scale
+     0.3 lên 1, mờ lên rõ). GSAP core load từ CDN (cdnjs
+     3.12.5) vì repo là HTML tĩnh, không dùng npm. Biến
+     CSS chỉnh cho hợp site: --hw-ratio 3/2 (khớp ảnh
+     landscape), --hw-w clamp(280px, 21vw, 420px),
+     --hw-height min(100svh - 140px, 900px) khớp chiều
+     cao hero trừ padding. Xóa SẠCH code wheel cũ v12
+     (HTML .wheel, CSS .wheel-*, JS nghiêng cũ trong
+     main.js). Các phần khác giữ nguyên: nav đen mọi
+     section, nền Hero và nền trang Work #F2F2F0, các
+     section trượt đè khối cứng, Press chồng ngang.
    - v12: 2 điểm theo ý Bảo. (1) Vòng hoa xếp lại dạng cánh
      tỏa ra từ tâm ("các ảnh cần chĩa ra từ tâm chứ không
      phải cạnh nhau"): bỏ hẳn kiểu cũ xếp tile tiếp tuyến
@@ -214,16 +237,19 @@ ul { list-style: none; }
   transform: translateY(-100%);
 }
 
-/* ================= HERO: VÒNG 3D XOAY =================
+/* ================= HERO: VÒNG 3D XOAY (CODE CLAUDE) =================
    Hero ghim lại (sticky top 0, z-index 1, thấp nhất) để
    section About trượt lên đè nó khi cuộn, đúng cơ chế
    webflow section 2 trượt lên đè hero đang ghim.
-   Hero cũ (headline và cụm shape) đã bỏ. Giờ hero chỉ
-   còn vòng xoay 3D (3D wheel gallery): 7 tile ảnh project
-   phẳng hình chữ nhật xếp quanh một hình trụ đứng vô hình,
-   mặt hướng ra ngoài, xoay chậm liên tục quanh trục đứng.
-   Rê chuột trên hero làm cả vòng nghiêng theo cả hai trục
-   X và Y (xem JS). KHÔNG có tương tác bằng cuộn. */
+   Hero cũ (headline và cụm shape) đã bỏ. Giờ hero chỉ còn
+   vòng ảnh 3D của Claude (heroWheel.js + hero-wheel.css):
+   7 ảnh project xếp kiểu 'blades', mỗi ảnh là một cánh
+   quạt đứng tỏa ra từ trục đứng như cửa xoay, ảnh đứng
+   thẳng chứ KHÔNG nằm phẳng, cả vòng tự quay liên tục.
+   Rê chuột làm cả cụm nghiêng theo con trỏ; cuộn chuột
+   hoặc vuốt làm vòng quay nhanh hơn rồi chậm dần về tốc
+   độ gốc (listener passive nên KHÔNG chặn cuộn trang);
+   vào trang các ảnh bung ra theo thứ tự ngẫu nhiên. */
 
 .hero {
   background: var(--hero-bg);
@@ -285,132 +311,6 @@ ul { list-style: none; }
   z-index: 1000;
   padding: 40px var(--pad) 0;
   color: #000;
-}
-
-/* ================= VÒNG 3D: CÁNH HOA TỎA RA TỪ TÂM =================
-   Bốn lớp wrapper lồng nhau để mỗi lớp xoay hoặc nghiêng trên
-   trục riêng (tự viết lại bằng CSS 3D transform thuần, không
-   copy code, không dùng canvas hay Three.js). .wheel-scene cho
-   perspective. .wheel-tilt nghiêng theo chuột (JS đặt
-   rotateX/rotateY, tối đa khoảng 12 độ). .wheel-flower là góc
-   nghiêng cơ bản dạng bông hoa: rotateX 50 độ, bông hoa nằm
-   nghiêng như nhìn từ trên xuống ở góc nghiêng. Chuột rời
-   hero thì vòng trở về góc nghiêng cơ bản này, không trở về
-   thẳng đứng. .wheel-spin xoay chậm liên tục quanh trục đứng
-   (60 giây một vòng, 6 độ mỗi giây).
-   Mỗi tile là MỘT CÁNH HOA, trục dài CHĨA RA TỪ TÂM (v12, theo
-   đúng ý Bảo: "các ảnh cần chĩa ra từ tâm chứ không phải cạnh
-   nhau"). Bỏ hẳn kiểu cũ (v10, v11) xếp tile tiếp tuyến quanh
-   hình trụ đứng (rotateY rồi translateZ, các tile ngồi cạnh
-   nhau thành vòng tròn có lỗ trống ở giữa). Cách xếp mới, đọc
-   từ phải sang trái trong transform của .wheel-tile:
-   rotateX(-90deg) đặt tile nằm phẳng, mặt hướng lên trên;
-   translateX(--petal-x) đẩy tâm tile ra xa tâm để đầu trong
-   của tile ở gần tâm (bán kính 10px) và đầu ngoài ở bán kính
-   430px; rotateZ(--lift) bản lề tại tâm, nhấc đầu ngoài lên
-   25 độ như hoa đang nở; rotateY(90deg + i*360/7) xoay cánh
-   về hướng tâm của nó (7 cánh cách nhau 360/7 độ, một cánh
-   hướng lên trên). Các đầu trong của 7 cánh chồng lên nhau
-   nên tâm được lấp kín, không còn lỗ trống. Vì mọi cánh đều
-   nằm phẳng mặt hướng lên trên nên mọi ảnh luôn thấy mặt
-   trước (không còn chữ ngược như bản trụ đứng, mặt sau hiện
-   ngược): tính bằng script, dot pháp tuyến với hướng nhìn
-   nhỏ nhất là 0,205 trên mọi góc xoay và mọi vị trí chuột.
-   Số liệu khung bao tính bằng script (xấu nhất trên mọi góc
-   xoay và mọi vị trí chuột, gồm cả chuột ở góc hero nghiêng
-   cả 2 trục): khung bao 943x802, đỉnh cách đáy nav 99px ở
-   hero 998px và 140px ở hero 1080px, đáy cách đáy hero 27px
-   và 68px, không tràn. Không bóng đổ, không viền, không
-   phóng to khi hover, click không làm gì. Chỉ dùng transform
-   (GPU), tôn trọng prefers-reduced-motion (tắt xoay và
-   nghiêng, bông hoa đứng yên ở trạng thái tĩnh). */
-
-.wheel-scene {
-  --tile-w: 420px;
-  --tile-h: 280px;
-  --petal-x: 220px; /* tâm tile cách tâm bông hoa: tile 420 rộng nên đầu trong ở bán kính 10px, đầu ngoài ở 430px */
-  --lift: 25deg;    /* đầu ngoài cánh nhấc lên 25 độ như hoa đang nở */
-  perspective: 1600px;
-  width: 100%;
-  height: 800px;
-  position: relative;
-}
-
-.wheel-tilt {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 0;
-  height: 0;
-  transform-style: preserve-3d;
-  will-change: transform;
-}
-
-/* Góc nghiêng cơ bản dạng bông hoa (xem chú thích ở trên):
-   rotateX 50 độ, bông hoa nằm nghiêng như nhìn từ trên
-   xuống ở góc nghiêng. Nghiêng theo chuột (JS, tối đa 12 độ)
-   cộng thêm trên góc nghiêng cơ bản này. */
-.wheel-flower {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 0;
-  height: 0;
-  transform-style: preserve-3d;
-  transform: rotateX(50deg);
-}
-
-.wheel-spin {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 0;
-  height: 0;
-  transform-style: preserve-3d;
-  animation: wheel-spin 60s linear infinite;
-}
-
-@keyframes wheel-spin {
-  from { transform: rotateY(0deg); }
-  to { transform: rotateY(360deg); }
-}
-
-.wheel-tile {
-  position: absolute;
-  width: var(--tile-w);
-  height: var(--tile-h);
-  left: calc(var(--tile-w) / -2);
-  top: calc(var(--tile-h) / -2);
-  margin: 0;
-  /* Cánh hoa tỏa ra từ tâm (đọc từ phải sang trái): đặt tile
-     nằm phẳng mặt hướng lên, đẩy tâm tile ra xa tâm, bản lề
-     tại tâm nhấc đầu ngoài lên, rồi xoay cánh về hướng tâm
-     của nó. Đầu trong ở bán kính 10px, đầu ngoài ở 430px. */
-  transform: rotateY(calc(90deg + var(--i) * 51.4286deg)) rotateZ(var(--lift)) translateX(var(--petal-x)) rotateX(-90deg);
-  backface-visibility: visible;
-}
-
-.wheel-tile img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-/* Màn hình thấp: thu bông hoa lại để không chạm nav hay tràn
-   sang section dưới (hero 100svh mà thấp thì khoảng trống
-   cho bông hoa cũng thấp theo). Tile 280x187, đầu trong ở
-   bán kính 10px, đầu ngoài ở 290px, khung bao 618x522:
-   ở màn hình cao 800px thì đỉnh cách đáy nav 138px, đáy
-   cách đáy hero 70px; ở màn hình cao 700px thì đỉnh cách
-   nav 88px, đáy cách đáy hero 20px, vẫn không tràn. */
-@media (max-height: 850px) {
-  .wheel-scene {
-    --tile-w: 280px;
-    --tile-h: 187px;
-    --petal-x: 150px;
-    height: 520px;
-  }
 }
 
 /* ================= ABOUT =================
@@ -769,15 +669,6 @@ ul { list-style: none; }
   .about,
   .awards { position: static; min-height: 0; }
 
-  /* Bông hoa nhỏ lại trên mobile (tile 280x187, đầu trong ở
-     bán kính 10px, đầu ngoài ở 290px, scene cao 600px) */
-  .wheel-scene {
-    --tile-w: 280px;
-    --tile-h: 187px;
-    --petal-x: 150px;
-    height: 600px;
-  }
-
   .about-intro,
   .about-what { grid-template-columns: 1fr; gap: 24px; }
 
@@ -842,7 +733,6 @@ ul { list-style: none; }
   .hero,
   .about,
   .awards { position: static; }
-  .wheel-spin { animation: none; }
   .press-wrap { height: auto; }
   .press { position: static; height: auto; overflow: visible; }
   .press-row { transform: none; }

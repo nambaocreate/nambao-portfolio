@@ -1,4 +1,4 @@
-// Nam Bao Portfolio — v12
+// Nam Bao Portfolio — v13
 // 1. Chữ cuộn từng ký tự khi hover (nav, tên dự án và tag
 //    trên trang Work), theo nav của brandonyasin.com và
 //    motion gốc noho.ink (xem trực tiếp, không copy code):
@@ -16,21 +16,18 @@
 //    để lại dải mép, lần lượt từng card một, gap 0, tất cả
 //    card có mặt từ trạng thái ban đầu, không hiện dần
 //    từng cái).
-// 5. Bông hoa 3D ở hero, cánh tỏa ra từ tâm, nghiêng theo chuột:
-//    bông hoa nghiêng cơ bản rotateX 50 độ (CSS .wheel-flower),
-//    mỗi tile là một cánh hoa: trục dài 420px chĩa ra theo
-//    hướng tâm, đầu trong ở bán kính 10px, đầu ngoài ở bán
-//    kính 430px, đầu ngoài nhấc lên 25 độ, tâm lấp kín,
-//    mọi cánh luôn thấy mặt trước nên không còn chữ ngược,
-//    vòng xoay chậm liên tục bằng CSS animation (60 giây
-//    một vòng), rê chuột trên hero làm cả bông hoa nghiêng
-//    theo cả hai trục X và Y (tối đa 12 độ mỗi trục, cộng
-//    thêm trên góc nghiêng cơ bản). Khi chuột rời khỏi
-//    hero thì bông hoa trở về góc nghiêng cơ bản, không trở
-//    về thẳng đứng. CHỈ tương tác bằng chuột, KHÔNG có tương
-//    tác bằng cuộn: không dùng scroll để tăng tốc xoay, không
-//    dùng ScrollTrigger hay wheel event, không chặn cuộn,
-//    trang cuộn xuống About bình thường.
+// 5. Vòng ảnh 3D ở hero là code Claude (heroWheel.js +
+//    hero-wheel.css, layout 'blades'): mỗi ảnh là một cánh
+//    quạt đứng tỏa ra từ trục đứng như cửa xoay, ảnh đứng
+//    thẳng chứ KHÔNG nằm phẳng, vòng tự quay liên tục
+//    (16 độ/giây). Rê chuột làm cả cụm nghiêng theo con
+//    trỏ có độ trễ mượt; cuộn chuột hoặc vuốt làm vòng quay
+//    nhanh hơn rồi chậm dần về tốc độ gốc (listener passive
+//    nên KHÔNG chặn cuộn, trang cuộn xuống About bình
+//    thường); vào trang các ảnh bung ra theo thứ tự ngẫu
+//    nhiên. Khởi tạo trong index.html (script module gọi
+//    initHeroWheel), không còn logic wheel nào trong file
+//    này.
 // 6. Nav chữ đen cho mọi section: đã bỏ hẳn mix-blend-mode
 //    difference và logic JS thêm class .nav-on-hero theo
 //    scrollY (v10); nav luôn chữ đen trên mọi nền, logo là
@@ -220,58 +217,6 @@
     window.addEventListener("scroll", requestPress, { passive: true });
     window.addEventListener("resize", function () { measurePress(); requestPress(); });
     updatePress();
-  }
-
-  /* ---------- 5. Bông hoa 3D ở hero nghiêng theo chuột ---------- */
-  // Bông hoa xoay chậm liên tục bằng CSS animation trên .wheel-spin
-  // (60 giây một vòng), không cần JS. Góc nghiêng cơ bản nằm ở
-  // CSS (.wheel-flower rotateX 50 độ, mỗi tile là một cánh hoa
-  // tỏa ra từ tâm, đầu ngoài nhấc lên 25 độ). Phần này chỉ làm
-  // nghiêng cả bông hoa theo vị trí con trỏ chuột trên hero (tối
-  // đa 12 độ mỗi trục, làm mượt bằng lerp, cộng thêm trên góc
-  // nghiêng cơ bản). CHỈ tương tác bằng chuột: không nghe scroll, không
-  // dùng ScrollTrigger hay wheel event, không gọi preventDefault,
-  // không giữ trang ở lại hero, trang cuộn xuống About bình
-  // thường. Khi chuột rời khỏi hero thì vòng trở về góc nghiêng
-  // cơ bản dạng bông hoa, không trở về thẳng đứng. Tôn trọng
-  // prefers-reduced-motion và thiết bị cảm ứng (khi đó vòng đứng
-  // yên ở trạng thái bông hoa tĩnh, không xoay không nghiêng).
-  var wheelTilt = document.querySelector(".wheel-tilt");
-  var hero = document.querySelector(".hero");
-  if (wheelTilt && hero && finePointer && !reduceMotion) {
-    var MAX_TILT = 12; // độ nghiêng tối đa mỗi trục
-    var tiltTX = 0, tiltTY = 0, tiltX = 0, tiltY = 0, tiltRaf = null;
-
-    var applyTilt = function () {
-      tiltX += (tiltTX - tiltX) * 0.08;
-      tiltY += (tiltTY - tiltY) * 0.08;
-      wheelTilt.style.transform = "rotateX(" + tiltX.toFixed(2) + "deg) rotateY(" + tiltY.toFixed(2) + "deg)";
-      if (Math.abs(tiltTX - tiltX) > 0.01 || Math.abs(tiltTY - tiltY) > 0.01) {
-        tiltRaf = requestAnimationFrame(applyTilt);
-      } else {
-        tiltRaf = null;
-      }
-    };
-
-    var requestTilt = function () {
-      if (!tiltRaf) tiltRaf = requestAnimationFrame(applyTilt);
-    };
-
-    hero.addEventListener("mousemove", function (e) {
-      var rect = hero.getBoundingClientRect();
-      if (!rect.width || !rect.height) return;
-      var nx = (e.clientX - rect.left) / rect.width;  // 0 (trái) .. 1 (phải)
-      var ny = (e.clientY - rect.top) / rect.height;  // 0 (trên) .. 1 (dưới)
-      tiltTY = (nx - 0.5) * 2 * MAX_TILT; // chuột sang phải thì mặt trước vòng quay sang phải
-      tiltTX = (0.5 - ny) * 2 * MAX_TILT; // chuột lên trên thì mặt trước vòng ngửa lên
-      requestTilt();
-    });
-
-    hero.addEventListener("mouseleave", function () {
-      tiltTX = 0;
-      tiltTY = 0;
-      requestTilt();
-    });
   }
 
   /* ---------- Cuộn mượt tới anchor ---------- */

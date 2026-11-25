@@ -1,0 +1,64 @@
+/* Hero Wheel Gallery — tuỳ chỉnh bằng các biến CSS trên .hero-wheel */
+.hero-wheel {
+  /* Chỉnh cho hợp với site Nam Bảo (khác mặc định của Claude):
+     --hw-w khoảng 400px ở desktop (clamp 280-420); --hw-ratio
+     3/2 khớp ảnh project dạng landscape, không crop hai bên
+     ảnh; --hw-height khớp chiều cao hero: hero cao 100svh,
+     trừ padding trên 100px và padding dưới 40px (xem .hero
+     trong styles.css), tối đa 900px như mặc định của Claude. */
+  --hw-w: clamp(280px, 21vw, 420px);   /* bề rộng mỗi ảnh */
+  --hw-ratio: 3 / 2;                     /* tỉ lệ ảnh */
+  --hw-radius: 4px;                      /* bo góc ảnh */
+  --hw-perspective: 1100px;              /* càng nhỏ phối cảnh càng mạnh */
+  --hw-height: min(100svh - 140px, 900px); /* chiều cao vùng hero */
+
+  position: relative;
+  width: 100%;
+  height: var(--hw-height);
+  perspective: var(--hw-perspective);
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.hero-wheel .hw-tilt,
+.hero-wheel .hw-spin {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.hero-wheel .hw-item {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--hw-w);
+  aspect-ratio: var(--hw-ratio);
+  margin: 0;
+  translate: -50% -50%;
+  transform-style: preserve-3d;
+}
+
+.hero-wheel .hw-item > img,
+.hero-wheel .hw-item > video,
+.hero-wheel .hw-item > picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--hw-radius);
+  pointer-events: none;
+}
+
+.hero-wheel.hw-backface-hidden .hw-item > * {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+@media (max-width: 767px) {
+  .hero-wheel {
+    --hw-w: 34vw;
+    --hw-height: 80svh;
+  }
+}
