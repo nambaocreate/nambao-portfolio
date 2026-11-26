@@ -1,117 +1,69 @@
 // Nam Bao Portfolio — trang Work MỚI, BẢN STAGING (work-new.html)
-// Theo Figma Frame 26 (Section 1, node 1685:596) và các note
-// của Bảo trong section. File RIÊNG, không động tới trang
-// /work đang live (work.html, css/work.css, js/work.js) hay
-// js/work-data.js (chỉ đọc để lấy dữ liệu gốc).
+// Bản v4: viết lại theo kiểu "một bộ card cố định".
 //
-// Dữ liệu: đúng 7 dự án và thứ tự đã chốt (Vore, EGG:01,
-// RMIT25, Đô Thành Cổ Tích, Tad.atelier, VIBE Expo,
-// Tuổi Hồng 28), ảnh cover trong assets/work/.
-// Năm: RMIT25 là 2025 (Figma), EGG:01 là 2025 (theo yêu cầu
-// sửa, cần Bảo xác nhận), Tuổi Hồng 28 là 2024 (alt text),
-// VIBE Expo là 2026 (tên dự án "VIBE 2026"). Vore, Đô Thành
-// Cổ Tích, Tad.atelier CHƯA có năm trên record nên để trống
-// (meta chỉ hiện category, không bịa năm).
-// Tag: VIẾT HOA, thể hiện scope dự án (không thể hiện sector),
-// mỗi dự án 3-5 tag. RMIT25 đã xác nhận từ Figma (logo design,
-// identity design, event design); các dự án còn lại là tag đề
-// xuất theo mô tả dự án, cần Bảo xác nhận sau.
+// Ý chính: mỗi dự án là MỘT card DOM duy nhất, tạo 1 lần khi tải
+// trang và không bao giờ bị xóa/vẽ lại bằng innerHTML. Card chỉ
+// đổi VỊ TRÍ theo khoảng cách tới dự án đang xem (rel):
+//   rel < 0  : deck ảnh lớn đã xem, xếp chồng dưới ảnh lớn
+//              (nhỏ dần 4%, lệch xuống 16px, mờ dần) như radiance.family
+//   rel = 0  : ảnh lớn bên phải
+//   rel 1..3 : thumbnail front / mid / back
+//   rel > 3  : nằm sẵn ngay sau thumbnail back (bị che), nên stack
+//              luôn đủ từ đầu, không bao giờ tụt 2 rồi thêm 3
+//   ngoài filter: "out" (đã trượt đi, ẩn)
+// Chuyển dự án = GSAP đưa mọi card từ trạng thái cũ sang trạng thái
+// mới. Vì vậy: tiến thì thumbnail bay lên ảnh lớn và thumbnail sau
+// lớn lên theo; lùi thì ảnh lớn thu về đúng thumbnail front và deck
+// bước lên. Không clone, không spawn, không flash.
 //
-// Cơ chế (bản staging v3):
-// - Viewer là một màn hình cố định (track chỉ 100vh, trang không
-//   cuộn); lăn chuột 1 lần thì sang đúng 1 dự án. Các lần lăn
-//   trong lúc khóa được xếp hàng (wheelQueue) rồi chuyển tiếp
-//   sau khi animation xong, nên lăn nhanh 3 lần thì qua đúng
-//   3 dự án, không bị mất nhịp. Bấm thumbnail hoặc phím mũi tên
-//   cũng chuyển được.
-// - Khi sang dự án tiếp theo, thumbnail của dự án đó slide và
-//   phóng to để chồng lên ảnh lớn bên phải (bay bằng GSAP, 0.7
-//   giây); đồng thời thumbnail theo sau phóng to và dịch lên
-//   trước cùng nhịp để lấp khoảng trống, không bị giật. Stack
-//   luôn có sẵn 1 thumbnail dự trữ (reserve) ẩn sau thumbnail
-//   back nên không tụt xuống 2 rồi mới thêm cái thứ 3.
-// - Filter theo industry: chỉ còn dự án thuộc sector đó (cả khi
-//   lăn chuột lẫn thumbnail); nút All để về tất cả. Bấm filter
-//   thì thumbnail của dự án đích cũng bay lên ảnh lớn như khi
-//   scroll (chạy được khi chạm trên iPad/mobile).
-// - Số thứ tự đổi cùng lúc với tiêu đề, meta, tag và ảnh (lúc
-//   đang mờ nên không thấy), không chạy trước nội dung.
-// - Ảnh cũ mờ dần hoặc trượt đi mượt, không nháy thành khung xám
-//   (nền container trong suốt) hay crop phóng to giữa chừng
-//   (xóa style inline khi xong để về lại scale CSS).
-// - Hover ảnh lớn: tương tác như thẻ (nhấc lên, nghiêng 3D theo
-//   chuột, bóng đổ, ảnh trong zoom nhẹ), theo note "giống mục
-//   selected work của radiance.family". Khi vừa chuyển dự án hoặc
-//   vừa đóng lightbox, hover tạm tắt cho tới khi chuột thực sự
-//   di chuyển trên ảnh.
-// - Bấm ảnh lớn: ảnh phóng full màn hình (xem full ảnh); bản
-//   staging chưa có trang case study nên chưa nối sang đó, sẽ
-//   nối tiếp khi trang case study được xây.
+// Cuộn: 1 cử chỉ lăn (kể cả quán tính trackpad/Magic Mouse kéo dài
+// 1-2 giây) = đúng 1 dự án. iPad ngang: vuốt lên/xuống = 1 dự án.
 
 (function () {
   "use strict";
 
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var finePointer = window.matchMedia("(hover: hover)").matches;
-  var hasGsap = typeof window.gsap !== "undefined";
+  var finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  if (typeof window.gsap === "undefined") return;
+  var gsap = window.gsap;
 
   /* ---------- Dữ liệu dự án (thứ tự đã chốt) ---------- */
   var PROJECTS = [
-    {
-      id: "vore", title: "Vore", year: "", tag: "Food & beverage",
+    { id: "vore", title: "Vore", year: "", tag: "Food & beverage",
       tags: ["BRAND IDENTITY", "LOGO DESIGN", "ART DIRECTION", "PRINT DESIGN"],
-      image: "assets/work/vore.jpg",
-      alt: "Ba poster của Vore treo trên tường",
-      width: 1600, height: 900
-    },
-    {
-      id: "egg01", title: "EGG:01", year: "2025", tag: "Food & beverage",
+      image: "assets/work/vore.jpg", alt: "Ba poster của Vore treo trên tường", width: 1600, height: 900 },
+    { id: "egg01", title: "EGG:01", year: "2025", tag: "Food & beverage",
       tags: ["BRAND IDENTITY", "PACKAGING DESIGN", "PRODUCT DESIGN", "ART DIRECTION"],
-      image: "assets/work/egg01.jpg",
-      alt: "Hộp bạc EGG:01 cạnh chai thủy tinh gân sóng có lòng đỏ cam",
-      width: 1400, height: 1356
-    },
-    {
-      id: "rmit25", title: "RMIT 25th Anniversary Logo", year: "2025", tag: "Education",
+      image: "assets/work/egg01.jpg", alt: "Hộp bạc EGG:01 cạnh chai thủy tinh gân sóng có lòng đỏ cam", width: 1400, height: 1356 },
+    { id: "rmit25", title: "RMIT 25th Anniversary Logo", year: "2025", tag: "Education",
       tags: ["LOGO DESIGN", "IDENTITY DESIGN", "EVENT DESIGN"],
-      image: "assets/work/rmit25.jpg",
-      alt: "Billboard 25 Years Of Progress trên mặt tiền gỗ",
-      width: 1920, height: 1080
-    },
-    {
-      id: "dothanh", title: "Đô Thành Cổ Tích", year: "", tag: "Art",
+      image: "assets/work/rmit25.jpg", alt: "Billboard 25 Years Of Progress trên mặt tiền gỗ", width: 1920, height: 1080 },
+    { id: "dothanh", title: "Đô Thành Cổ Tích", year: "", tag: "Art",
       tags: ["BRAND IDENTITY", "ILLUSTRATION", "WEB DESIGN", "ART DIRECTION"],
-      image: "assets/work/dothanh.jpg",
-      alt: "Laptop chạy website Phố Việt Cổ Truyện",
-      width: 1393, height: 853
-    },
-    {
-      id: "tad", title: "Tad.atelier", year: "", tag: "Architecture",
+      image: "assets/work/dothanh.jpg", alt: "Laptop chạy website Phố Việt Cổ Truyện", width: 1393, height: 853 },
+    { id: "tad", title: "Tad.atelier", year: "", tag: "Architecture",
       tags: ["BRAND IDENTITY", "LOGO DESIGN", "ART DIRECTION"],
-      image: "assets/work/tad.jpg",
-      alt: "Board tổng hợp các dự án của Tad.atelier",
-      width: 1400, height: 989
-    },
-    {
-      id: "vibe", title: "VIBE Expo", year: "2026", tag: "Architecture",
+      image: "assets/work/tad.jpg", alt: "Board tổng hợp các dự án của Tad.atelier", width: 1400, height: 989 },
+    { id: "vibe", title: "VIBE Expo", year: "2026", tag: "Architecture",
       tags: ["BRAND IDENTITY", "EVENT DESIGN", "EXHIBITION DESIGN", "STAGE DESIGN"],
-      image: "assets/work/vibe.jpg",
-      alt: "Render 3D sảnh expo cam của VIBE",
-      width: 1000, height: 558
-    },
-    {
-      id: "th28", title: "Tuổi Hồng 28", year: "2024", tag: "Entertainment",
+      image: "assets/work/vibe.jpg", alt: "Render 3D sảnh expo cam của VIBE", width: 1000, height: 558 },
+    { id: "th28", title: "Tuổi Hồng 28", year: "2024", tag: "Entertainment",
       tags: ["BRAND IDENTITY", "EVENT DESIGN", "POSTER DESIGN", "ART DIRECTION"],
-      image: "assets/work/th28.jpg",
-      alt: "Bốn poster Tuổi Hồng 28 năm 2024 trên nền sọc hồng",
-      width: 1600, height: 1067
-    }
+      image: "assets/work/th28.jpg", alt: "Bốn poster Tuổi Hồng 28 năm 2024 trên nền sọc hồng", width: 1600, height: 1067 }
   ];
-
   var FILTERS = ["All", "Food & beverage", "Education", "Architecture", "Art", "Entertainment"];
 
+  /* ---------- Thông số chuyển động ---------- */
+  var DUR = reduceMotion ? 0 : 0.85;      // thời gian 1 lần chuyển
+  var EASE = "power3.inOut";
+  var FOLLOW_DELAY = 0.05;                // thumbnail sau đi theo trễ nhẹ từng cái
+  var DECK_SCALE = 0.04;                  // deck ảnh lớn: mỗi lớp nhỏ đi 4%
+  var DECK_Y = 16;                        // mỗi lớp lệch xuống 16px
+  var DECK_FADE = 0.22;                   // mỗi lớp mờ thêm 22%
+  var DECK_VISIBLE = 3;                   // chỉ thấy 3 lớp dưới ảnh lớn
+  var THUMB_VISIBLE = 3;                  // 3 thumbnail thấy được
+
   /* ---------- DOM ---------- */
-  var track = document.getElementById("wn-track");
   var viewer = document.getElementById("wn-viewer");
   var countEl = document.getElementById("wn-count");
   var titleEl = document.getElementById("wn-title");
@@ -120,641 +72,520 @@
   var catEl = document.getElementById("wn-cat");
   var tagsEl = document.getElementById("wn-tags");
   var filtersEl = document.getElementById("wn-filters");
-  var thumbsEl = document.getElementById("wn-thumbs");
-  var mediaEl = document.getElementById("wn-media");
-  var imgEl = document.getElementById("wn-img");
+  var mediaSlot = document.getElementById("wn-media");       // khung giữ chỗ ảnh lớn
+  var layer = document.getElementById("wn-cards");           // lớp chứa toàn bộ card
+  var thumbSlots = [                                          // khung giữ chỗ thumbnail
+    document.querySelector(".wn-slot--front"),
+    document.querySelector(".wn-slot--mid"),
+    document.querySelector(".wn-slot--back")
+  ];
   var lightbox = document.getElementById("wn-lightbox");
   var lightboxImg = document.getElementById("wn-lightbox-img");
   var lightboxCap = document.getElementById("wn-lightbox-cap");
   var lightboxClose = document.getElementById("wn-lightbox-close");
-
-  if (!track || !viewer || !PROJECTS.length) return;
+  var cursorEl = document.querySelector(".cursor");
+  if (!viewer || !layer || !mediaSlot) return;
 
   /* ---------- Trạng thái ---------- */
   var activeFilter = "All";
-  var list = PROJECTS.slice(); // danh sách đang hiện (tất cả hoặc đã qua filter)
-  var current = 0; // index trong list
-  var animating = null; // timeline GSAP đang chạy (để hủy khi chuyển nhanh)
-  var flyClone = null; // bản sao thumbnail đang bay
-  var tiltXFn = null, tiltYFn = null, liftYFn = null; // quickTo nghiêng ảnh lớn (để reset hover)
+  var list = PROJECTS.slice();
+  var current = 0;
+  var busyUntil = 0;           // thời điểm animation chuyển dự án xong
+  var pendingStep = 0;         // 1 bước lăn đến trong lúc đang chạy (tối đa 1)
+  var infoTl = null;
+  var cards = {};              // id -> { el, inner, p, kind, tilt }
 
   function pad(n) { return (n < 10 ? "0" : "") + n; }
+  function now() { return performance.now(); }
+  function isBusy() { return now() < busyUntil; }
 
-  function projectAt(i) { return list[i]; }
-
-  /* ---------- Vẽ filter ---------- */
-  filtersEl.innerHTML = FILTERS.map(function (name) {
-    return '<li><button type="button" class="wn-filter" data-filter="' +
-      name + '" aria-pressed="false">' + name + "</button></li>";
-  }).join("");
-
-  filtersEl.addEventListener("click", function (event) {
-    var btn = event.target.closest(".wn-filter");
-    if (!btn) return;
-    var name = btn.getAttribute("data-filter");
-    // Bấm mục đang chọn thì về All, hiện tất cả.
-    setFilter(activeFilter === name ? "All" : name);
+  /* ---------- Tạo card (1 lần duy nhất) ---------- */
+  PROJECTS.forEach(function (p) {
+    var el = document.createElement("button");
+    el.type = "button";
+    el.className = "wn-card";
+    el.setAttribute("data-id", p.id);
+    el.innerHTML =
+      '<span class="wn-card-inner">' +
+        '<img src="' + p.image + '" alt="" decoding="async">' +
+        '<span class="wn-media-hint">Click to view</span>' +
+      "</span>";
+    layer.appendChild(el);
+    var inner = el.firstChild;
+    var c = { el: el, inner: inner, p: p, kind: "out", tilt: null };
+    if (finePointer && !reduceMotion) {
+      gsap.set(inner, { transformPerspective: 900 });
+      c.tilt = {
+        rx: gsap.quickTo(inner, "rotationX", { duration: 0.5, ease: "power2.out" }),
+        ry: gsap.quickTo(inner, "rotationY", { duration: 0.5, ease: "power2.out" }),
+        y: gsap.quickTo(inner, "y", { duration: 0.5, ease: "power2.out" })
+      };
+    }
+    cards[p.id] = c;
   });
 
-  // Hiệu ứng bay khi bấm filter: thumbnail của dự án đích (đầu danh
-  // sách mới) bay từ vị trí thumbnail lên khung ảnh lớn, giống như
-  // khi scroll. Chạy được khi chạm (bấm filter là sự kiện chạm trên
-  // iPad/mobile), không chỉ khi lăn chuột. Stack cũ mờ dần rồi stack
-  // mới hiện dần để số lượng không đổi đột ngột.
-  function flyToFilter(thumb) {
-    var from = thumb.getBoundingClientRect();
-    var to = mediaEl.getBoundingClientRect();
-
-    flyClone = thumb.cloneNode(true);
-    flyClone.style.position = "fixed";
-    flyClone.style.left = from.left + "px";
-    flyClone.style.top = from.top + "px";
-    flyClone.style.width = from.width + "px";
-    flyClone.style.height = from.height + "px";
-    flyClone.style.margin = "0";
-    flyClone.style.transform = "none";
-    flyClone.style.zIndex = "1500";
-    flyClone.style.pointerEvents = "none";
-    flyClone.style.transition = "none";
-    flyClone.style.willChange = "left, top, width, height";
-    document.body.appendChild(flyClone);
-    thumb.style.visibility = "hidden";
-
-    var infoEls = [titleEl, metaEl, tagsEl, countEl];
-    var tl = gsap.timeline({
-      onComplete: function () {
-        animating = null;
-        if (flyClone) { flyClone.remove(); flyClone = null; }
-        renderMedia();
-        renderThumbs();
-        // Stack mới hiện dần để số lượng không đổi đột ngột.
-        if (hasGsap && !reduceMotion) {
-          gsap.fromTo(thumbsEl, { opacity: 0 }, {
-            opacity: 1, duration: 0.4, ease: "power2.out", clearProps: "opacity"
-          });
-        }
-        drainWheelQueue();
-      }
-    });
-    animating = tl;
-    // 0: thumbnail bay về khung ảnh lớn (0.7s).
-    tl.to(flyClone, {
-      left: to.left, top: to.top, width: to.width, height: to.height,
-      borderRadius: 10, duration: 0.7, ease: "power3.inOut"
-    }, 0);
-    // 0.15: thông tin cũ và stack cũ mờ dần. Không dùng stagger:
-    // số thứ tự, tiêu đề, meta và tag phải cùng một nhịp mờ, cùng
-    // độ mờ ở mọi khung (stagger làm số chạy trước tiêu đề một nhịp).
-    tl.to(infoEls, {
-      y: -20, opacity: 0, duration: 0.25, ease: "power2.in"
-    }, 0.15);
-    tl.to(thumbsEl, { opacity: 0, duration: 0.25, ease: "power2.in" }, 0.15);
-    // 0.42: đổi nội dung sau khi TẤT CẢ đã mờ hẳn (mờ xong lúc 0.4),
-    // lúc đang mờ nên không thấy, số mới không lộ ra khi còn mờ.
-    tl.add(function () { renderInfo(); }, 0.42);
-    // 0.45: thông tin mới trượt lên từ dưới, cùng một nhịp, không stagger.
-    tl.fromTo(infoEls, { y: 24, opacity: 0 }, {
-      y: 0, opacity: 1, duration: 0.45, ease: "power3.out",
-      clearProps: "transform,opacity"
-    }, 0.45);
-    // 0.7: đổi ảnh lớn (lúc clone đã phủ kín khung) rồi dọn.
-    tl.add(function () { renderMedia(); }, 0.7);
+  /* ---------- Tính cỡ ảnh lớn và stack cho vừa màn hình ----------
+     Ảnh lớn: tối đa 910px, ~49% bề ngang nội dung (910/1840 như
+     Figma), và không cao quá phần còn lại của màn hình (chừa 40px
+     dưới) để filter + thumbnail không bị crop. Stack thumbnail thu
+     nhỏ theo --ts khi cột trái hẹp, luôn cách ảnh lớn >= 32px. */
+  var mainEl = document.querySelector(".wn-main");
+  var industryEl = document.querySelector(".wn-industry");
+  function fitLayout() {
+    if (!isPinnedLayout()) {
+      viewer.style.removeProperty("--big-w");
+      viewer.style.removeProperty("--ts");
+      return;
+    }
+    var cs = getComputedStyle(viewer);
+    var inner = viewer.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    var top = mainEl.getBoundingClientRect().top - viewer.getBoundingClientRect().top;
+    var availH = viewer.clientHeight - top - 40;
+    var bigW = Math.min(910, inner * 0.4946, availH * 910 / 548);
+    viewer.style.setProperty("--big-w", Math.round(bigW) + "px");
+    var gap = parseFloat(getComputedStyle(mainEl).columnGap) || 40;
+    var leftW = inner - gap - bigW;
+    var used = industryEl.offsetWidth + filtersEl.offsetWidth + 25;
+    var ts = Math.max(0.55, Math.min(1, (leftW - used - 32) / 271));
+    viewer.style.setProperty("--ts", ts.toFixed(3));
   }
 
+  /* ---------- Đo khung giữ chỗ (tọa độ trong viewer) ---------- */
+  var rects = null;
+  function measure() {
+    fitLayout();
+    var v = viewer.getBoundingClientRect();
+    function rel(node) {
+      var r = node.getBoundingClientRect();
+      return { x: r.left - v.left, y: r.top - v.top, w: r.width, h: r.height };
+    }
+    rects = { big: rel(mediaSlot), thumbs: thumbSlots.map(rel) };
+  }
+
+  // Trạng thái hình học của card theo rel.
+  function stateFor(rel) {
+    var s;
+    if (rel === 0) {
+      s = { kind: "big", r: rects.big, scale: 1, dy: 0, opacity: 1, radius: 10, z: 100 };
+    } else if (rel < 0) {
+      var k = -rel;
+      var vis = k <= DECK_VISIBLE;
+      s = { kind: "deck", r: rects.big, scale: 1 - DECK_SCALE * Math.min(k, DECK_VISIBLE + 1),
+            dy: DECK_Y * Math.min(k, DECK_VISIBLE + 1), opacity: vis ? 1 - DECK_FADE * k : 0,
+            radius: 10, z: 100 - k };
+    } else {
+      var slot = Math.min(rel, THUMB_VISIBLE) - 1;
+      s = { kind: rel <= THUMB_VISIBLE ? "thumb" : "reserve", r: rects.thumbs[slot],
+            scale: 1, dy: 0, opacity: 1, radius: 5, z: 60 - rel };
+    }
+    return s;
+  }
+
+  function vars(s, extra) {
+    var o = {
+      x: s.r.x, y: s.r.y + s.dy, width: s.r.w, height: s.r.h,
+      scale: s.scale, opacity: s.opacity, "--r": s.radius + "px"
+    };
+    if (extra) for (var k in extra) o[k] = extra[k];
+    return o;
+  }
+
+  function applyKind(c, kind) {
+    c.kind = kind;
+    c.el.classList.toggle("is-big", kind === "big");
+    c.el.classList.toggle("is-thumb", kind === "thumb");
+    var interactive = kind === "big" || kind === "thumb";
+    c.el.style.pointerEvents = interactive ? "auto" : "none";
+    c.el.tabIndex = interactive ? 0 : -1;
+    c.el.setAttribute("aria-hidden", interactive ? "false" : "true");
+    c.el.setAttribute("aria-label", kind === "big" ? "Xem ảnh lớn: " + c.p.title : "Tới dự án: " + c.p.title);
+    c.el.style.visibility = kind === "out" ? "hidden" : "";
+  }
+
+  function resetTilt(c) {
+    if (c.tilt) { c.tilt.rx(0); c.tilt.ry(0); c.tilt.y(0); }
+  }
+
+  /* ---------- Đặt tất cả card không animation (khởi tạo, resize) ---------- */
+  function placeAll() {
+    measure();
+    PROJECTS.forEach(function (p) {
+      var c = cards[p.id];
+      var idx = list.indexOf(p);
+      if (idx < 0) {
+        gsap.set(c.el, { opacity: 0 });
+        applyKind(c, "out");
+        return;
+      }
+      var s = stateFor(idx - current);
+      gsap.set(c.el, vars(s, { zIndex: s.z, transformOrigin: "50% 100%" }));
+      applyKind(c, s.kind);
+    });
+  }
+
+  /* ---------- Thông tin dự án ---------- */
+  function renderInfo() {
+    var p = list[current];
+    if (!p) return;
+    titleEl.textContent = p.title;
+    yearEl.textContent = p.year || "";
+    catEl.textContent = p.tag;
+    metaEl.classList.toggle("wn-meta--no-year", !p.year);
+    tagsEl.innerHTML = p.tags.map(function (t) { return '<li class="wn-tag">' + t + "</li>"; }).join("");
+    countEl.textContent = pad(current + 1) + "/" + pad(list.length);
+  }
+
+  // Chữ mờ đi rồi hiện lại; đổi nội dung đúng lúc đang mờ hẳn.
+  function animateInfo(delay, dir) {
+    var els = [titleEl, metaEl, tagsEl, countEl];
+    if (infoTl) infoTl.kill();
+    if (reduceMotion) { renderInfo(); return; }
+    infoTl = gsap.timeline({ delay: delay || 0 });
+    infoTl.to(els, { y: dir > 0 ? -20 : 20, opacity: 0, duration: 0.25, ease: "power2.in" }, 0);
+    infoTl.add(renderInfo, 0.27);
+    infoTl.fromTo(els, { y: dir > 0 ? 24 : -24, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.45, ease: "power3.out", clearProps: "transform,opacity" }, 0.3);
+  }
+
+  /* ---------- Chuyển dự án trong cùng danh sách ---------- */
+  function goTo(index) {
+    index = Math.max(0, Math.min(index, list.length - 1));
+    if (index === current) return;
+    var dir = index > current ? 1 : -1;
+    current = index;
+    measure();
+    layer.classList.add("is-moving");
+
+    list.forEach(function (p, i) {
+      var c = cards[p.id];
+      var s = stateFor(i - current);
+      var wasBig = c.kind === "big";
+      resetTilt(c);
+      // Card đang thu từ ảnh lớn về thumbnail (khi lùi) phải nằm trên
+      // card deck đang bước lên, nên tạm cho z cao nhất trong lúc bay.
+      var zDuring = (wasBig && s.kind !== "big" && s.kind !== "deck") ? 150 : s.z;
+      gsap.set(c.el, { zIndex: zDuring });
+      if (s.kind !== "out") c.el.style.visibility = "";
+      var delay = 0;
+      if (dir > 0 && s.kind === "thumb") delay = FOLLOW_DELAY * (i - current);
+      if (dir < 0 && (s.kind === "thumb" || s.kind === "reserve")) delay = FOLLOW_DELAY * (i - current - 1);
+      gsap.to(c.el, vars(s, {
+        duration: DUR, ease: EASE, delay: delay, overwrite: "auto",
+        onComplete: function () { gsap.set(c.el, { zIndex: s.z }); }
+      }));
+      applyKind(c, s.kind);
+    });
+
+    animateInfo(0.12, dir);
+    busyUntil = now() + DUR * 1000 + 60;
+    clearTimeout(goTo._t);
+    goTo._t = setTimeout(afterMove, DUR * 1000 + 80);
+  }
+
+  function afterMove() {
+    layer.classList.remove("is-moving");
+    if (pendingStep) {
+      var d = pendingStep;
+      pendingStep = 0;
+      step(d);
+    }
+  }
+
+  function step(dir) {
+    var target = current + dir;
+    if (target < 0 || target > list.length - 1) return;
+    goTo(target);
+  }
+
+  /* ---------- Filter ----------
+     1) Thumbnail cũ không thuộc filter trượt xuống và mất đi.
+     2) Stack mới trượt vào từ bên phải, xếp đúng front/mid/back.
+     3) Dự án đầu tiên của filter: nếu đang có trong stack thì bay
+        thẳng lên ảnh lớn; nếu chưa có thì trượt vào vị trí front
+        trước rồi mới phóng to bay lên ảnh lớn (luôn thấy motion
+        thumbnail -> ảnh lớn, kể cả trên iPad).
+     4) Ảnh lớn cũ và deck cũ mờ đi khi ảnh mới đã phủ kín. */
   function setFilter(name) {
+    if (name === activeFilter) return;
     activeFilter = name;
     filtersEl.querySelectorAll(".wn-filter").forEach(function (btn) {
       var on = btn.getAttribute("data-filter") === name;
       btn.classList.toggle("is-active", on);
       btn.setAttribute("aria-pressed", on ? "true" : "false");
     });
-    // Danh sách mới: chỉ còn dự án thuộc sector (All thì đủ 7).
-    var newList = name === "All"
-      ? PROJECTS.slice()
+    var newList = name === "All" ? PROJECTS.slice()
       : PROJECTS.filter(function (p) { return p.tag === name; });
     if (!newList.length) newList = PROJECTS.slice();
-    var target = newList[0];
-    var oldCurrent = projectAt(current);
-    // Tìm thumbnail của dự án đích trong stack hiện tại (theo id, vì
-    // index trong danh sách cũ khác danh sách mới). Nếu có thì làm
-    // hiệu ứng bay từ thumbnail lên ảnh lớn như khi scroll; nếu
-    // không có thì crossfade.
-    var thumb = null;
-    if (target && oldCurrent && target.id !== oldCurrent.id) {
-      var oldIndex = -1;
-      for (var i = 0; i < list.length; i++) {
-        if (list[i].id === target.id) { oldIndex = i; break; }
-      }
-      if (oldIndex >= 0) {
-        thumb = thumbsEl.querySelector('.wn-thumb[data-index="' + oldIndex + '"]');
-      }
-    }
-    // Đổi filter thì xóa các lần lăn đang xếp hàng (danh sách đã đổi).
-    wheelQueue = 0;
-    cancelTransition();
+
+    pendingStep = 0;
+    measure();
+    layer.classList.add("is-moving");
+    var oldBigId = list[current] ? list[current].id : null;
     list = newList;
     current = 0;
-    resetMediaHover();
-    mediaEl.classList.add("wn-media--no-hover");
-    setTrackHeight();
-    window.scrollTo(0, 0);
-    if (!target) { renderAll(); return; }
-    if (oldCurrent && target.id === oldCurrent.id) {
-      // Dự án đích đã là dự án đang xem (chỉ đổi danh sách), không
-      // cần hiệu ứng, vẽ lại ngay.
-      renderAll();
-      return;
-    }
-    if (thumb && hasGsap && !reduceMotion) {
-      flyToFilter(thumb);
-    } else if (hasGsap && !reduceMotion) {
-      crossfadeTo(0, 1);
-    } else {
-      renderAll();
-    }
+
+    var OUT_DUR = reduceMotion ? 0 : 0.4;
+    var IN_AT = reduceMotion ? 0 : 0.25;       // stack mới bắt đầu trượt vào
+    var IN_DUR = reduceMotion ? 0 : 0.55;
+    var target = cards[list[0].id];
+    var targetDirect = target.kind === "thumb" || target.kind === "reserve" || target.kind === "deck" || target.kind === "big";
+    var flyAt = targetDirect ? 0.1 : IN_AT + IN_DUR * 0.7;  // lúc bắt đầu bay lên ảnh lớn
+    if (reduceMotion) flyAt = 0;
+    var landAt = flyAt + DUR;
+
+    PROJECTS.forEach(function (p) {
+      var c = cards[p.id];
+      var idx = list.indexOf(p);
+      resetTilt(c);
+
+      // Không thuộc filter: đi ra.
+      if (idx < 0) {
+        if (c.kind === "out") return;
+        if (c.kind === "thumb" || c.kind === "reserve") {
+          gsap.to(c.el, { y: "+=40", x: "-=24", opacity: 0, duration: OUT_DUR, ease: "power2.in",
+            overwrite: "auto", onComplete: function () { applyKind(c, "out"); } });
+        } else {
+          // Ảnh lớn / deck cũ: nằm dưới, mờ đi khi ảnh mới đã phủ kín.
+          gsap.set(c.el, { zIndex: c.kind === "big" ? 90 : 80 });
+          gsap.to(c.el, { opacity: 0, duration: 0.3, delay: landAt - 0.05, ease: "power1.out",
+            overwrite: "auto", onComplete: function () { applyKind(c, "out"); } });
+        }
+        c.el.style.pointerEvents = "none";
+        return;
+      }
+
+      var s = stateFor(idx);
+      var finalVars = vars(s, { duration: DUR, ease: EASE, overwrite: "auto",
+        onComplete: function () { gsap.set(c.el, { zIndex: s.z }); } });
+
+      if (c.kind === "out") {
+        // Chưa có trên màn hình: trượt vào từ bên phải vào đúng slot.
+        var entry = s.kind === "big" ? stateFor(1) : s;
+        gsap.set(c.el, vars(entry, { x: entry.r.x + 60, opacity: 0, zIndex: s.kind === "big" ? 120 : s.z,
+          transformOrigin: "50% 100%" }));
+        c.el.style.visibility = "";
+        gsap.to(c.el, vars(entry, { duration: IN_DUR, ease: "power3.out",
+          delay: IN_AT + (s.kind === "big" ? 0 : FOLLOW_DELAY * idx), overwrite: "auto" }));
+        if (s.kind === "big") {
+          finalVars.delay = flyAt;
+          gsap.to(c.el, finalVars);
+        }
+      } else {
+        // Đã có trên màn hình: chạy thẳng tới vị trí mới.
+        var wasUp = c.kind === "big" || c.kind === "deck";
+        if (wasUp && s.kind === "reserve") {
+          // Ảnh lớn/deck cũ thành card dự trữ (ẩn sau back): nằm yên
+          // dưới ảnh mới, đợi ảnh mới phủ kín rồi mới chuyển chỗ, để
+          // khung ảnh lớn không bao giờ bị trống.
+          gsap.set(c.el, { zIndex: 85 });
+          gsap.delayedCall(landAt, function () {
+            if (list.indexOf(c.p) < 0) return;
+            var s2 = stateFor(list.indexOf(c.p) - current);
+            gsap.set(c.el, vars(s2, { zIndex: s2.z }));
+          });
+        } else {
+          gsap.set(c.el, { zIndex: s.kind === "big" ? 120 : (c.kind === "big" ? 150 : s.z) });
+          if (s.kind === "big") finalVars.delay = flyAt;
+          else if (wasUp) finalVars.delay = flyAt;   // bay về stack cùng lúc ảnh mới bay lên
+          else if (s.kind === "thumb") finalVars.delay = IN_AT * 0.5 + FOLLOW_DELAY * idx;
+          gsap.to(c.el, finalVars);
+        }
+      }
+      applyKind(c, s.kind);
+    });
+
+    // Card ảnh lớn cũ vẫn thuộc filter mới (thành thumbnail) thì đã
+    // được xử lý ở trên: nó thu về slot của nó, không mờ đi.
+    if (oldBigId && list[0].id === oldBigId) flyAt = 0;
+    animateInfo(Math.max(0, flyAt + 0.05), 1);
+    var total = (landAt + 0.1) * 1000;
+    busyUntil = now() + total;
+    clearTimeout(goTo._t);
+    goTo._t = setTimeout(afterMove, total);
   }
 
-  function setTrackHeight() {
-    // Không còn track cuộn dài: viewer là một màn hình cố định,
-    // chuyển dự án bằng sự kiện wheel (1 lần lăn = 1 dự án). Track
-    // chỉ cao 100vh để trang không cuộn được. Mobile thì CSS đè
-    // thành auto nên trang vẫn cuộn bình thường.
-    track.style.height = "100vh";
-  }
-
-  /* ---------- Vẽ thông tin dự án đang xem ---------- */
-  function renderInfo() {
-    var p = projectAt(current);
-    if (!p) return;
-    titleEl.textContent = p.title;
-    yearEl.textContent = p.year || "";
-    catEl.textContent = p.tag;
-    metaEl.classList.toggle("wn-meta--no-year", !p.year);
-    tagsEl.innerHTML = p.tags.map(function (t) {
-      return '<li class="wn-tag">' + t + "</li>";
-    }).join("");
-    countEl.textContent = pad(current + 1) + "/" + pad(list.length);
-  }
-
-  function renderMedia() {
-    var p = projectAt(current);
-    if (!p) return;
-    imgEl.src = p.image;
-    imgEl.alt = p.alt;
-    imgEl.width = p.width;
-    imgEl.height = p.height;
-    mediaEl.setAttribute("aria-label", "Xem ảnh lớn: " + p.title);
-  }
-
-  /* ---------- Vẽ thumbnail: 3 dự án TIẾP THEO theo thứ tự ----------
-     Cái trước (dự án kế tiếp) to nhất, cái sau nhỏ dần và lệch
-     trái/xuống, đúng kiểu xếp chồng trong Figma. Hết dự án thì
-     stack trống (không vòng lại). */
-  function renderThumbs() {
-    // 4 thumbnail: 3 cái hiện (front, mid, back) và 1 cái dự trữ
-    // (reserve) đã đặt sẵn ở vị trí back, ẩn sau thumbnail back
-    // (opacity 0, z-index 0). Khi thumbnail trước bay đi, reserve
-    // đã có sẵn nên stack không tụt xuống 2 rồi mới thêm cái thứ 3
-    // (đó là nguồn của flash ở bản trước). Reserve tải ngay (không
-    // lazy) để sẵn sàng khi hiện ra, và không bấm/tab được.
-    var next = [];
-    for (var k = 1; k <= 4; k++) {
-      var p = list[current + k];
-      if (p) next.push({ p: p, index: current + k });
-    }
-    thumbsEl.classList.toggle("is-empty", next.length === 0);
-    var cls = ["wn-thumb--front", "wn-thumb--mid", "wn-thumb--back", "wn-thumb--reserve"];
-    thumbsEl.innerHTML = next.map(function (item, i) {
-      var p = item.p;
-      var isReserve = (i === 3);
-      var loading = isReserve ? "" : ' loading="lazy"';
-      var extra = isReserve ? ' tabindex="-1" aria-hidden="true"' : "";
-      return '<button type="button" class="wn-thumb ' + cls[i] + '" data-index="' +
-        item.index + '" aria-label="Tới dự án: ' + p.title + '"' + extra + '>' +
-        '<img src="' + p.image + '" alt=""' + loading + ' decoding="async">' +
-        "</button>";
-    }).join("");
-  }
-
-  function renderAll() {
-    renderInfo();
-    renderMedia();
-    renderThumbs();
-  }
-
-  thumbsEl.addEventListener("click", function (event) {
-    var btn = event.target.closest(".wn-thumb");
+  filtersEl.innerHTML = FILTERS.map(function (name) {
+    return '<li><button type="button" class="wn-filter' + (name === "All" ? " is-active" : "") +
+      '" data-filter="' + name + '" aria-pressed="' + (name === "All") + '">' + name + "</button></li>";
+  }).join("");
+  filtersEl.addEventListener("click", function (event) {
+    var btn = event.target.closest(".wn-filter");
     if (!btn) return;
-    var index = parseInt(btn.getAttribute("data-index"), 10);
-    if (isNaN(index)) return;
-    // Bấm thumbnail là chuyển chủ động, xóa các lần lăn đang xếp hàng
-    // để không nhảy thêm sau khi đã nhảy tới dự án này.
-    wheelQueue = 0;
-    goTo(index);
-    // Mobile: viewer không ghim nên về đầu trang để thấy viewer.
-    if (window.innerWidth <= 900) window.scrollTo(0, 0);
+    var name = btn.getAttribute("data-filter");
+    setFilter(activeFilter === name ? "All" : name);
   });
 
-  /* ---------- Hủy hiệu ứng đang chạy (khi cuộn nhanh / đổi filter) ---------- */
-  function cancelTransition() {
-    if (animating) {
-      animating.kill();
-      animating = null;
-    }
-    if (flyClone) {
-      flyClone.remove();
-      flyClone = null;
-    }
-    // Trả lại trạng thái hiện cho các phần tử info (tránh kẹt mờ).
-    [titleEl, metaEl, tagsEl, countEl, imgEl].forEach(function (el) {
-      if (el) {
-        el.style.opacity = "";
-        el.style.transform = "";
-      }
+  /* ---------- Bấm card ---------- */
+  layer.addEventListener("click", function (event) {
+    var el = event.target.closest(".wn-card");
+    if (!el) return;
+    var c = cards[el.getAttribute("data-id")];
+    if (!c) return;
+    if (c.kind === "big") { openLightbox(); return; }
+    var idx = list.indexOf(c.p);
+    if (idx >= 0) { pendingStep = 0; goTo(idx); }
+  });
+
+  /* ---------- Hover nghiêng theo chuột (ảnh lớn VÀ thumbnail) ---------- */
+  if (finePointer && !reduceMotion) {
+    PROJECTS.forEach(function (p) {
+      var c = cards[p.id];
+      c.el.addEventListener("mousemove", function (event) {
+        layer.classList.remove("no-hover");
+        if (c.kind !== "big" && c.kind !== "thumb") return;
+        if (layer.classList.contains("is-moving")) return;
+        var r = c.el.getBoundingClientRect();
+        var px = (event.clientX - r.left) / r.width - 0.5;
+        var py = (event.clientY - r.top) / r.height - 0.5;
+        var amt = c.kind === "big" ? 8 : 14;      // thumbnail nhỏ nên nghiêng mạnh hơn
+        c.tilt.ry(px * amt);
+        c.tilt.rx(-py * amt);
+        c.tilt.y(c.kind === "big" ? -6 : -4);
+        if (cursorEl) cursorEl.classList.toggle("cursor--open", c.kind === "big");
+      });
+      c.el.addEventListener("mouseleave", function () {
+        resetTilt(c);
+        if (cursorEl) cursorEl.classList.remove("cursor--open");
+      });
     });
-    // Trả lại trạng thái cho stack thumbnail (xóa style inline mà GSAP
-    // đã đặt khi bay, và opacity của container khi fade).
-    thumbsEl.style.opacity = "";
-    thumbsEl.querySelectorAll(".wn-thumb").forEach(function (t) {
-      t.style.visibility = "";
-      t.style.opacity = "";
-      t.style.transform = "";
-    });
   }
 
-  /* ---------- Chuyển dự án ----------
-     Đi tới (forward) và thumbnail của dự án đó còn trong stack
-     thì làm hiệu ứng bay: thumbnail slide và phóng to để chồng
-     lên ảnh lớn bên phải. Các trường hợp còn lại (lùi lại,
-     nhảy xa, không có thumbnail) thì crossfade + trượt nhẹ. */
-  function goTo(index, opts) {
-    index = Math.max(0, Math.min(index, list.length - 1));
-    if (index === current) return;
-    var dir = index > current ? 1 : -1;
-    var target = projectAt(index);
-    if (!target) return;
-
-    // Tìm thumbnail của dự án đích trong stack hiện tại.
-    var thumb = null;
-    if (dir > 0) {
-      thumb = thumbsEl.querySelector('.wn-thumb[data-index="' + index + '"]');
-    }
-
-    cancelTransition();
-    var fromIndex = current;
-    current = index;
-
-    // Vừa đổi dự án thì tắt hover trên ảnh lớn cho tới khi chuột thực
-    // sự di chuyển (tránh dự án mới hiện ra đã ở trạng thái hover chỉ
-    // vì con trỏ đang ở giữa viewport, nằm trên mép trái ảnh).
-    resetMediaHover();
-    mediaEl.classList.add("wn-media--no-hover");
-
-    if (thumb && hasGsap && !reduceMotion) {
-      flyTo(index, thumb);
-    } else {
-      crossfadeTo(index, dir);
-    }
-    // Số thứ tự KHÔNG cập nhật ngay ở đây nữa: renderInfo() sẽ đổi
-    // số cùng lúc với tiêu đề, meta và tag trong lúc hiệu ứng (lúc
-    // đang mờ nên không thấy), tránh số chạy trước nội dung.
-  }
-
-  // Hiệu ứng bay: clone thumbnail rồi phóng to về đúng khung ảnh lớn.
-  // Animate left/top/width/height để tỉ lệ khung đổi dần từ 1.3
-  // (thumbnail) sang 1.66 (ảnh lớn) nên ảnh crop lại mượt, giống
-  // thumbnail "lớn lên" thành ảnh lớn. Đồng thời thumbnail theo sau
-  // (mid, back) phóng to và dịch lên trước cùng nhịp 0.7 giây để
-  // lấp khoảng trống, không bị giật cụt. Bản trước không thấy bay
-  // vì cơ chế cuộn cũ gọi goTo liên tục làm hủy timeline đang chạy;
-  // giờ chuyển bằng wheel có khóa 0.8 giây nên hiệu ứng chạy trọn.
-  function flyTo(index, thumb) {
-    var from = thumb.getBoundingClientRect();
-    var to = mediaEl.getBoundingClientRect();
-
-    // Thumbnail theo sau: mid sẽ thành front, back sẽ thành mid,
-    // reserve (đã đặt sẵn ở vị trí back, ẩn sau back) sẽ hiện ra ở
-    // vị trí back để stack luôn đủ, không tụt xuống 2 rồi mới thêm 3.
-    var midThumb = thumbsEl.querySelector(".wn-thumb--mid");
-    var backThumb = thumbsEl.querySelector(".wn-thumb--back");
-    var reserveThumb = thumbsEl.querySelector(".wn-thumb--reserve");
-
-    flyClone = thumb.cloneNode(true);
-    flyClone.style.position = "fixed";
-    flyClone.style.left = from.left + "px";
-    flyClone.style.top = from.top + "px";
-    flyClone.style.width = from.width + "px";
-    flyClone.style.height = from.height + "px";
-    flyClone.style.margin = "0";
-    flyClone.style.transform = "none";
-    flyClone.style.zIndex = "1500";
-    flyClone.style.pointerEvents = "none";
-    flyClone.style.transition = "none";
-    flyClone.style.willChange = "left, top, width, height";
-    document.body.appendChild(flyClone);
-    thumb.style.visibility = "hidden";
-
-    // Tắt transition CSS trên thumbnail theo sau để GSAP điều khiển
-    // (tránh CSS transition làm trễ/chồng với GSAP).
-    if (midThumb) midThumb.style.transition = "none";
-    if (backThumb) backThumb.style.transition = "none";
-    if (reserveThumb) reserveThumb.style.transition = "none";
-
-    var infoEls = [titleEl, metaEl, tagsEl, countEl];
-    var tl = gsap.timeline({
-      onComplete: function () {
-        animating = null;
-        if (flyClone) { flyClone.remove(); flyClone = null; }
-        renderMedia();
-        renderThumbs();
-        // Reserve mới đã có sẵn trong stack vừa vẽ (ẩn sau back),
-        // không cần fade in cái back mới nữa (đó là nguồn của flash
-        // 2 lên 3 ở bản trước). Xử lý các lần lăn đang xếp hàng.
-        drainWheelQueue();
-      }
-    });
-    animating = tl;
-    // 0: thumbnail bay về khung ảnh lớn (0.7s).
-    tl.to(flyClone, {
-      left: to.left, top: to.top, width: to.width, height: to.height,
-      borderRadius: 10, duration: 0.7, ease: "power3.inOut"
-    }, 0);
-    // 0: thumbnail theo sau phóng to và dịch lên trước, cùng nhịp 0.7s
-    // (mid thành front: x 39 thành 118, rộng 136 thành 153;
-    // back thành mid: x 0 thành 39, rộng 118 thành 136).
-    if (midThumb) {
-      tl.to(midThumb, {
-        x: 118, y: 0, width: 153, duration: 0.7, ease: "power3.inOut"
-      }, 0);
-    }
-    if (backThumb) {
-      tl.to(backThumb, {
-        x: 39, y: 0, width: 136, duration: 0.7, ease: "power3.inOut"
-      }, 0);
-    }
-    // 0: reserve hiện dần ở vị trí back (đã đặt sẵn sau back).
-    if (reserveThumb) {
-      tl.to(reserveThumb, {
-        opacity: 1, duration: 0.7, ease: "power3.inOut"
-      }, 0);
-    }
-    // 0.15: thông tin cũ trượt lên và mờ đi. Không dùng stagger:
-    // số thứ tự, tiêu đề, meta và tag phải cùng một nhịp mờ, cùng
-    // độ mờ ở mọi khung (stagger làm số chạy trước tiêu đề một nhịp).
-    tl.to(infoEls, {
-      y: -20, opacity: 0, duration: 0.25, ease: "power2.in"
-    }, 0.15);
-    // 0.42: đổi nội dung sau khi TẤT CẢ đã mờ hẳn (mờ xong lúc 0.4),
-    // lúc đang mờ nên không thấy, số mới không lộ ra khi còn mờ.
-    tl.add(function () { renderInfo(); }, 0.42);
-    // 0.45: thông tin mới trượt lên từ dưới, cùng một nhịp, không stagger.
-    tl.fromTo(infoEls, { y: 24, opacity: 0 }, {
-      y: 0, opacity: 1, duration: 0.45, ease: "power3.out",
-      clearProps: "transform,opacity"
-    }, 0.45);
-    // 0.7: đổi ảnh lớn (lúc clone đã phủ kín khung) rồi dọn.
-    tl.add(function () { renderMedia(); }, 0.7);
-  }
-
-  // Crossfade + trượt nhẹ (lùi lại, nhảy xa, không có thumbnail).
-  function crossfadeTo(index, dir) {
-    var infoEls = [titleEl, metaEl, tagsEl, countEl];
-    if (!hasGsap || reduceMotion) {
-      renderInfo();
-      renderMedia();
-      renderThumbs();
-      drainWheelQueue();
-      return;
-    }
-    var tl = gsap.timeline({
-      onComplete: function () {
-        animating = null;
-        renderThumbs();
-        // Stack mới hiện dần để số lượng thumbnail không đổi đột ngột.
-        if (hasGsap && !reduceMotion) {
-          gsap.fromTo(thumbsEl, { opacity: 0 }, {
-            opacity: 1, duration: 0.4, ease: "power2.out", clearProps: "opacity"
-          });
-        }
-        drainWheelQueue();
-      }
-    });
-    animating = tl;
-    // Ảnh cũ và thông tin mờ dần (không nháy thành khung xám: nền
-    // container đã trong suốt nên lúc mờ chỉ thấy nền trang).
-    // Không dùng stagger: số thứ tự, tiêu đề, meta, tag và ảnh phải
-    // cùng một nhịp mờ, cùng độ mờ ở mọi khung.
-    tl.to([imgEl].concat(infoEls), {
-      opacity: 0, y: dir > 0 ? -18 : 18, duration: 0.25, ease: "power2.in"
-    }, 0);
-    // Stack cũ mờ dần cùng lúc để số lượng không đổi đột ngột.
-    tl.to(thumbsEl, { opacity: 0, duration: 0.25, ease: "power2.in" }, 0);
-    tl.add(function () {
-      renderInfo();
-      renderMedia();
-    }, 0.28);
-    tl.fromTo([imgEl].concat(infoEls), { opacity: 0, y: dir > 0 ? 18 : -18 }, {
-      opacity: 1, y: 0, duration: 0.5, ease: "power3.out",
-      // Xóa style inline khi xong để ảnh lớn về lại scale CSS (1.02)
-      // và hover zoom (1.07) không bị kẹt ở crop phóng to.
-      clearProps: "transform,opacity"
-    }, 0.3);
-  }
-
-  /* ---------- Lăn chuột để chuyển dự án: 1 lần lăn = 1 dự án ----------
-     Trước đây dùng track cuộn dài (mỗi dự án 100vh) nên phải lăn
-     3 lần mới đủ 100vh để qua dự án tiếp theo, người dùng không
-     hiểu ngay. Giờ viewer là một màn hình cố định (track chỉ
-     100vh, trang không cuộn), bắt sự kiện wheel: một lần lăn
-     (deltaY vượt ngưỡng nhỏ) thì chuyển đúng một dự án, kèm khóa
-     0.8 giây để không nhảy cóc khi lăn nhanh. Khóa cũng ngăn hiệu
-     ứng bay đang chạy bị hủy bởi lần lăn tiếp theo. Mobile thì
-     không dùng wheel (viewer không ghim, trang cuộn bình thường,
-     chuyển dự án bằng thumbnail và filter). */
-  var wheelLockUntil = 0;
-  var wheelQueue = 0; // số bước lăn đang xếp hàng (dương = xuống, âm = lên)
-  var WHEEL_THRESHOLD = 12; // ngưỡng deltaY (px) để tính là một lần lăn
-  var WHEEL_LOCK_MS = 800; // khóa sau mỗi lần chuyển
-
-  // Xử lý các lần lăn đang xếp hàng sau khi animation xong: mỗi lần
-  // chỉ chuyển 1 dự án, đặt lại khóa rồi chuyển tiếp nếu còn xếp hàng.
-  // Nhờ vậy lăn nhanh 3 lần thì qua đúng 3 dự án, không bị mất nhịp.
-  function drainWheelQueue() {
-    if (wheelQueue === 0) return;
-    var dir = wheelQueue > 0 ? 1 : -1;
-    wheelQueue -= dir;
-    wheelLockUntil = Date.now() + WHEEL_LOCK_MS;
-    goTo(Math.min(Math.max(current + dir, 0), list.length - 1));
-  }
+  /* ---------- Lăn chuột: 1 cử chỉ = 1 dự án ----------
+     Trackpad và Magic Mouse bắn hàng chục sự kiện wheel liên tục
+     (cả phần quán tính) cho một lần vuốt. Bản cũ coi mỗi sự kiện vượt
+     ngưỡng là một lần lăn và xếp hàng, nên một lần vuốt chạy hết 7 dự
+     án. Giờ: sự kiện đầu tiên của cử chỉ chuyển 1 dự án, các sự kiện
+     sau bị bỏ qua cho tới khi wheel im lặng >= 200ms (hết cử chỉ). Nếu
+     người dùng lăn cử chỉ MỚI khi animation chưa xong thì giữ lại đúng
+     1 bước để chạy tiếp. */
+  var WHEEL_GAP = 200;
+  var lastWheel = 0;
+  var gestureUsed = false;
+  var wheelAccum = 0;
 
   function onWheel(event) {
-    if (window.innerWidth <= 900) return; // mobile: để trang cuộn bình thường
-    if (lightbox && !lightbox.hidden) return; // lightbox đang mở thì không chuyển
-    var dy = event.deltaY;
-    if (event.deltaMode === 1) dy *= 16; // delta theo dòng thì đổi ra px
-    else if (event.deltaMode === 2) dy *= window.innerHeight; // delta theo trang
-    if (Math.abs(dy) < WHEEL_THRESHOLD) return;
+    if (!isPinnedLayout()) return;
+    if (lightbox && !lightbox.hidden) return;
     event.preventDefault();
-    var dir = dy > 0 ? 1 : -1;
-    var now = Date.now();
-    if (now < wheelLockUntil) {
-      // Đang khóa: xếp hàng thay vì bỏ qua. Chỉ xếp nếu còn dự án
-      // ở hướng đó (tính theo vị trí hiện tại cộng số bước đã xếp).
-      var projected = current + wheelQueue + dir;
-      if (projected >= 0 && projected <= list.length - 1) {
-        wheelQueue += dir;
-      }
-      return;
-    }
-    wheelLockUntil = now + WHEEL_LOCK_MS;
-    goTo(Math.min(Math.max(current + dir, 0), list.length - 1));
+    var dy = event.deltaY;
+    if (event.deltaMode === 1) dy *= 16;
+    else if (event.deltaMode === 2) dy *= window.innerHeight;
+    var t = now();
+    if (t - lastWheel > WHEEL_GAP) { gestureUsed = false; wheelAccum = 0; }
+    lastWheel = t;
+    if (gestureUsed) return;
+    wheelAccum += dy;
+    if (Math.abs(wheelAccum) < 10) return;
+    gestureUsed = true;
+    var dir = wheelAccum > 0 ? 1 : -1;
+    if (isBusy()) { pendingStep = dir; return; }
+    step(dir);
   }
-
   window.addEventListener("wheel", onWheel, { passive: false });
 
-  // Bàn phím: mũi tên xuống/lên để chuyển dự án (chỉ desktop,
-  // khi viewer đang ghim).
+  /* ---------- iPad / màn cảm ứng ngang: vuốt dọc = 1 dự án ---------- */
+  var touchY = null, touchX = null, touchDone = false;
+  viewer.addEventListener("touchstart", function (e) {
+    if (!isPinnedLayout() || e.touches.length !== 1) return;
+    touchY = e.touches[0].clientY; touchX = e.touches[0].clientX; touchDone = false;
+  }, { passive: true });
+  viewer.addEventListener("touchmove", function (e) {
+    if (touchY === null || !isPinnedLayout()) return;
+    var dy = touchY - e.touches[0].clientY;
+    var dx = touchX - e.touches[0].clientX;
+    if (Math.abs(dy) > Math.abs(dx)) e.preventDefault();
+    if (touchDone || Math.abs(dy) < 40 || Math.abs(dy) < Math.abs(dx)) return;
+    touchDone = true;
+    var dir = dy > 0 ? 1 : -1;
+    if (isBusy()) { pendingStep = dir; return; }
+    step(dir);
+  }, { passive: false });
+  viewer.addEventListener("touchend", function () { touchY = null; }, { passive: true });
+
+  function isPinnedLayout() { return window.innerWidth > 900; }
+
+  /* ---------- Bàn phím ---------- */
   document.addEventListener("keydown", function (event) {
-    if (lightbox && !lightbox.hidden) return; // lightbox tự xử lý phím
-    if (window.innerWidth <= 900) return;
-    if (event.key === "ArrowDown" || event.key === "PageDown") {
-      event.preventDefault();
-      wheelQueue = 0;
-      goTo(Math.min(current + 1, list.length - 1));
-    } else if (event.key === "ArrowUp" || event.key === "PageUp") {
-      event.preventDefault();
-      wheelQueue = 0;
-      goTo(Math.max(current - 1, 0));
-    }
+    if (lightbox && !lightbox.hidden) return;
+    if (!isPinnedLayout()) return;
+    var dir = 0;
+    if (event.key === "ArrowDown" || event.key === "PageDown") dir = 1;
+    if (event.key === "ArrowUp" || event.key === "PageUp") dir = -1;
+    if (!dir) return;
+    event.preventDefault();
+    if (isBusy()) { pendingStep = dir; return; }
+    step(dir);
   });
 
-  /* ---------- Hover ảnh lớn: tương tác như thẻ ----------
-     Nhấc lên, nghiêng 3D theo chuột (rotateX/rotateY), bóng
-     đổ mềm; ảnh bên trong zoom nhẹ bằng CSS. Khi rời chuột
-     thì trở về thẳng. Chỉ chạy trên thiết bị có chuột. */
-  function resetMediaHover() {
-    // Đưa ảnh lớn về trạng thái thẳng, không nghiêng/nhấc (dùng khi
-    // vừa đổi dự án hoặc vừa đóng lightbox, để không dính zoom).
-    if (tiltXFn) tiltXFn(0);
-    if (tiltYFn) tiltYFn(0);
-    if (liftYFn) liftYFn(0);
-  }
-
-  if (finePointer && !reduceMotion && hasGsap) {
-    gsap.set(mediaEl, { transformPerspective: 1200 });
-    tiltXFn = gsap.quickTo(mediaEl, "rotationY", { duration: 0.5, ease: "power2.out" });
-    tiltYFn = gsap.quickTo(mediaEl, "rotationX", { duration: 0.5, ease: "power2.out" });
-    liftYFn = gsap.quickTo(mediaEl, "y", { duration: 0.5, ease: "power2.out" });
-    mediaEl.addEventListener("mousemove", function (event) {
-      var r = mediaEl.getBoundingClientRect();
-      var px = (event.clientX - r.left) / r.width - 0.5;
-      var py = (event.clientY - r.top) / r.height - 0.5;
-      tiltXFn(px * 8);
-      tiltYFn(-py * 8);
-      liftYFn(-6);
-    });
-    mediaEl.addEventListener("mouseleave", function () {
-      resetMediaHover();
-    });
-  }
-
-  // Chuột thực sự di chuyển trên ảnh thì bật lại hover (gỡ class
-  // wn-media--no-hover mà goTo/closeLightbox đã thêm).
-  mediaEl.addEventListener("mousemove", function () {
-    mediaEl.classList.remove("wn-media--no-hover");
-  });
-
-  /* ---------- Bấm ảnh lớn: phóng full màn hình ----------
-     Bản staging chưa có trang case study nên mở lightbox xem
-     full ảnh; khi trang case study được xây, chỗ này sẽ nối
-     sang trang đó thay vì mở lightbox. Đóng bằng cách bấm
-     lại ảnh, bấm nút Close hoặc Esc. */
+  /* ---------- Lightbox xem ảnh full ---------- */
   function fullRect() {
-    var p = projectAt(current);
-    var vw = window.innerWidth;
-    var vh = window.innerHeight;
-    var maxW = Math.min(vw * 0.92, 1600);
-    var maxH = vh * 0.86;
+    var p = list[current];
+    var vw = window.innerWidth, vh = window.innerHeight;
+    var maxW = Math.min(vw * 0.92, 1600), maxH = vh * 0.86;
     var ar = (p && p.width && p.height) ? p.width / p.height : 16 / 9;
-    var w = maxW;
-    var h = w / ar;
+    var w = maxW, h = w / ar;
     if (h > maxH) { h = maxH; w = h * ar; }
-    return {
-      left: (vw - w) / 2, top: (vh - h) / 2, width: w, height: h
-    };
+    return { left: (vw - w) / 2, top: (vh - h) / 2, width: w, height: h };
   }
-
   function openLightbox() {
-    var p = projectAt(current);
+    var p = list[current];
     if (!p) return;
     lightboxImg.src = p.image;
     lightboxImg.alt = p.alt;
     lightboxCap.textContent = p.title + (p.year ? " — " + p.year : "") + " — " + p.tag;
     lightbox.hidden = false;
     document.body.style.overflow = "hidden";
-
-    if (!hasGsap || reduceMotion) return;
-    // Bay từ khung ảnh lớn ra full màn hình.
-    var from = mediaEl.getBoundingClientRect();
-    var to = fullRect();
+    if (reduceMotion) return;
+    var from = mediaSlot.getBoundingClientRect(), to = fullRect();
     var frame = lightbox.querySelector(".wn-lightbox-frame");
     gsap.fromTo(frame,
       { x: from.left - to.left, y: from.top - to.top, scaleX: from.width / to.width, scaleY: from.height / to.height, transformOrigin: "0 0" },
       { x: 0, y: 0, scaleX: 1, scaleY: 1, duration: 0.6, ease: "power3.inOut" });
     gsap.fromTo(lightbox, { opacity: 0 }, { opacity: 1, duration: 0.35, ease: "power2.out" });
   }
-
   function closeLightbox() {
     if (lightbox.hidden) return;
     var done = function () {
       lightbox.hidden = true;
       document.body.style.overflow = "";
-      // Trả ảnh inline về khung bình thường: reset nghiêng/nhấc và tắt
-      // hover cho tới khi chuột thực sự di chuyển (tránh dính zoom sau
-      // khi đóng, và tránh bóng ma do hover kẹt).
-      resetMediaHover();
-      mediaEl.classList.add("wn-media--no-hover");
+      PROJECTS.forEach(function (p) { resetTilt(cards[p.id]); });
+      layer.classList.add("no-hover");
     };
-    if (!hasGsap || reduceMotion) { done(); return; }
-    var from = mediaEl.getBoundingClientRect();
+    if (reduceMotion) { done(); return; }
+    var from = mediaSlot.getBoundingClientRect();
     var frame = lightbox.querySelector(".wn-lightbox-frame");
     var r = frame.getBoundingClientRect();
-    gsap.to(frame, {
-      x: from.left - r.left, y: from.top - r.top,
-      scaleX: from.width / r.width, scaleY: from.height / r.height,
-      transformOrigin: "0 0", duration: 0.5, ease: "power3.inOut"
-    });
+    gsap.to(frame, { x: from.left - r.left, y: from.top - r.top, scaleX: from.width / r.width,
+      scaleY: from.height / r.height, transformOrigin: "0 0", duration: 0.5, ease: "power3.inOut" });
     gsap.to(lightbox, { opacity: 0, duration: 0.4, ease: "power2.out", onComplete: function () {
       gsap.set(frame, { clearProps: "all" });
       gsap.set(lightbox, { clearProps: "opacity" });
       done();
     }});
   }
+  lightbox.addEventListener("click", function (e) {
+    if (e.target === lightbox || e.target === lightboxImg) closeLightbox();
+  });
+  lightboxClose.addEventListener("click", function (e) { e.stopPropagation(); closeLightbox(); });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && !lightbox.hidden) closeLightbox();
+  });
 
-  mediaEl.addEventListener("click", openLightbox);
-  mediaEl.addEventListener("keydown", function (event) {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      openLightbox();
-    }
-  });
-  lightbox.addEventListener("click", function (event) {
-    if (event.target === lightbox || event.target === lightboxImg) closeLightbox();
-  });
-  lightboxClose.addEventListener("click", function (event) {
-    event.stopPropagation();
-    closeLightbox();
-  });
-  document.addEventListener("keydown", function (event) {
-    if (event.key === "Escape" && !lightbox.hidden) closeLightbox();
+  /* ---------- Resize: đặt lại vị trí, không animation ---------- */
+  var resizeRaf = 0;
+  window.addEventListener("resize", function () {
+    cancelAnimationFrame(resizeRaf);
+    resizeRaf = requestAnimationFrame(function () {
+      PROJECTS.forEach(function (p) { gsap.killTweensOf(cards[p.id].el); });
+      placeAll();
+    });
   });
 
   /* ---------- Khởi tạo ---------- */
-  setTrackHeight();
-  setFilter("All");
-  renderAll();
-  // Hiện viewer dần khi tải xong.
-  requestAnimationFrame(function () {
-    viewer.classList.add("is-ready");
-  });
+  renderInfo();
+  placeAll();
+  // Font tải xong có thể đổi chiều cao chữ -> đo lại khung.
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(placeAll);
+  window.addEventListener("load", placeAll);
+  requestAnimationFrame(function () { viewer.classList.add("is-ready"); });
 })();
