@@ -393,15 +393,23 @@
       resetTilt(c);
       c.el.style.visibility = "";
       gsap.killTweensOf(c.el);
-      gsap.set(c.el, { opacity: 1, zIndex: s.z });
+      // Card đích phải giữ z-index của stack (dưới các thumbnail đi
+      // trước nó) cho tới khi bắt đầu bay lên ảnh lớn. Không nâng lên
+      // z đích ngay từ đầu, nếu không nó đè lên các thumbnail khác
+      // dù vẫn đang ở trong stack.
+      gsap.set(c.el, { opacity: 1 });
       if ((s.kind === "deck" || s.kind === "big") && (from === "thumb" || from === "reserve")) {
         // Bay vào chồng ảnh lớn lần lượt theo thứ tự (cái trước nằm dưới).
+        // Nâng z lên z đích trong onStart, đúng lúc bắt đầu bay.
         var d = (i - fromIndex - 1) * GAP;
-        gsap.to(c.el, vars(s, { duration: FLY, ease: "power3.inOut", delay: d }));
+        gsap.to(c.el, vars(s, { duration: FLY, ease: "power3.inOut", delay: d,
+          onStart: function () { gsap.set(c.el, { zIndex: s.z }); } }));
         longest = Math.max(longest, d + FLY);
       } else {
         // Ảnh lớn / deck cũ lùi sâu xuống dưới (bị các card bay tới che);
-        // thumbnail / dự trữ còn lại dịch nấc trong stack.
+        // thumbnail / dự trữ còn lại dịch nấc trong stack. Bắt đầu ngay
+        // nên nâng z lên z đích luôn.
+        gsap.set(c.el, { zIndex: s.z });
         gsap.to(c.el, vars(s, { duration: DUR, ease: EASE }));
       }
       applyKind(c, s.kind);
@@ -529,6 +537,13 @@
             var s2 = stateFor(i2 - current);
             gsap.set(c.el, vars(s2, { zIndex: s2.z }));
           });
+        } else if (s.kind === "big" && !wasUp) {
+          // Card đích đang ở stack thumbnail: giữ z hiện tại (dưới các
+          // thumbnail đi trước nó) cho tới khi bắt đầu bay lên ảnh lớn.
+          // Nâng z lên 120 trong onStart, đúng lúc bay (flyAt).
+          finalVars.delay = flyAt;
+          finalVars.onStart = function () { gsap.set(c.el, { zIndex: 120 }); };
+          gsap.to(c.el, finalVars);
         } else {
           gsap.set(c.el, { zIndex: s.kind === "big" ? 120 : (c.kind === "big" ? 150 : s.z) });
           if (s.kind === "big") finalVars.delay = flyAt;
@@ -547,10 +562,12 @@
   /* ---------- Danh sách tên dự án (thay cho filter) ----------
      Cột trái hiện tên toàn bộ dự án của trang đang xem. Dự án đang
      xem màu đen, các dự án khác màu xám; hover thì đậm dần. Bấm tên
-     thì chuyển tới dự án đó với cùng motion như bấm thumbnail. Tên
-     đổi màu đúng lúc tiêu đề đổi (trong renderInfo). Bề rộng cột cố
-     định theo tên dài nhất của cả 2 trang, nên khi đổi trang stack
-     thumbnail không bị xê dịch. */
+     thì mở case study của dự án đó, giống như bấm vô ảnh lớn
+     (Independent: lightbox xem ảnh full; Agency: mở URL dự án ở tab
+     mới). Hover tên thì cursor hiện chữ Open (Independent) hoặc mũi
+     tên tab mới (Agency). Tên đổi màu đúng lúc tiêu đề đổi (trong
+     renderInfo). Bề rộng cột cố định theo tên dài nhất của cả 2 trang,
+     nên khi đổi trang stack thumbnail không bị xê dịch. */
   function renderNames() {
     filtersEl.innerHTML = list.map(function (p, i) {
       return '<li><button type="button" class="wn-filter" data-index="' + i + '">' + p.title + "</button></li>";
@@ -579,13 +596,34 @@
     filtersEl.style.width = Math.ceil(w) + "px";
   }
 
+  // Bấm tên dự án thì mở case study của dự án đó, giống như bấm vô
+  // ảnh lớn: Independent thì mở lightbox xem ảnh full, Agency thì mở
+  // URL dự án của agency ở tab mới. Không chuyển dự án (không goTo).
   filtersEl.addEventListener("click", function (event) {
     var btn = event.target.closest(".wn-filter");
     if (!btn) return;
     var i = parseInt(btn.getAttribute("data-index"), 10);
     if (isNaN(i)) return;
+    var p = list[i];
+    if (!p) return;
     pendingStep = 0;
-    goTo(i);
+    if (p.url) window.open(p.url, "_blank", "noopener");
+    else openLightbox(p);
+  });
+
+  // Hover tên dự án thì cursor hiện chữ Open (Independent) hoặc mũi
+  // tên tab mới (Agency), giống hệt như hover ảnh lớn của từng loại.
+  filtersEl.addEventListener("mouseover", function (event) {
+    var btn = event.target.closest(".wn-filter");
+    if (!btn) return;
+    var i = parseInt(btn.getAttribute("data-index"), 10);
+    if (isNaN(i)) return;
+    var p = list[i];
+    if (!p) return;
+    setCursor(p.url ? "newtab" : "open");
+  });
+  filtersEl.addEventListener("mouseleave", function () {
+    setCursor(null);
   });
 
   /* ---------- Đổi trang: Independent Works / Agency Works ----------
@@ -832,8 +870,8 @@
   });
 
   /* ---------- Lightbox xem ảnh full (chỉ Independent Works) ---------- */
-  function fullRect() {
-    var p = list[current];
+  function fullRect(proj) {
+    var p = proj || list[current];
     var vw = window.innerWidth, vh = window.innerHeight;
     var maxW = Math.min(vw * 0.92, 1600), maxH = vh * 0.86;
     var ar = (p && p.width && p.height) ? p.width / p.height : 16 / 9;
@@ -841,8 +879,8 @@
     if (h > maxH) { h = maxH; w = h * ar; }
     return { left: (vw - w) / 2, top: (vh - h) / 2, width: w, height: h };
   }
-  function openLightbox() {
-    var p = list[current];
+  function openLightbox(proj) {
+    var p = proj || list[current];
     if (!p) return;
     lightboxImg.src = p.image;
     lightboxImg.alt = p.alt;
@@ -851,7 +889,7 @@
     document.body.style.overflow = "hidden";
     setCursor(null);
     if (reduceMotion) return;
-    var from = mediaSlot.getBoundingClientRect(), to = fullRect();
+    var from = mediaSlot.getBoundingClientRect(), to = fullRect(p);
     var frame = lightbox.querySelector(".wn-lightbox-frame");
     gsap.fromTo(frame,
       { x: from.left - to.left, y: from.top - to.top, scaleX: from.width / to.width, scaleY: from.height / to.height, transformOrigin: "0 0" },
