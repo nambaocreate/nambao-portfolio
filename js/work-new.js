@@ -165,7 +165,7 @@
     el.innerHTML =
       '<span class="wn-card-inner">' +
         '<img src="' + p.image + '" alt="" decoding="async" draggable="false">' +
-        '<span class="wn-media-hint">' + (p.url ? "Open project" : "Click to view") + "</span>" +
+        '<span class="wn-media-hint">' + (p.url ? "Open in new tab" : "Open project") + "</span>" +
       "</span>";
     layer.appendChild(el);
     var inner = el.firstChild;
