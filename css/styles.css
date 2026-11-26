@@ -505,28 +505,15 @@ body.contact-open .wn-nav { position: relative; z-index: 2000; }
   transition: opacity .35s ease, visibility 0s;
 }
 
-/* Lớp nền đặc ngay sau card (giữ nguyên cách sửa 1px tách hai
-   mặt card, chỉ sửa thêm nguyên nhân thật phía sau modal):
-   khi card nghiêng 3D, mép card hở ra và qua lớp overlay mờ
-   60% sẽ thấy ảnh hero wheel phía sau (mũi nhọn đủ màu, dài
-   60-90px) lòi ra dưới mép card. Lớp này là một panel đen đặc
-   ở giữa, đủ che card cộng vùng card nghiêng tới (mép card
-   lệch tối đa khoảng 60px khi nghiêng 5-7 độ), mờ dần ra mép
-   để giữ cảm giác nền tối mờ xung quanh, nên vùng quanh card
-   luôn sạch, không còn ảnh hero nào lòi ra được. pointer-events
-   none để bấm nền vẫn đóng modal như cũ (JS đóng khi
-   e.target === overlay). */
-.contact-overlay::before {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: min(1400px, 96vw);
-  height: min(1000px, 92svh);
-  transform: translate(-50%, -50%);
-  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 78%, rgba(0, 0, 0, 0) 96%);
-  pointer-events: none;
-}
+/* Không còn panel đen đặc sau card: trước đây có một panel đen
+   đặc 1400x1000 (radial-gradient đen đặc tới 78%) sau card để
+   che ảnh hero lòi ra khi card nghiêng, nhưng trên màn hình nó
+   hiện thành khối đen đặc lớn che gần hết trang. Giờ chỉ còn
+   lớp overlay mờ 60% phủ toàn viewport (kiểu brandonyasin.com):
+   card hiện ra, nền phía sau tối lại nhưng vẫn thấy mờ mờ.
+   Lỗi góc tam giác đen khi card nghiêng vẫn được giữ bởi cách
+   tách hai mặt card 1px theo trục Z (xem .contact-card--front
+   và .contact-card--back), không cần panel đen nữa. */
 
 .contact-card-tilt {
   transform-style: preserve-3d;
