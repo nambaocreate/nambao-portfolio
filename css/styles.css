@@ -1042,9 +1042,9 @@ body.contact-open .wn-nav { position: relative; z-index: 2000; }
 .cursor--open [data-cursor-label="open"] { opacity: 1; }
 .cursor--view [data-cursor-label="view"] { opacity: 1; }
 
-/* Đĩa "coming soon": chữ dài hơn "Open" nên đĩa rộng hơn
-   (140px) và chữ nhỏ hơn (8px) để vừa trong đĩa. */
-.cursor--soon { width: 140px; height: 140px; }
+/* Đĩa "Coming Soon": cùng cỡ 120px với đĩa Open/Read/View cho
+   consistent; chữ 8px vẫn vừa trong đĩa 120px. */
+.cursor--soon { width: 120px; height: 120px; }
 .cursor--soon [data-cursor-label="soon"] { opacity: 1; font-size: 8px; }
 
 @media (hover: none) {
