@@ -289,7 +289,14 @@
      lặp bế tắc). Chỉ dùng bộ kiểm tra theo vị trí hình học
      (getBoundingClientRect, không bị clip-path ảnh hưởng), chạy khi
      cuộn, đổi kích thước, lúc tải trang, và lặp lại trong vài giây
-     đầu. Nhờ vậy nội dung không bao giờ bị ẩn vĩnh viễn. */
+     đầu. Nhờ vậy nội dung không bao giờ bị ẩn vĩnh viễn.
+     Ảnh bị pop vì sao: ảnh trong figure dùng loading="lazy" và
+     figure bị clip về diện tích 0 nên trình duyệt không tải ảnh
+     cho tới khi clip mở ra; wipe 0.9s chạy xong trước khi ảnh tải
+     về, nên wipe chỉ lộ ra khung trống rồi ảnh hiện đột ngột. Cách
+     sửa: khi figure sắp vào viewport (1.5 chiều cao màn hình) thì
+     tải trước ảnh, và chỉ wipe khi ảnh đã sẵn (tải xong hoặc lỗi),
+     quá 4 giây thì hiện luôn để không ẩn mãi. */
   (function reveal() {
     var els = Array.prototype.slice.call(document.querySelectorAll(".cs-reveal"));
     if (!els.length) return;
@@ -297,24 +304,75 @@
       els.forEach(function (el) { el.classList.add("is-in"); });
       return;
     }
-    // Danh sách phần tử chưa hiện; rút ngắn dần khi từng cái hiện ra.
+    // Ảnh bị pop vì sao: ảnh trong figure dùng loading="lazy" và
+    // figure bị clip-path cắt về diện tích 0 nên trình duyệt không
+    // tải ảnh cho tới khi clip mở ra. Wipe 0.9s chạy xong trước khi
+    // ảnh tải về (mỗi ảnh 70-650KB), nên wipe chỉ lộ ra khung trống
+    // (nền trang), rồi ảnh hiện đột ngột khi tải xong. Cách sửa: khi
+    // figure sắp vào viewport (trong 1.5 chiều cao màn hình) thì tải
+    // trước ảnh (đưa vào HTTP cache) và chỉ bắt đầu wipe khi ảnh đã
+    // sẵn, để wipe lộ ra ảnh thật. Khối chữ (không có ảnh) thì reveal
+    // ngay như cũ. Ảnh lỗi hoặc quá chậm thì hiện luôn sau 4 giây,
+    // không để nội dung bị ẩn vĩnh viễn.
+    var preloadCache = {};
     var pending = els.slice();
-    function inView(el) {
-      // getBoundingClientRect trả về khung layout, không bị clip-path
-      // ảnh hưởng, nên đo được dù phần tử đang bị cắt ẩn.
-      var r = el.getBoundingClientRect();
-      var vh = window.innerHeight || document.documentElement.clientHeight;
-      // Đã cuộn qua rồi (đáy nằm trên mép viewport) thì hiện luôn,
-      // không để ẩn mãi. Còn không thì hiện khi đỉnh đã vào sâu
-      // trong viewport (70%) để đường wipe quét qua phần tử đang
-      // hiện rõ, không chạy ngoài màn hình.
-      if (r.bottom <= 0) return true;
-      return r.top < vh * 0.7 && r.bottom > 0;
+    var WAIT_MS = 4000;
+    function preloadFor(img) {
+      if (!img || !img.src) return null;
+      var src = img.src;
+      if (preloadCache[src]) return preloadCache[src];
+      if (img.complete) {
+        preloadCache[src] = { ready: true };
+        return preloadCache[src];
+      }
+      // Chuyển img trong DOM sang eager để nó bắt đầu tải ngay
+      // (best-effort; trình duyệt nào không nhận thì preload dưới
+      // đây vẫn đưa ảnh vào HTTP cache).
+      try { img.loading = "eager"; } catch (e) {}
+      var entry = { ready: false };
+      preloadCache[src] = entry;
+      var pre = new Image();
+      pre.onload = function () { entry.ready = true; check(); };
+      pre.onerror = function () { entry.ready = true; check(); };
+      pre.src = src;
+      return entry;
+    }
+    function imgReady(el) {
+      var img = el.querySelector("img");
+      if (!img) return true;
+      // complete là true cả khi tải xong lẫn khi lỗi; lỗi thì coi
+      // như sẵn để hiện luôn chứ không ẩn mãi.
+      if (img.complete) return true;
+      var entry = preloadCache[img.src];
+      if (entry && entry.ready) return true;
+      return false;
     }
     function check() {
       if (!pending.length) return;
+      var now = Date.now();
+      var vh = window.innerHeight || document.documentElement.clientHeight;
       pending = pending.filter(function (el) {
-        if (inView(el)) { el.classList.add("is-in"); return false; }
+        var r = el.getBoundingClientRect();
+        // Đã cuộn qua rồi thì hiện luôn, không đợi ảnh (người dùng
+        // đã qua khỏi, không còn thấy wipe nữa).
+        if (r.bottom <= 0) { el.classList.add("is-in"); return false; }
+        // Sắp vào viewport (trong 1.5 chiều cao màn hình) thì bắt
+        // đầu tải ảnh trước để khi tới lượt wipe thì ảnh đã sẵn.
+        if (r.top < vh * 1.5) {
+          var img = el.querySelector("img");
+          if (img) preloadFor(img);
+        }
+        // Vào sâu trong viewport (70%) và ảnh đã sẵn thì mới wipe,
+        // để wipe lộ ra ảnh thật chứ không phải khung trống.
+        if (r.top < vh * 0.7 && r.bottom > 0) {
+          if (imgReady(el)) { el.classList.add("is-in"); return false; }
+          // Quá 4 giây mà ảnh vẫn chưa sẵn thì hiện luôn, tránh
+          // để trống mãi vì mạng chậm hoặc ảnh lỗi.
+          if (!el._trigSince) el._trigSince = now;
+          if (now - el._trigSince > WAIT_MS) { el.classList.add("is-in"); return false; }
+        } else {
+          el._trigSince = null;
+        }
         return true;
       });
     }
