@@ -21,13 +21,23 @@
 }
 
 /* ---------- Hero: ảnh full-bleed, nav cố định đè lên trên ---------- */
+/* Hero hiện trọn ảnh gốc trong một màn hình (không crop, không
+   cần cuộn mới thấy hết ảnh): khung cao đúng một viewport, ảnh
+   contain vừa khung, căn giữa. Ảnh 3:2 (TH28) hay gần vuông
+   (EGG:01) đều hiện đủ, phần thừa hai bên là nền trang. */
 .cs-hero {
   position: relative;
+  height: 100vh;
+  height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .cs-hero-img {
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: contain;
   display: block;
 }
 
@@ -51,11 +61,14 @@
   transition: filter 0.3s ease;
 }
 
-.cs-nav--dark {
+/* Độ đặc hiệu phải cao hơn .cs-hero .nav (0,2,0) thì mới thắng
+   được màu trắng khi cuộn qua hero; dùng đúng class nav trên
+   cùng phần tử để thắng cả màu chữ lẫn filter logo. */
+.cs-hero .nav.cs-nav--dark {
   color: #000;
 }
 
-.cs-nav--dark .nav-logo img {
+.cs-hero .nav.cs-nav--dark .nav-logo img {
   filter: none;
 }
 
@@ -236,7 +249,10 @@
 }
 
 .cs-pair .cs-figure {
-  flex: none;
+  /* Cho co lại theo tỉ lệ khi màn hẹp để không tràn khung; ở màn
+     rộng vẫn giữ đúng rộng Figma (không grow). */
+  flex: 0 1 auto;
+  min-width: 0;
   max-width: 100%;
 }
 
@@ -280,7 +296,9 @@
 }
 
 .cs-textimage .cs-figure {
-  flex: 1 1 auto;
+  /* flex-basis 0 để ảnh nhận hết phần co/giãn còn lại; cột chữ
+     (flex none + min-width bằng rộng Figma) không bao giờ co. */
+  flex: 1 1 0;
   min-width: 0;
 }
 
@@ -366,6 +384,33 @@
   line-height: 1.25;
   text-transform: uppercase;
   white-space: nowrap;
+}
+
+/* ---------- Reveal khi cuộn: đường vô hình chạy lên ----------
+   Không fade (không đổi opacity), không slide (không dịch chuyển
+   phần tử). Chỉ dùng clip-path: lúc đầu cắt 100% từ trên (ẩn
+   hoàn toàn), khi vào khung nhìn thì cắt về 0, vùng hiện mở rộng
+   dần từ dưới lên, như một đường vô hình chạy lên và hiện dần
+   nội dung phía dưới. Trạng thái ẩn chỉ áp khi có class js trên
+   <html> (đã thêm bằng script trong head); nếu JS lỗi thì nội
+   dung vẫn hiện bình thường. Không áp cho hero (nav cố định nằm
+   trong hero, clip-path sẽ phá vị trí của nó). */
+.js .cs-reveal {
+  clip-path: inset(100% 0 0 0);
+  transition: clip-path 0.9s cubic-bezier(0.65, 0, 0.35, 1);
+  will-change: clip-path;
+}
+
+.js .cs-reveal.is-in {
+  clip-path: inset(0 0 0 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js .cs-reveal {
+    clip-path: none;
+    transition: none;
+    will-change: auto;
+  }
 }
 
 /* ---------- Footer trên trang case study ---------- */

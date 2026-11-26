@@ -287,12 +287,30 @@
     if (p.caseStudy) { expandToCaseStudy(p); }
   }
 
+  // Tải và giải mã xong một ảnh thì mới coi là sẵn sàng (để trang
+  // đích vẽ hero ngay khi tới, không chớp khung trống). Có timeout
+  // an toàn để không kẹt nếu ảnh lỗi hoặc mạng chậm.
+  function loadImage(src) {
+    return new Promise(function (resolve) {
+      var done = false;
+      function fin() { if (!done) { done = true; resolve(); } }
+      var im = new Image();
+      im.onload = function () {
+        if (im.decode) { im.decode().then(fin, fin); } else { fin(); }
+      };
+      im.onerror = fin;
+      im.src = src;
+      setTimeout(fin, 4000);
+    });
+  }
+
   // Hiệu ứng mở rộng bằng tay: ảnh lớn phóng to từ vị trí đang hiện
-  // ra full màn hình (đúng vị trí và tỉ lệ hero ở trang đích) rồi
-  // mới chuyển trang. Ảnh lớn và hero là cùng một ảnh nên chuyển
-  // động liền mạch; hero đã preload sẵn (xem work.html) nên trang
-  // đích hiện hero ngay, không chớp trắng. Không dùng View
-  // Transitions API nữa, để chắc chắn mượt trên mọi trình duyệt.
+  // ra đúng vị trí và tỉ lệ hero ở trang đích (hero contain trong
+  // một viewport, xem css/case-study.css) rồi mới chuyển trang.
+  // Chỉ chuyển khi cả hiệu ứng xong VÀ ảnh hero đích đã tải và
+  // giải mã xong, nên trang đích hiện hero ngay, không chớp trắng.
+  // Không dùng View Transitions API nữa, để chắc chắn mượt trên
+  // mọi trình duyệt.
   var expanding = false;
   function expandToCaseStudy(p) {
     if (expanding) return;
@@ -300,12 +318,36 @@
     var c = cards[p.id];
     var img = c && c.img;
     var rect = img ? img.getBoundingClientRect() : null;
-    var vw = window.innerWidth;
+    var vw = document.documentElement.clientWidth || window.innerWidth;
     var vh = window.innerHeight;
-    // Đích: hero full chiều rộng, cao theo đúng tỉ lệ hero.
+    // Đích: đúng khung ảnh hero sẽ hiện ở trang đích (contain trong
+    // một viewport: ảnh vừa khung, căn giữa, không crop).
     var hw = (p.hero && p.hero.width) || 1920;
     var hh = (p.hero && p.hero.height) || 1080;
-    var targetH = Math.round(vw * hh / hw);
+    var ar = hw / hh;
+    var target;
+    if (vw / vh > ar) {
+      var th = vh;
+      var tw = Math.round(vh * ar);
+      target = { x: Math.round((vw - tw) / 2), y: 0, w: tw, h: th };
+    } else {
+      var tw2 = vw;
+      var th2 = Math.round(vw / ar);
+      target = { x: 0, y: Math.round((vh - th2) / 2), w: tw2, h: th2 };
+    }
+    // Bắt đầu tải ảnh hero đích ngay từ lúc bấm (song song với
+    // hiệu ứng mở rộng) để khi chuyển trang thì ảnh đã sẵn trong
+    // cache và đã giải mã xong.
+    var heroSrc = (p.hero && p.hero.src) || "";
+    var heroReady = heroSrc ? loadImage(heroSrc) : Promise.resolve();
+    var navigated = false;
+    function go() {
+      if (navigated) return;
+      navigated = true;
+      location.href = p.caseStudy;
+    }
+    // An toàn: không đợi quá 4 giây thì vẫn chuyển trang.
+    setTimeout(go, 4000);
     var overlay = document.createElement("div");
     overlay.className = "wn-expand";
     overlay.setAttribute("aria-hidden", "true");
@@ -319,9 +361,9 @@
     if (cursorEl) cursorEl.style.opacity = "0";
     var dur = reduceMotion ? 0 : 0.6;
     gsap.to(overlay, {
-      left: 0, top: 0, width: vw, height: Math.max(targetH, vh),
+      left: target.x, top: target.y, width: target.w, height: target.h,
       duration: dur, ease: "power3.inOut",
-      onComplete: function () { location.href = p.caseStudy; }
+      onComplete: function () { heroReady.then(go); }
     });
   }
 
@@ -809,7 +851,7 @@
         layer.classList.remove("no-hover");
         if (c.kind !== "big" && c.kind !== "thumb") return;
         if (drag && drag.active) return;
-        setCursor(c.kind === "big" ? cursorFor(c.p) : null);
+        setCursor(cursorFor(c.p));
         if (layer.classList.contains("is-moving")) return;
         var r = c.el.getBoundingClientRect();
         var px = (event.clientX - r.left) / r.width - 0.5;

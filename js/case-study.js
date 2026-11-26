@@ -6,11 +6,11 @@
 // Ảnh luôn hiện ở tỉ lệ gốc (width/height thật, CSS chỉ giới hạn
 // chiều rộng hiển thị), không crop.
 //
-// View transition: ảnh hero mang view-transition-name trùng với ảnh
-// lớn của dự án đó bên trang /work (xem js/work-new.js), và cả hai
-// trang đều bật `@view-transition { navigation: auto; }` nên bấm
-// ảnh lớn bên /work sẽ morph thành hero ở đây. Trình duyệt không
-// hỗ trợ thì chỉ là chuyển trang thường.
+// Chuyển trang: bấm ảnh lớn bên /work sẽ chạy hiệu ứng mở rộng
+// bằng tay (xem js/work-new.js, overlay phóng to rồi mới chuyển
+// trang, chỉ chuyển khi ảnh hero đích đã tải và giải mã xong),
+// không dùng View Transitions API nữa, để chắc chắn mượt trên
+// mọi trình duyệt và không bị chớp trắng.
 
 (function () {
   "use strict";
@@ -20,6 +20,9 @@
   var slug = root.getAttribute("data-study");
   var data = (window.CASE_STUDIES || {})[slug];
   if (!data) return;
+
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
   document.title = data.title + " — Nam Bảo";
 
@@ -61,7 +64,9 @@
     return col;
   }
 
-  /* ---------- Hero: ảnh full-bleed, nav đè lên trên ---------- */
+  /* ---------- Hero: ảnh hiện trọn trong một màn hình, nav đè lên trên ----------
+     Khung hero cao đúng một viewport, ảnh contain vừa khung (xem
+     css/case-study.css) nên ảnh gốc hiện đủ, không crop. */
   var hero = el("header", "cs-hero");
   var heroImg = document.createElement("img");
   heroImg.className = "cs-hero-img";
@@ -78,7 +83,7 @@
   root.appendChild(hero);
 
   /* ---------- Tiêu đề + Meta ---------- */
-  var head = el("section", "cs-head");
+  var head = el("section", "cs-head cs-reveal");
   var titleBox = el("div", "cs-titlebox");
   titleBox.appendChild(el("h1", "cs-title", data.title));
   if (data.subtitle) titleBox.appendChild(el("p", "cs-subtitle", data.subtitle));
@@ -95,7 +100,7 @@
 
   /* ---------- Intro ---------- */
   if (data.intro) {
-    var intro = el("section", "cs-intro");
+    var intro = el("section", "cs-intro cs-reveal");
     intro.appendChild(el("h2", "cs-label", data.intro.label));
     var paras = el("div", "cs-intro-paras");
     data.intro.paragraphs.forEach(function (t) {
@@ -133,8 +138,12 @@
       // Ảnh co lại khi màn hẹp (max-width = số đo Figma), không đè cột chữ.
       imgFig.style.maxWidth = (s.imageWidth || 1220) + "px";
       var col = textBlocks(s.text);
-      // Cột chữ giữ đúng rộng Figma (293, hoặc textWidth riêng), không co lại.
-      col.style.width = (s.textWidth || 293) + "px";
+      // Cột chữ giữ đúng rộng Figma (293, hoặc textWidth riêng), không co lại:
+      // đặt cả width lẫn min-width để không bao giờ co dưới rộng Figma,
+      // ảnh bên cạnh nhận hết phần co (xem css .cs-textimage .cs-figure).
+      var colW = (s.textWidth || 293) + "px";
+      col.style.width = colW;
+      col.style.minWidth = colW;
       // Figma đặt ảnh trái hay phải theo từng section (xem data).
       if (s.imageSide === "left") { sec.appendChild(imgFig); sec.appendChild(col); }
       else { sec.appendChild(col); sec.appendChild(imgFig); }
@@ -147,12 +156,13 @@
     } else {
       return;
     }
+    sec.classList.add("cs-reveal");
     root.appendChild(sec);
   });
 
   /* ---------- Credits (chỉ dự án có) ---------- */
   if (data.credits) {
-    var cred = el("section", "cs-sec cs-credits");
+    var cred = el("section", "cs-sec cs-credits cs-reveal");
     cred.appendChild(el("h2", "cs-label", data.credits.label));
     data.credits.lines.forEach(function (line) {
       cred.appendChild(el("p", "cs-credit", line));
@@ -162,7 +172,7 @@
 
   /* ---------- Next Project: Work Card có ảnh cover kèm tên ---------- */
   if (data.next && data.next.length) {
-    var next = el("section", "cs-next");
+    var next = el("section", "cs-next cs-reveal");
     next.appendChild(el("h2", "cs-label", "Next Project"));
     var row = el("div", "cs-next-row");
     data.next.forEach(function (p) {
@@ -189,10 +199,22 @@
     });
     next.appendChild(row);
     root.appendChild(next);
+    // Hover card Next Project thì con trỏ hiện đĩa đen chữ Open
+    // (cùng hệ con trỏ của trang Work, xem main.js). Chỉ trên
+    // thiết bị có chuột và không giảm chuyển động.
+    if (finePointer && !reduceMotion) {
+      var cursorEl = document.querySelector(".cursor");
+      if (cursorEl) {
+        row.querySelectorAll(".cs-next-card").forEach(function (card) {
+          card.addEventListener("mouseenter", function () { cursorEl.classList.add("cursor--open"); });
+          card.addEventListener("mouseleave", function () { cursorEl.classList.remove("cursor--open"); });
+        });
+      }
+    }
   }
 
   /* ---------- Footer (dùng chung markup với trang chủ) ---------- */
-  var footer = el("footer", "footer cs-footer");
+  var footer = el("footer", "footer cs-footer cs-reveal");
   footer.id = "contact";
   footer.innerHTML =
     '<div class="footer-top">' +
@@ -217,8 +239,10 @@
     var ticking = false;
     function update() {
       ticking = false;
-      // Đáy hero vừa qua đáy nav thì nav đen, còn không thì nav trắng.
-      var past = window.scrollY >= hero.offsetHeight - 70;
+      // Đáy hero vừa qua đáy nav (70px) thì nav đen, còn không thì
+      // nav trắng. Đo bằng rect của hero cho chắc, không dựa vào
+      // offsetHeight (sai khi ảnh hero chưa tải xong).
+      var past = hero.getBoundingClientRect().bottom <= 70;
       navEl.classList.toggle("cs-nav--dark", past);
     }
     function onScroll() {
@@ -227,5 +251,30 @@
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
     update();
+  })();
+
+  /* ---------- Reveal khi cuộn: clip-path, không fade, không slide ----------
+     Mỗi khối (tiêu đề, intro, từng section, credits, next, footer) bắt
+     đầu bị cắt 100% từ trên (xem css .cs-reveal), khi vào khung nhìn
+     thì clip mở về 0, vùng hiện mở rộng dần từ dưới lên như một đường
+     vô hình chạy lên. Không áp cho hero (nav cố định nằm trong hero).
+     Nếu không có IntersectionObserver hoặc người dùng giảm chuyển
+     động thì hiện hết ngay, không để nội dung bị ẩn. */
+  (function reveal() {
+    var els = document.querySelectorAll(".cs-reveal");
+    if (!els.length) return;
+    if (reduceMotion || typeof IntersectionObserver !== "function") {
+      els.forEach(function (el) { el.classList.add("is-in"); });
+      return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-in");
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: "0px 0px -5% 0px" });
+    els.forEach(function (el) { io.observe(el); });
   })();
 })();
