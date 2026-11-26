@@ -389,8 +389,6 @@ ul { list-style: none; }
 .nav-menu-bar .nav-pill--about { left: 89px; } /* 118px thu còn 75% */
 .nav-menu-bar .nav-pill--playground { left: 159px; } /* 212px thu còn 75% */
 
-.nav-menu-bar .nav-pill:hover { opacity: .6; }
-
 .nav-menu-divider {
   position: absolute;
   top: 50%;
@@ -924,6 +922,7 @@ body.contact-open .wn-nav { position: relative; z-index: 2000; }
   display: flex;
   flex-direction: column;
   padding: clamp(48px, 11.7vh, 126px) var(--pad) clamp(24px, 5.3vh, 40px); /* lề dưới 40px, đúng margin Figma */
+  overflow: hidden; /* cắt chữ logo tràn viền ở biên footer */
 }
 
 .footer-top {
@@ -967,12 +966,30 @@ body.contact-open .wn-nav { position: relative; z-index: 2000; }
 
 .footer-email:hover { text-decoration: underline; }
 
+/* Logo footer: chữ "nambao" font Sarina, tràn viền giống logo
+   trong card contact xanh lá (card dùng Sarina 190.618px trên
+   card 813.565px = 23.43% chiều rộng, letter-spacing -0.70%,
+   chữ tràn 10px trái và 76px phải, bị cắt ở biên card).
+   Footer rộng full màn hình nên cỡ chữ theo % chiều rộng
+   viewport (23.43vw); chữ trải hết chiều rộng footer và tràn
+   qua mép trái/phải, bị cắt ở biên footer bởi overflow hidden.
+   Màu đen trên nền cam. margin âm 2 bên để chữ bắt đầu từ mép
+   trái viewport (bù lề var(--pad)); margin-top auto để chữ nằm
+   sát đáy footer; margin-bottom âm để đáy khung chữ sát mép
+   dưới footer như card (bù lề dưới của footer). */
 .footer-logo {
-  flex: 1 1 auto;
-  min-height: 0;
-  width: 100%;
-  object-fit: contain;
-  object-position: left bottom;
+  margin-left: calc(var(--pad) * -1);
+  margin-right: calc(var(--pad) * -1);
+  margin-top: auto;
+  margin-bottom: calc(clamp(24px, 5.3vh, 40px) * -1);
+  font-family: var(--font-script);
+  font-size: calc(100vw * 0.2343);
+  letter-spacing: calc(100vw * -0.00703);
+  line-height: 1;
+  white-space: nowrap;
+  color: #000;
+  user-select: none;
+  overflow: hidden;
 }
 
 /* ================= MOTION: CON TRỎ "READ" / "OPEN" =================

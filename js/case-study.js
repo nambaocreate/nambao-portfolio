@@ -241,7 +241,7 @@
         '<a class="footer-email" href="mailto:nambao.create@gmail.com">nambao.create@gmail.com</a></div>' +
       '</div>' +
     '</div>' +
-    '<img class="footer-logo" src="../assets/logo-footer.svg" alt="nam bao" width="1784" height="384">';
+    '<p class="footer-logo" aria-hidden="true">nambao</p>';
   root.appendChild(footer);
 
   /* ---------- Nav: trắng trên hero, đen khi cuộn qua hero ----------
