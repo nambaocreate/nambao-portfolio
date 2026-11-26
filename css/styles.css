@@ -236,7 +236,8 @@ ul { list-style: none; }
   transition-delay: 0ms;
 }
 
-.nav a:hover .roll-letter {
+.nav a:hover .roll-letter,
+.nav-pill:hover .roll-letter {
   transform: translateY(-100%);
 }
 
