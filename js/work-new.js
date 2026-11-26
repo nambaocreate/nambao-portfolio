@@ -300,13 +300,13 @@
       };
       im.onerror = fin;
       im.src = src;
-      setTimeout(fin, 4000);
+      setTimeout(fin, 10000);
     });
   }
 
   // Hiệu ứng mở rộng bằng tay: ảnh lớn phóng to từ vị trí đang hiện
-  // ra đúng vị trí và tỉ lệ hero ở trang đích (hero contain trong
-  // một viewport, xem css/case-study.css) rồi mới chuyển trang.
+  // ra đúng vị trí và tỉ lệ hero ở trang đích (hero full-width, cao
+  // theo tỉ lệ, căn trên, xem css/case-study.css) rồi mới chuyển trang.
   // Chỉ chuyển khi cả hiệu ứng xong VÀ ảnh hero đích đã tải và
   // giải mã xong, nên trang đích hiện hero ngay, không chớp trắng.
   // Không dùng View Transitions API nữa, để chắc chắn mượt trên
@@ -320,21 +320,15 @@
     var rect = img ? img.getBoundingClientRect() : null;
     var vw = document.documentElement.clientWidth || window.innerWidth;
     var vh = window.innerHeight;
-    // Đích: đúng khung ảnh hero sẽ hiện ở trang đích (contain trong
-    // một viewport: ảnh vừa khung, căn giữa, không crop).
+    // Đích: đúng khung ảnh hero sẽ hiện ở trang đích (full-width,
+    // cao theo tỉ lệ, căn trên, không crop). Vì hero tràn hết chiều
+    // rộng nên overlay phóng tới x=0, y=0, rộng bằng viewport, cao
+    // bằng viewport chia tỉ lệ (có thể cao hơn viewport, phần thừa
+    // nằm dưới fold, đúng như trang đích).
     var hw = (p.hero && p.hero.width) || 1920;
     var hh = (p.hero && p.hero.height) || 1080;
     var ar = hw / hh;
-    var target;
-    if (vw / vh > ar) {
-      var th = vh;
-      var tw = Math.round(vh * ar);
-      target = { x: Math.round((vw - tw) / 2), y: 0, w: tw, h: th };
-    } else {
-      var tw2 = vw;
-      var th2 = Math.round(vw / ar);
-      target = { x: 0, y: Math.round((vh - th2) / 2), w: tw2, h: th2 };
-    }
+    var target = { x: 0, y: 0, w: vw, h: Math.round(vw / ar) };
     // Bắt đầu tải ảnh hero đích ngay từ lúc bấm (song song với
     // hiệu ứng mở rộng) để khi chuyển trang thì ảnh đã sẵn trong
     // cache và đã giải mã xong.
@@ -346,8 +340,9 @@
       navigated = true;
       location.href = p.caseStudy;
     }
-    // An toàn: không đợi quá 4 giây thì vẫn chuyển trang.
-    setTimeout(go, 4000);
+    // An toàn: không đợi quá 10 giây thì vẫn chuyển trang (overlay
+    // đã phủ full màn bằng ảnh nên chờ thêm không hỏng trải nghiệm).
+    setTimeout(go, 10000);
     var overlay = document.createElement("div");
     overlay.className = "wn-expand";
     overlay.setAttribute("aria-hidden", "true");

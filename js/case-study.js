@@ -64,9 +64,9 @@
     return col;
   }
 
-  /* ---------- Hero: ảnh hiện trọn trong một màn hình, nav đè lên trên ----------
-     Khung hero cao đúng một viewport, ảnh contain vừa khung (xem
-     css/case-study.css) nên ảnh gốc hiện đủ, không crop. */
+  /* ---------- Hero: ảnh tràn full chiều rộng, nav đè lên trên ----------
+     Ảnh rộng 100%, cao tự động theo đúng tỉ lệ gốc, không crop,
+     kéo xuống dưới fold (xem css/case-study.css). */
   var hero = el("header", "cs-hero");
   var heroImg = document.createElement("img");
   heroImg.className = "cs-hero-img";
@@ -236,6 +236,15 @@
   (function navMode() {
     var navEl = document.querySelector(".cs-nav");
     if (!navEl || !hero) return;
+    // Scrim sau nav, chỉ trang TH28 (nền hồng nhạt ở đầu hero làm chữ
+    // trắng khó đọc). Tạo một lần, bật/tắt cùng lúc với màu nav.
+    var scrim = null;
+    if (slug === "tuoi-hong-28") {
+      scrim = document.createElement("div");
+      scrim.className = "cs-nav-scrim";
+      scrim.setAttribute("aria-hidden", "true");
+      document.body.appendChild(scrim);
+    }
     var ticking = false;
     function update() {
       ticking = false;
@@ -244,6 +253,7 @@
       // offsetHeight (sai khi ảnh hero chưa tải xong).
       var past = hero.getBoundingClientRect().bottom <= 70;
       navEl.classList.toggle("cs-nav--dark", past);
+      if (scrim) scrim.classList.toggle("is-on", !past);
     }
     function onScroll() {
       if (!ticking) { ticking = true; requestAnimationFrame(update); }
@@ -259,14 +269,48 @@
      thì clip mở về 0, vùng hiện mở rộng dần từ dưới lên như một đường
      vô hình chạy lên. Không áp cho hero (nav cố định nằm trong hero).
      Nếu không có IntersectionObserver hoặc người dùng giảm chuyển
-     động thì hiện hết ngay, không để nội dung bị ẩn. */
+     động thì hiện hết ngay, không để nội dung bị ẩn.
+     Nguyên nhân lỗi trước đây (trang trắng dưới hero): phần tử được
+     quan sát (.cs-reveal) tự nó bị clip-path cắt về diện tích 0, nên
+     IntersectionObserver không bao giờ thấy nó giao nhau và không
+     bao giờ thêm class is-in, thành vòng lặp bế tắc (ẩn mãi). Cách
+     sửa: dùng thêm bộ kiểm tra theo vị trí hình học
+     (getBoundingClientRect, không bị clip-path ảnh hưởng) làm cơ chế
+     chính, chạy khi cuộn, đổi kích thước, lúc tải trang, và lặp lại
+     trong vài giây đầu; giữ IntersectionObserver làm cơ chế phụ.
+     Nhờ vậy nội dung không bao giờ bị ẩn vĩnh viễn. */
   (function reveal() {
-    var els = document.querySelectorAll(".cs-reveal");
+    var els = Array.prototype.slice.call(document.querySelectorAll(".cs-reveal"));
     if (!els.length) return;
     if (reduceMotion || typeof IntersectionObserver !== "function") {
       els.forEach(function (el) { el.classList.add("is-in"); });
       return;
     }
+    // Danh sách khối chưa hiện; rút ngắn dần khi từng khối hiện ra.
+    var pending = els.slice();
+    function inView(el) {
+      // getBoundingClientRect trả về khung layout, không bị clip-path
+      // ảnh hưởng, nên đo được dù phần tử đang bị cắt ẩn.
+      var r = el.getBoundingClientRect();
+      var vh = window.innerHeight || document.documentElement.clientHeight;
+      return r.top < vh * 0.92 && r.bottom > 0;
+    }
+    function check() {
+      if (!pending.length) return;
+      pending = pending.filter(function (el) {
+        if (inView(el)) { el.classList.add("is-in"); return false; }
+        return true;
+      });
+    }
+    var ticking = false;
+    function onScroll() {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(function () { ticking = false; check(); });
+      }
+    }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (entry.isIntersecting) {
@@ -276,5 +320,13 @@
       });
     }, { threshold: 0.1, rootMargin: "0px 0px -5% 0px" });
     els.forEach(function (el) { io.observe(el); });
+    check();
+    // Lưới an toàn: lặp lại trong 5 giây đầu, phòng khi sự kiện cuộn
+    // bị lỡ; sau 5 giây thì dừng để không chạy mãi.
+    var guard = setInterval(function () {
+      check();
+      if (!pending.length) { clearInterval(guard); }
+    }, 400);
+    setTimeout(function () { clearInterval(guard); }, 5000);
   })();
 })();

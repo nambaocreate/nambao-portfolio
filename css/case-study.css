@@ -20,24 +20,20 @@
   overflow-x: clip;
 }
 
-/* ---------- Hero: ảnh full-bleed, nav cố định đè lên trên ---------- */
-/* Hero hiện trọn ảnh gốc trong một màn hình (không crop, không
-   cần cuộn mới thấy hết ảnh): khung cao đúng một viewport, ảnh
-   contain vừa khung, căn giữa. Ảnh 3:2 (TH28) hay gần vuông
-   (EGG:01) đều hiện đủ, phần thừa hai bên là nền trang. */
+/* ---------- Hero: ảnh tràn full chiều rộng, nav cố định đè lên trên ---------- */
+/* Hero hiện trọn ảnh gốc, tràn hết chiều rộng màn hình (không crop,
+   không lề hai bên): ảnh rộng 100%, cao tự động theo đúng tỉ lệ
+   gốc, kéo xuống dưới fold. EGG:01 gần vuông nên hero cao khoảng
+   1860px ở màn 1920, TH28 3:2 nên cao khoảng 1280px. Vì ảnh tràn
+   hết chiều rộng nên nav trắng đọc được suốt chiều rộng, không còn
+   lề xám hai bên. */
 .cs-hero {
   position: relative;
-  height: 100vh;
-  height: 100svh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .cs-hero-img {
   width: 100%;
-  height: 100%;
-  object-fit: contain;
+  height: auto;
   display: block;
 }
 
@@ -75,6 +71,28 @@
 .cs-hero .nav-center a,
 .cs-hero .nav-contact {
   font-size: 15px;
+}
+
+/* Scrim sau nav, chỉ trang TH28 (nền hồng nhạt ở đầu hero làm chữ
+   trắng khó đọc): dải tối mờ ở mép trên, chỉ hiện khi nav còn trắng
+   trên hero, ẩn khi nav đã đen. Tạo bằng JS (xem js/case-study.js,
+   chỉ tạo cho slug tuoi-hong-28), cố định ở đầu viewport nên luôn
+   nằm sau chữ nav dù cuộn tới đâu trong hero. */
+.cs-nav-scrim {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 130px;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0));
+  pointer-events: none;
+  z-index: 999;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.cs-nav-scrim.is-on {
+  opacity: 1;
 }
 
 /* ---------- Tiêu đề + Meta ----------
