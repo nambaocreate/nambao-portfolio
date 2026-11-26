@@ -477,6 +477,7 @@ ul { list-style: none; }
 
 .press-card {
   position: relative;
+  top: 0;
   flex: 0 0 520px;
   height: 394px;
   padding: 40px;
@@ -484,6 +485,8 @@ ul { list-style: none; }
   flex-direction: column;
   text-decoration: none;
   will-change: transform;
+  border-radius: 15px; /* bo tròn như Figma (Press Card, rounded 15px) */
+  transition: top .3s ease;
 }
 
 /* Card sau đè lên card trước (z-index cao hơn), để lại dải mép. */
@@ -497,6 +500,15 @@ ul { list-style: none; }
 .press-card-green { background: var(--green); }
 .press-card-orange { background: var(--orange); }
 .press-card-tan { background: var(--card-tan); }
+
+/* Hover (chỉ chuột): card đang hover nhích lên 8px, các card
+   khác đứng yên. Dùng top thay vì transform vì JS updatePress
+   đã set transform inline theo chiều ngang cho hiệu ứng chồng;
+   transform inline thắng CSS :hover nên dùng top để không
+   xung đột. */
+@media (hover: hover) and (pointer: fine) {
+  .press-card:hover { top: -8px; }
+}
 
 .press-year {
   font-size: 9px;
@@ -736,5 +748,6 @@ ul { list-style: none; }
   .press-wrap { height: auto; }
   .press { position: static; height: auto; overflow: visible; }
   .press-row { transform: none; }
-  .press-card { transform: none !important; }
+  .press-card { transform: none !important; top: 0; transition: none; }
+  .press-card:hover { top: 0; }
 }
