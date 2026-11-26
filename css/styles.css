@@ -485,7 +485,7 @@ ul { list-style: none; }
   flex-direction: column;
   text-decoration: none;
   will-change: transform;
-  border-radius: 15px; /* bo tròn như Figma (Press Card, rounded 15px) */
+  border-radius: 8px; /* bo tròn nhẹ, Bảo muốn ít hơn mức 15px của Figma */
   transition: top .3s ease;
 }
 
@@ -507,7 +507,7 @@ ul { list-style: none; }
    transform inline thắng CSS :hover nên dùng top để không
    xung đột. */
 @media (hover: hover) and (pointer: fine) {
-  .press-card:hover { top: -8px; }
+  .press-card:hover { top: -12px; }
 }
 
 .press-year {
