@@ -404,15 +404,23 @@
   }
 
   function farForward() {
-    // Nhảy tới xa làm hai nhịp cho sạch như farBack, thay vì tất cả
-    // cùng bay một lúc. Nhịp 1: các card bay về deck dọn stack nhanh
-    // trong 0.5s. Nhịp 2: card đích đợi tới 0.35s (stack đã dọn khoảng
-    // 89%) mới bay lên ảnh lớn trong 0.7s, tổng 1.05s, tương đương
-    // farBack khoảng 1.0s. Nếu card đích bay sớm (delay 0.15s như
-    // trước) thì stack mới dọn khoảng 4% vì ease power3.inOut lúc
-    // đầu rất chậm, card đích phình to ngay trên stack chưa dọn xong
-    // nên nhìn như nhảy ra đột ngột.
-    var CLEAR = 0.5, FLY = 0.7, TARGET_AT = 0.35, longest = DUR;
+    // Nhảy tới xa: card đích và chồng deck HẠ CÁNH CÙNG LÚC để không
+    // còn cảnh card đích bay lên đè lên một card deck đã nằm yên.
+    // Vấn đề ở v13: deck dọn xong nhanh trong 0.5s nên card ở lớp
+    // deck 1 (vd VIBE Expo khi nhảy 01 tới 07, chỉ nhỏ hơn ảnh lớn
+    // 4% và lệch xuống 16px) đã nằm yên to gần bằng ảnh lớn trong
+    // khung từ 0.5s, rồi card đích mới bay lên đè lên nó trong
+    // 0.35-1.05s, trông như hai ảnh lớn va vào nhau. Ảnh lớn cũ
+    // (Vore) không phải thủ phạm: nó về lớp deck sâu nhất và đã
+    // nhỏ lại gần xong trước khi card đích lớn lên.
+    // Cách sửa: deck bay về vị trí bằng ease power3.out trong 0.9s,
+    // tức là rời stack rất nhanh lúc đầu (53% lúc 0.2s, 77% lúc
+    // 0.35s) nhưng hạ cánh chậm dần, về đích cùng lúc với card
+    // đích. Card đích đợi 0.2s rồi bay 0.7s, hạ cánh ở 0.9s cùng
+    // lúc deck về đích, nên nó bay lên trong lúc deck vẫn đang
+    // hình thành và đáp xuống trên cùng, không còn đè lên một card
+    // đã nằm yên. Tổng 0.9s, tương đương farBack khoảng 1.0s.
+    var TARGET_AT = 0.2, FLY = 0.7, CLEAR = TARGET_AT + FLY, longest = DUR;
     list.forEach(function (p, i) {
       var c = cards[p.id];
       var s = stateFor(i - current);
@@ -426,16 +434,20 @@
       // dù vẫn đang ở trong stack.
       gsap.set(c.el, { opacity: 1 });
       if (s.kind === "big" && (from === "thumb" || from === "reserve")) {
-        // Card đích: đợi stack dọn xong rồi mới bay. Nâng z lên z
-        // đích trong onStart, đúng lúc bắt đầu bay.
+        // Card đích: đợi stack bắt đầu dọn (0.2s) rồi bay 0.7s, hạ
+        // cánh ở 0.9s cùng lúc deck về đích. Nâng z lên z đích
+        // trong onStart, đúng lúc bắt đầu bay.
         gsap.to(c.el, vars(s, { duration: FLY, ease: "power3.inOut", delay: TARGET_AT,
           onStart: function () { gsap.set(c.el, { zIndex: s.z }); } }));
         longest = Math.max(longest, TARGET_AT + FLY);
       } else if (s.kind === "deck" && (from === "thumb" || from === "reserve")) {
         // Các card bay về deck đi CÙNG LÚC (không so le từng cái)
-        // để stack rời đi như một khối, dọn nhanh trong 0.5s. Nâng z
+        // để stack rời đi như một khối. Ease power3.out: rời stack
+        // rất nhanh lúc đầu nhưng hạ cánh chậm dần, về đích cùng
+        // lúc với card đích (0.9s) nên không có card deck nào nằm
+        // yên to trong khung trước khi card đích bay tới. Nâng z
         // lên z đích trong onStart, đúng lúc bắt đầu bay.
-        gsap.to(c.el, vars(s, { duration: CLEAR, ease: "power3.inOut", delay: 0,
+        gsap.to(c.el, vars(s, { duration: CLEAR, ease: "power3.out", delay: 0,
           onStart: function () { gsap.set(c.el, { zIndex: s.z }); } }));
         longest = Math.max(longest, CLEAR);
       } else {
