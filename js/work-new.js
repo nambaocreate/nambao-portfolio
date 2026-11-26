@@ -136,6 +136,7 @@
   var activeColl = /agency/i.test(location.hash) ? "agency" : "independent";
   var list = COLLECTIONS[activeColl].projects.slice();
   var current = 0;
+  var shownIndex = 0;         // dự án đang hiện chữ (đích cuối khi nhảy nhiều bước)
   var busyUntil = 0;
   var pendingStep = 0;
   var infoTl = null;
@@ -276,14 +277,14 @@
 
   /* ---------- Thông tin dự án: tiêu đề, "INDUSTRY ——— NĂM", tag, số ---------- */
   function renderInfo() {
-    var p = list[current];
+    var p = list[shownIndex];
     if (!p) return;
     titleEl.textContent = p.title;
     catEl.textContent = p.tag;
     yearEl.textContent = p.year || "";
     metaEl.classList.toggle("wn-meta--no-year", !p.year);
     tagsEl.innerHTML = p.tags.map(function (t) { return '<li class="wn-tag">' + t + "</li>"; }).join("");
-    countEl.textContent = pad(current + 1) + "/" + pad(list.length);
+    countEl.textContent = pad(shownIndex + 1) + "/" + pad(list.length);
     markActiveName();
   }
 
@@ -305,51 +306,86 @@
     moveTimer = setTimeout(afterMove, ms + 20);
   }
 
-  /* ---------- Chuyển dự án trong cùng danh sách ---------- */
-  function goTo(index, opts) {
-    index = Math.max(0, Math.min(index, list.length - 1));
-    if (index === current) return false;
-    var dir = index > current ? 1 : -1;
-    current = index;
-    measure();
+  /* ---------- Chuyển dự án trong cùng danh sách ----------
+     Một bước (moveCards) = mọi card dịch đúng 1 nấc theo rel mới.
+     Nhảy xa (vd 05 về 02, bấm tên hoặc thumbnail xa) KHÔNG đưa mọi
+     card bay một lúc (rối, nhiều card mờ chồng nhau), mà chạy thành
+     chuỗi bước 1 dự án nối nhau nhanh như lật bài; bước sau bắt đầu
+     khi bước trước đi được ~45% nên chuyển động liền mạch. Chữ (tiêu
+     đề, meta, số, tên đang chọn) chỉ đổi 1 lần, thẳng tới dự án đích.
+     Card bị đẩy ra khỏi stack (thumbnail thứ 3 khi lùi, hoặc ảnh lớn /
+     deck về vị trí dự trữ) lùi ra SAU stack, dịch trái, thu nhỏ và mờ
+     đi, rồi mới về chỗ dự trữ (bị che) — không bị che mất đột ngột. */
+  var STEP_DUR = 0.45, STEP_GAP = 0.2, LAST_DUR = 0.7;
+  var chain = [];
 
+  function clearChain() {
+    chain.forEach(function (t) { t.kill(); });
+    chain = [];
+  }
+
+  function moveCards(dir, dur, ease, opts) {
+    measure();
+    var k = dur / DUR;
     list.forEach(function (p, i) {
       var c = cards[p.id];
       var s = stateFor(i - current);
-      var wasBig = c.kind === "big";
+      var from = c.kind;
       resetTilt(c);
-      // Card đang thu từ ảnh lớn về thumbnail (khi lùi) nằm trên deck đang bước lên.
-      var zDuring = (wasBig && s.kind !== "big" && s.kind !== "deck") ? 150 : s.z;
-      // Ảnh lớn / deck quay về vị trí dự trữ (vd: đang ở dự án cuối, bấm
-      // về dự án đầu): không bay đè lên trên rồi biến mất, mà lùi xuống
-      // DƯỚI stack, trượt vào sau card thứ 3 và mờ dần trong lúc trượt.
-      var toReserve = (c.kind === "big" || c.kind === "deck") && s.kind === "reserve";
-      if (toReserve) zDuring = s.z;
+      var leaving = s.kind === "reserve" && from !== "reserve";
+      var zDuring = (from === "big" && s.kind !== "big" && s.kind !== "deck") ? 150 : s.z;
+      if (leaving) zDuring = s.z;
       if (opts && opts.dragged === c) zDuring = Math.max(zDuring, 150);
       gsap.set(c.el, { zIndex: zDuring });
       c.el.style.visibility = "";
       var delay = 0;
-      if (dir > 0 && s.kind === "thumb") delay = FOLLOW_DELAY * (i - current);
-      if (dir < 0 && (s.kind === "thumb" || s.kind === "reserve")) delay = FOLLOW_DELAY * (i - current - 1);
+      if (dir > 0 && s.kind === "thumb") delay = FOLLOW_DELAY * (i - current) * k;
+      if (dir < 0 && (s.kind === "thumb" || s.kind === "reserve")) delay = FOLLOW_DELAY * (i - current - 1) * k;
       if (opts && opts.dragged === c) delay = 0;
-      var mv = vars(s, {
-        duration: DUR, ease: EASE, delay: delay, overwrite: "auto",
-        onComplete: function () { gsap.set(c.el, { zIndex: s.z, opacity: s.opacity }); }
-      });
-      if (toReserve) {
-        // Mờ nhanh trong 0.3s đầu trong lúc trượt về sau stack, để khi nhảy
-        // xa (vd 07 về 01) không có nhiều card mờ bay chồng lên nhau.
-        delete mv.opacity;
-        gsap.to(c.el, mv);
-        gsap.to(c.el, { opacity: 0, duration: 0.3, ease: "power1.out" });
+      if (leaving) {
+        gsap.to(c.el, vars(s, {
+          x: s.r.x - 36, scale: 0.9, opacity: 0,
+          duration: dur, ease: ease, delay: delay, overwrite: "auto",
+          onComplete: function () { gsap.set(c.el, vars(s, { zIndex: s.z })); }
+        }));
       } else {
-        gsap.to(c.el, mv);
+        gsap.to(c.el, vars(s, {
+          duration: dur, ease: ease, delay: delay, overwrite: "auto",
+          onComplete: function () { gsap.set(c.el, { zIndex: s.z }); }
+        }));
       }
       applyKind(c, s.kind);
     });
+  }
 
+  function goTo(index, opts) {
+    index = Math.max(0, Math.min(index, list.length - 1));
+    if (index === current) return false;
+    clearChain();
+    var dir = index > current ? 1 : -1;
+    var n = Math.abs(index - current);
+    shownIndex = index;
     animateInfo(0.12, dir);
-    lockFor(DUR * 1000 + 60);
+    var total;
+    if (n === 1 || reduceMotion || (opts && opts.dragged)) {
+      current = index;
+      moveCards(dir, DUR, EASE, opts);
+      total = DUR;
+    } else {
+      for (var j = 1; j <= n; j++) {
+        (function (j) {
+          var last = j === n;
+          var run = function () {
+            current += dir;
+            moveCards(dir, last ? LAST_DUR : STEP_DUR, last ? "power3.out" : "power2.inOut");
+          };
+          if (j === 1) run();
+          else chain.push(gsap.delayedCall((j - 1) * STEP_GAP, run));
+        })(j);
+      }
+      total = (n - 1) * STEP_GAP + LAST_DUR;
+    }
+    lockFor(total * 1000 + 60);
     return true;
   }
 
@@ -381,8 +417,10 @@
   function transitionToList(newList, slideDir) {
     pendingStep = 0;
     measure();
+    clearChain();
     list = newList;
     current = 0;
+    shownIndex = 0;
 
     var OUT_DUR = reduceMotion ? 0 : 0.45;
     var IN_AT = reduceMotion ? 0 : 0.25;
@@ -475,7 +513,7 @@
 
   function markActiveName() {
     filtersEl.querySelectorAll(".wn-filter").forEach(function (btn) {
-      var on = parseInt(btn.getAttribute("data-index"), 10) === current;
+      var on = parseInt(btn.getAttribute("data-index"), 10) === shownIndex;
       btn.classList.toggle("is-active", on);
       if (on) btn.setAttribute("aria-current", "true");
       else btn.removeAttribute("aria-current");
