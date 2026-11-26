@@ -80,11 +80,12 @@
     </div>
   </div>
 
-  <!-- ============ Xem ảnh full (transition sang case study) ============
-       Bản staging chưa có trang case study nên bấm ảnh sẽ phóng
-       full màn hình để xem ảnh lớn; bấm lại, bấm nút đóng hoặc
-       Esc để quay lại. Khi trang case study được xây, chỗ này
-       sẽ nối sang trang đó thay vì mở lightbox. -->
+  <!-- ============ Lightbox cũ (đã nghỉ, giữ lại cho an toàn) ============
+       Từng mở khi bấm ảnh lớn Independent; từ khi có trang case study
+       thì bấm ảnh lớn sẽ sang trang case study (EGG:01, Tuổi Hồng 28)
+       hoặc không làm gì (dự án chưa có trang), nên không còn chỗ nào
+       mở lightbox nữa. Giữ nguyên phần tử để các chỗ kiểm tra
+       lightbox.hidden không vỡ; xóa hẳn sau khi kiểm tra kỹ. -->
   <div class="wn-lightbox" id="wn-lightbox" hidden>
     <figure class="wn-lightbox-frame">
       <img id="wn-lightbox-img" src="assets/work/vore.jpg" alt="">
@@ -93,7 +94,7 @@
     <p class="wn-lightbox-cap" id="wn-lightbox-cap"></p>
   </div>
 
-  <div class="cursor" aria-hidden="true"><span data-cursor-label="read">Read</span><span data-cursor-label="open">Open</span><span data-cursor-label="newtab"><svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true"><path d="M5 21L21 5M8 5h13v13" stroke="#fff" stroke-width="2"/></svg></span></div>
+  <div class="cursor" aria-hidden="true"><span data-cursor-label="read">Read</span><span data-cursor-label="open">Open</span><span data-cursor-label="soon">coming soon</span><span data-cursor-label="newtab"><svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true"><path d="M5 21L21 5M8 5h13v13" stroke="#fff" stroke-width="2"/></svg></span></div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="js/work-new.js"></script>

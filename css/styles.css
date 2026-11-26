@@ -660,6 +660,11 @@ ul { list-style: none; }
 .cursor--read [data-cursor-label="read"] { opacity: 1; }
 .cursor--open [data-cursor-label="open"] { opacity: 1; }
 
+/* Đĩa "coming soon": chữ dài hơn "Open" nên đĩa rộng hơn
+   (140px) và chữ nhỏ hơn (8px) để vừa trong đĩa. */
+.cursor--soon { width: 140px; height: 140px; }
+.cursor--soon [data-cursor-label="soon"] { opacity: 1; font-size: 8px; }
+
 @media (hover: none) {
   .cursor { display: none; }
 }

@@ -35,6 +35,7 @@
       tags: ["BRAND IDENTITY", "LOGO DESIGN", "ART DIRECTION", "PRINT DESIGN"],
       image: "assets/work/vore.jpg", alt: "Ba poster của Vore treo trên tường", width: 1600, height: 900 },
     { id: "egg01", title: "EGG:01", year: "2025", tag: "Food & beverage",
+      caseStudy: "/work/egg-01", vt: "cs-hero-egg01",
       tags: ["BRAND IDENTITY", "PACKAGING DESIGN", "PRODUCT DESIGN", "ART DIRECTION"],
       image: "assets/work/egg01.jpg", alt: "Hộp bạc EGG:01 cạnh chai thủy tinh gân sóng có lòng đỏ cam", width: 1400, height: 1356 },
     { id: "rmit25", title: "RMIT 25th Anniversary Logo", year: "2025", tag: "Education",
@@ -50,6 +51,7 @@
       tags: ["BRAND IDENTITY", "EVENT DESIGN", "EXHIBITION DESIGN", "STAGE DESIGN"],
       image: "assets/work/vibe.jpg", alt: "Render 3D sảnh expo cam của VIBE", width: 1000, height: 558 },
     { id: "th28", title: "Tuổi Hồng 28", year: "2024", tag: "Entertainment",
+      caseStudy: "/work/tuoi-hong-28", vt: "cs-hero-th28",
       tags: ["BRAND IDENTITY", "EVENT DESIGN", "POSTER DESIGN", "ART DIRECTION"],
       image: "assets/work/th28.jpg", alt: "Bốn poster Tuổi Hồng 28 năm 2024 trên nền sọc hồng", width: 1600, height: 1067 }
   ];
@@ -158,11 +160,12 @@
     el.innerHTML =
       '<span class="wn-card-inner">' +
         '<img src="' + p.image + '" alt="" decoding="async" draggable="false">' +
-        '<span class="wn-media-hint">' + (p.url ? "Open in new tab" : "Open project") + "</span>" +
+        '<span class="wn-media-hint">' + (p.url ? "Open in new tab" : p.caseStudy ? "Open case study" : "Case study coming soon") + "</span>" +
       "</span>";
     layer.appendChild(el);
     var inner = el.firstChild;
-    var c = { el: el, inner: inner, p: p, kind: "out", tilt: null };
+    var img = inner.querySelector("img");
+    var c = { el: el, inner: inner, img: img, p: p, kind: "out", tilt: null };
     if (finePointer && !reduceMotion) {
       gsap.set(inner, { transformPerspective: 900 });
       c.tilt = {
@@ -245,9 +248,16 @@
     c.el.tabIndex = interactive ? 0 : -1;
     c.el.setAttribute("aria-hidden", interactive ? "false" : "true");
     var label = kind !== "big" ? "Tới dự án: " + c.p.title
-      : (c.p.url ? "Mở dự án ở tab mới: " + c.p.title : "Xem ảnh lớn: " + c.p.title);
+      : (c.p.url ? "Mở dự án ở tab mới: " + c.p.title
+        : c.p.caseStudy ? "Mở case study: " + c.p.title
+        : "Case study coming soon: " + c.p.title);
     c.el.setAttribute("aria-label", label);
     c.el.style.visibility = kind === "out" ? "hidden" : "";
+    // Anh lon cua du an da co case study mang ten transition trung
+    // voi hero o trang case study, de bam anh morph thanh hero.
+    // Chi anh lon moi co ten (moi du an chi co 1 card nen khong
+    // bao gio trung ten); thumbnail va deck thi khong.
+    if (c.img) c.img.style.viewTransitionName = (kind === "big" && c.p.caseStudy) ? c.p.vt : "";
   }
 
   function resetTilt(c) {
@@ -257,7 +267,27 @@
   function setCursor(mode) {
     if (!cursorEl) return;
     cursorEl.classList.toggle("cursor--open", mode === "open");
+    cursorEl.classList.toggle("cursor--soon", mode === "soon");
     cursorEl.classList.toggle("cursor--newtab", mode === "newtab");
+  }
+
+  // Con tro theo trang thai du an: agency mo tab moi, independent
+  // da co case study thi "Open", chua co thi "coming soon".
+  function cursorFor(p) {
+    if (!p) return null;
+    if (p.url) return "newtab";
+    if (p.caseStudy) return "open";
+    return "soon";
+  }
+
+  // Bấm ảnh lớn / tiêu đề lớn: agency mở tab mới, independent đã
+  // có case study thì sang trang đó (cross-document view transition
+  // morph ảnh thành hero, xem css/work-new.css), chưa có thì không
+  // làm gì — lightbox cũ đã bỏ, không mở gì thay thế.
+  function openProject(p) {
+    if (!p) return;
+    if (p.url) { window.open(p.url, "_blank", "noopener"); return; }
+    if (p.caseStudy) { location.href = p.caseStudy; }
   }
 
   /* ---------- Đặt tất cả card không animation (khởi tạo, resize) ---------- */
@@ -707,8 +737,7 @@
     var c = cards[el.getAttribute("data-id")];
     if (!c) return;
     if (c.kind === "big") {
-      if (c.p.url) window.open(c.p.url, "_blank", "noopener");
-      else openLightbox();
+      openProject(c.p);
       return;
     }
     var idx = list.indexOf(c.p);
@@ -716,24 +745,21 @@
   });
 
   /* ---------- Bấm tên dự án lớn ----------
-     Tiêu đề lớn của dự án đang xem (h1#wn-title) cũng mở case study
-     giống như bấm vô ảnh lớn: Independent thì mở lightbox xem ảnh
-     full, Agency thì mở URL dự án của agency ở tab mới. Hover tên lớn
-     thì cursor hiện chữ Open (Independent) hoặc mũi tên tab mới
-     (Agency). Dự án đang xem là list[shownIndex], khớp với chữ tiêu
-     đề đang hiện trên màn hình. Phần tử tiêu đề ổn định (renderInfo
-     chỉ đổi textContent), nên gắn sự kiện trực tiếp một lần là đủ. */
+     Tiêu đề lớn của dự án đang xem (h1#wn-title) cũng mở như bấm
+     vô ảnh lớn: Agency thì mở URL dự án của agency ở tab mới,
+     Independent đã có case study thì sang trang đó, chưa có thì
+     không làm gì. Hover tên lớn thì cursor hiện chữ Open (đã có
+     case study), "coming soon" (chưa có) hoặc mũi tên tab mới
+     (Agency). Dự án đang xem là list[shownIndex], khớp với chữ
+     tiêu đề đang hiện trên màn hình. Phần tử tiêu đề ổn định
+     (renderInfo chỉ đổi textContent), nên gắn sự kiện trực tiếp
+     một lần là đủ. */
   titleEl.addEventListener("click", function () {
-    var p = list[shownIndex];
-    if (!p) return;
-    if (p.url) window.open(p.url, "_blank", "noopener");
-    else openLightbox(p);
+    openProject(list[shownIndex]);
   });
   if (finePointer) {
     titleEl.addEventListener("mouseenter", function () {
-      var p = list[shownIndex];
-      if (!p) return;
-      setCursor(p.url ? "newtab" : "open");
+      setCursor(cursorFor(list[shownIndex]));
     });
     titleEl.addEventListener("mouseleave", function () {
       setCursor(null);
@@ -748,7 +774,7 @@
         layer.classList.remove("no-hover");
         if (c.kind !== "big" && c.kind !== "thumb") return;
         if (drag && drag.active) return;
-        setCursor(c.kind === "big" ? (c.p.url ? "newtab" : "open") : null);
+        setCursor(c.kind === "big" ? cursorFor(c.p) : null);
         if (layer.classList.contains("is-moving")) return;
         var r = c.el.getBoundingClientRect();
         var px = (event.clientX - r.left) / r.width - 0.5;
@@ -927,7 +953,13 @@
     step(dir);
   });
 
-  /* ---------- Lightbox xem ảnh full (chỉ Independent Works) ---------- */
+  /* ---------- Lightbox xem ảnh full (ĐÃ NGHỈ — giữ lại cho an toàn) ----------
+     Từng mở khi bấm ảnh lớn Independent; từ khi có trang case study
+     thì bấm ảnh lớn sẽ sang trang case study (đã có) hoặc không làm
+     gì (chưa có), nên không còn chỗ nào gọi openLightbox nữa. Giữ
+     nguyên hàm và phần tử lightbox để các chỗ kiểm tra
+     lightbox.hidden (lăn chuột, phím) không vỡ; xóa hẳn sau khi
+     đã kiểm tra kỹ trên trình duyệt thật. */
   function fullRect(proj) {
     var p = proj || list[current];
     var vw = window.innerWidth, vh = window.innerHeight;

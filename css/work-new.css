@@ -1,3 +1,11 @@
+/* Chuyen trang case study: `@view-transition { navigation: auto; }`
+   de anh lon ben nay morph thanh hero o trang case study
+   (cung view-transition-name, xem js/work-new.js). Trinh duyet
+   khong ho tro thi chi la chuyen trang thuong. */
+@view-transition {
+  navigation: auto;
+}
+
 /* ============================================================
    Nam Bao Portfolio — trang Work MỚI, BẢN STAGING (work-new.html)
    Theo Figma Frame 26 (Section 1, node 1685:596) trong file

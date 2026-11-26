@@ -1,0 +1,379 @@
+/* ============================================================
+   Nam Bao Portfolio — trang case study (dùng chung)
+   Dùng cho mọi dự án: EGG:01, Tuổi Hồng 28, và các dự án sau.
+   Nội dung và thứ tự lấy đúng từ Figma (Case Study Template):
+   lề 40px, khoảng cách giữa các section 120px, nền offwhite
+   #F2F2F0, font Libre Franklin. Cỡ chữ dùng mức 75% như các
+   trang khác của site (nav 15, headline 51.6, thân bài 18/12);
+   kích thước khung và khoảng cách giữ nguyên số đo Figma.
+   Ảnh luôn hiện ở tỉ lệ gốc (width/height thật, CSS chỉ giới
+   hạn chiều rộng hiển thị), không crop.
+
+   Chuyển trang: `@view-transition { navigation: auto; }` để
+   ảnh hero ở đây morph với ảnh lớn bên /work (cùng
+   view-transition-name, xem js/case-study.js và js/work-new.js).
+   ============================================================ */
+
+@view-transition {
+  navigation: auto;
+}
+
+.cs-root {
+  background: var(--hero-bg);
+  overflow-x: clip;
+}
+
+/* ---------- Hero: ảnh full-bleed, nav đè lên trên ---------- */
+.cs-hero {
+  position: relative;
+}
+
+.cs-hero-img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.cs-hero .nav {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 40px 40px 0;
+}
+
+.cs-hero .nav-center a,
+.cs-hero .nav-contact {
+  font-size: 15px;
+}
+
+/* ---------- Tiêu đề + Meta ----------
+   Figma: tiêu đề trái, meta phải (3 mục chồng dọc, mỗi mục
+   label trên, value dưới, cách nhau 40px). */
+.cs-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 60px;
+  padding: 120px 40px 0;
+}
+
+.cs-titlebox {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+}
+
+.cs-title,
+.cs-subtitle {
+  font-size: clamp(32px, 2.68vw, 51.6px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.cs-meta {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.cs-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cs-meta-label {
+  font-size: 9px;
+  font-weight: 500;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.cs-meta-value {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  max-width: 350px;
+}
+
+/* ---------- Nhãn section + thân bài ---------- */
+.cs-label {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.cs-body {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.cs-caption {
+  margin-top: 16px;
+  font-size: 10.5px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--ink-soft);
+}
+
+.cs-texthead {
+  flex: none;
+  width: 287px;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.cs-textbody {
+  max-width: 596px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ---------- Section chung: lề 40, cách nhau 120 ---------- */
+.cs-sec {
+  padding: 120px 40px 0;
+}
+
+.cs-figure {
+  min-width: 0;
+}
+
+.cs-figure img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ---------- Intro: nhãn trên, đoạn văn dưới (rộng 1200) ---------- */
+.cs-intro {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  padding: 120px 40px 0;
+}
+
+.cs-intro-paras {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  max-width: 1200px;
+}
+
+.cs-intro-p {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* ---------- Full-width: ảnh 1840 + caption ---------- */
+.cs-full .cs-figure {
+  width: 100%;
+}
+
+/* ---------- Trio: 3 ảnh 600, gap 20 ---------- */
+.cs-trio {
+  display: flex;
+  gap: 20px;
+}
+
+.cs-trio .cs-figure {
+  flex: 1 1 0;
+  width: 600px;
+  max-width: 600px;
+}
+
+/* ---------- Duo: 2 ảnh 910, lệch chiều cao, gap 20 ---------- */
+.cs-duo {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.cs-duo .cs-figure {
+  flex: 1 1 0;
+  width: 910px;
+  max-width: 910px;
+}
+
+/* ---------- Pair: 2 ảnh rộng khác nhau, dồn 2 đầu ---------- */
+.cs-pair {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.cs-pair .cs-figure {
+  flex: none;
+  max-width: 100%;
+}
+
+/* ---------- Portrait: một ảnh căn giữa, rộng 926 ---------- */
+.cs-portrait {
+  display: flex;
+  justify-content: center;
+}
+
+.cs-portrait .cs-figure {
+  width: 926px;
+  max-width: 100%;
+}
+
+/* ---------- Text + image: cột chữ + ảnh, căn đáy ---------- */
+.cs-textimage {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+}
+
+.cs-textimage--center {
+  align-items: center;
+}
+
+.cs-textcol {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+  min-width: 0;
+}
+
+.cs-textcol .cs-body {
+  width: 100%;
+}
+
+.cs-textimage .cs-figure {
+  flex: none;
+  max-width: 100%;
+}
+
+/* ---------- Text section: tiêu đề trái, đoạn văn phải ---------- */
+.cs-textsec {
+  display: flex;
+  gap: 172px;
+  align-items: flex-start;
+}
+
+/* ---------- Credits ---------- */
+.cs-credits {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.cs-credit {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* ---------- Next Project ---------- */
+.cs-next {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 80px 40px;
+}
+
+.cs-next-row {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.cs-next-card {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  text-decoration: none;
+}
+
+.cs-next-title {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.cs-next-tag {
+  background: #e3e3e3;
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 9px;
+  font-weight: 500;
+  line-height: 1.25;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ---------- Footer trên trang case study ---------- */
+.cs-footer {
+  min-height: 0;
+  padding-top: 80px;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 900px) {
+  .cs-head {
+    flex-direction: column;
+    gap: 48px;
+    padding-top: 64px;
+  }
+
+  .cs-sec,
+  .cs-intro {
+    padding-top: 64px;
+  }
+
+  .cs-trio,
+  .cs-duo,
+  .cs-pair {
+    flex-direction: column;
+  }
+
+  .cs-trio .cs-figure,
+  .cs-duo .cs-figure,
+  .cs-pair .cs-figure,
+  .cs-portrait .cs-figure,
+  .cs-textimage .cs-figure {
+    width: 100% !important;
+    max-width: 100%;
+  }
+
+  .cs-textimage {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .cs-textcol {
+    width: 100% !important;
+  }
+
+  .cs-textsec {
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .cs-texthead {
+    width: auto;
+  }
+
+  .cs-next {
+    padding: 48px 40px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cs-figure img {
+    transition: none;
+  }
+}
