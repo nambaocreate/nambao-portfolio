@@ -5,71 +5,98 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Selected Works — Nam Bảo</title>
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-  <meta name="description" content="Selected works by Nam Bảo: Vore, EGG:01, RMIT25, Việt Cổ Truyện, Tad.atelier, VIBE Expo and Tuổi Hồng 28.">
+  <meta name="description" content="Selected works by Nam Bảo: independent projects (Vore, EGG:01, RMIT25, Việt Cổ Truyện, Tad.atelier, VIBE Expo, Tuổi Hồng 28) and agency projects at Collective Design Agency.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
-  <link rel="stylesheet" href="css/work.css">
+  <link rel="stylesheet" href="css/work-new.css">
   <script>document.documentElement.classList.add("js");</script>
 </head>
-<body class="work-page">
+<body class="work-new-page">
 
-  <!-- ============ NAV (dùng lại như homepage) ============ -->
-  <div class="work">
-    <nav class="nav reveal" aria-label="Main">
-      <a class="nav-logo" href="/" aria-label="Nam Bảo, home">
-        <img src="assets/logo.svg" alt="nam bao" width="135" height="30">
-      </a>
-      <ul class="nav-center">
-        <li><a href="/work" aria-current="page"><span data-roll>Work</span></a></li>
-        <li><a href="/#about"><span data-roll>About</span></a></li>
-        <li><a href="/playground"><span data-roll>Playground</span></a></li>
-      </ul>
-      <a class="nav-contact" href="#contact"><span data-roll>Contact</span></a>
-    </nav>
+  <!-- ============ Trang Work (bản chính thức từ v6) ============
+       Viewer một màn hình: Independent Works / Agency Works,
+       stack card cố định. Logic ở js/work-new.js, style ở
+       css/work-new.css. Nav Contact trỏ về footer trang chủ. -->
 
-    <main>
-      <!-- ============ HEADER: tiêu đề + filter ============ -->
-      <header class="work-header">
-        <div class="work-title-clip reveal-clip">
-          <h1 class="work-title">Selected works</h1>
+  <div class="wn-track" id="wn-track">
+    <div class="wn-viewer" id="wn-viewer">
+
+      <nav class="nav wn-nav" aria-label="Main">
+        <a class="nav-logo" href="/" aria-label="Nam Bảo, home">
+          <img src="assets/logo.svg" alt="nam bao" width="135" height="30">
+        </a>
+        <ul class="nav-center">
+          <li><a href="/work" aria-current="page"><span data-roll>Work</span></a></li>
+          <li><a href="/#about"><span data-roll>About</span></a></li>
+          <li><a href="/playground"><span data-roll>Playground</span></a></li>
+        </ul>
+        <a class="nav-contact" href="/#contact"><span data-roll>Contact</span></a>
+      </nav>
+
+      <!-- Hàng trên: nút chuyển trang Independent / Agency bên trái, số thứ tự bên phải -->
+      <div class="wn-top">
+        <div class="wn-switch" id="wn-switch" role="group" aria-label="Chọn nhóm dự án">
+          <button type="button" class="wn-switch-btn is-active" data-coll="independent" aria-pressed="true">Independent Works</button>
+          <span class="wn-switch-slash" aria-hidden="true">/</span>
+          <button type="button" class="wn-switch-btn" data-coll="agency" aria-pressed="false">Agency Works</button>
+          <span class="wn-switch-note">(at Collective Design Agency)</span>
         </div>
-        <div class="work-filters reveal" style="--d:120ms">
-          <p class="work-filter-label">[Industry]</p>
-          <ul class="work-filter-list" id="work-filter-list"></ul>
-        </div>
-      </header>
+        <p class="wn-count" id="wn-count" aria-live="polite">01/07</p>
+      </div>
 
-      <!-- ============ LƯỚI DỰ ÁN (vẽ từ js/work-data.js) ============ -->
-      <div class="work-grid" id="work-grid" data-stagger></div>
-    </main>
+      <!-- Hàng chính: thông tin trái, ảnh lớn phải -->
+      <div class="wn-main">
+        <div class="wn-left">
+          <div class="wn-info" id="wn-info">
+            <h1 class="wn-title" id="wn-title">Vore</h1>
+            <p class="wn-meta" id="wn-meta">
+              <span class="wn-cat" id="wn-cat">Food &amp; beverage</span><span class="wn-dash" id="wn-dash" aria-hidden="true"></span><span class="wn-year" id="wn-year">2025</span>
+            </p>
+            <ul class="wn-tags" id="wn-tags"></ul>
+          </div>
+
+          <!-- Hàng dưới: tên dự án trái, thumbnail phải -->
+          <div class="wn-bottom">
+            <!-- Danh sách tên dự án: đang xem màu đen, còn lại xám; bấm để chuyển -->
+            <ul class="wn-filters wn-names" id="wn-filters" aria-label="Danh sách dự án"></ul>
+            <!-- Khung giữ chỗ: card thật nằm trong #wn-cards, JS đo các khung này -->
+            <div class="wn-thumbs" id="wn-thumbs" aria-hidden="true">
+              <span class="wn-slot wn-slot--back"></span>
+              <span class="wn-slot wn-slot--mid"></span>
+              <span class="wn-slot wn-slot--front"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Khung giữ chỗ ảnh lớn (card thật nằm trong #wn-cards) -->
+        <div class="wn-media" id="wn-media" aria-hidden="true"></div>
+      </div>
+
+
+      <!-- Lớp chứa toàn bộ card dự án (ảnh lớn, deck, thumbnail) -->
+      <div class="wn-cards" id="wn-cards"></div>
+    </div>
   </div>
 
-  <!-- ============ FOOTER (dùng lại như homepage) ============ -->
-  <footer class="footer" id="contact">
-    <div class="footer-top">
-      <p class="footer-copy reveal">©2026 NAM BAO</p>
-      <div class="footer-cols reveal" style="--d:100ms">
-        <ul class="footer-socials">
-          <li>Instagram</li>
-          <li>Facebook</li>
-          <li>LinkedIn</li>
-          <li>Behance</li>
-        </ul>
-        <div class="footer-touch">
-          <h2 class="footer-touch-title">Get in touch</h2>
-          <a class="footer-email" href="mailto:nambao.create@gmail.com">nambao.create@gmail.com</a>
-        </div>
-      </div>
-    </div>
-    <img class="footer-logo reveal" style="--d:150ms" src="assets/logo-footer.svg" alt="nam bao" width="1784" height="384">
-  </footer>
+  <!-- ============ Xem ảnh full (transition sang case study) ============
+       Bản staging chưa có trang case study nên bấm ảnh sẽ phóng
+       full màn hình để xem ảnh lớn; bấm lại, bấm nút đóng hoặc
+       Esc để quay lại. Khi trang case study được xây, chỗ này
+       sẽ nối sang trang đó thay vì mở lightbox. -->
+  <div class="wn-lightbox" id="wn-lightbox" hidden>
+    <figure class="wn-lightbox-frame">
+      <img id="wn-lightbox-img" src="assets/work/vore.jpg" alt="">
+    </figure>
+    <button type="button" class="wn-lightbox-close" id="wn-lightbox-close" aria-label="Đóng">Close</button>
+    <p class="wn-lightbox-cap" id="wn-lightbox-cap"></p>
+  </div>
 
-  <div class="cursor" aria-hidden="true"><span data-cursor-label="read">Read</span><span data-cursor-label="open">Open</span></div>
+  <div class="cursor" aria-hidden="true"><span data-cursor-label="read">Read</span><span data-cursor-label="open">Open</span><span data-cursor-label="newtab"><svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true"><path d="M5 21L21 5M8 5h13v13" stroke="#fff" stroke-width="2"/></svg></span></div>
 
-  <script src="js/work-data.js"></script>
-  <script src="js/work.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="js/work-new.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
