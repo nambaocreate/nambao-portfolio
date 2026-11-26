@@ -81,7 +81,7 @@ project trên Vercel.
 
 - Lưới 2 cột, lề 40px, gap 20px, theo đúng Frame 4 trong Figma
   (1920x5673). Thứ tự: Vore + EGG:01, RMIT25 full width
-  (section to nhất), Đô Thành Cổ Tích + Tad.atelier,
+  (section to nhất), Việt Cổ Truyện + Tad.atelier,
   VIBE Expo + Tuổi Hồng 28. Mỗi cặp 1 lùn 1 cao để tạo
   dynamic, tỉ lệ khung ảnh giữ đúng Figma ở mọi màn hình.
 - Dữ liệu 7 dự án nằm hết trong `js/work-data.js` (tên, tag,
