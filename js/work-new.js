@@ -404,23 +404,24 @@
   }
 
   function farForward() {
-    // Nhảy tới xa: card đích và chồng deck HẠ CÁNH CÙNG LÚC để không
-    // còn cảnh card đích bay lên đè lên một card deck đã nằm yên.
-    // Vấn đề ở v13: deck dọn xong nhanh trong 0.5s nên card ở lớp
-    // deck 1 (vd VIBE Expo khi nhảy 01 tới 07, chỉ nhỏ hơn ảnh lớn
-    // 4% và lệch xuống 16px) đã nằm yên to gần bằng ảnh lớn trong
-    // khung từ 0.5s, rồi card đích mới bay lên đè lên nó trong
-    // 0.35-1.05s, trông như hai ảnh lớn va vào nhau. Ảnh lớn cũ
-    // (Vore) không phải thủ phạm: nó về lớp deck sâu nhất và đã
-    // nhỏ lại gần xong trước khi card đích lớn lên.
-    // Cách sửa: deck bay về vị trí bằng ease power3.out trong 0.9s,
-    // tức là rời stack rất nhanh lúc đầu (53% lúc 0.2s, 77% lúc
-    // 0.35s) nhưng hạ cánh chậm dần, về đích cùng lúc với card
-    // đích. Card đích đợi 0.2s rồi bay 0.7s, hạ cánh ở 0.9s cùng
-    // lúc deck về đích, nên nó bay lên trong lúc deck vẫn đang
-    // hình thành và đáp xuống trên cùng, không còn đè lên một card
-    // đã nằm yên. Tổng 0.9s, tương đương farBack khoảng 1.0s.
-    var TARGET_AT = 0.2, FLY = 0.7, CLEAR = TARGET_AT + FLY, longest = DUR;
+    // Nhảy tới xa, cách dàn dựng mới (v15): đặt sẵn ảnh đích ở khung
+    // ảnh lớn rồi trượt ảnh lớn cũ đi để lộ ra, như farBack.
+    // Vấn đề ở v14: card đích và card deck lớp 1 CÙNG bay từ stack
+    // thumbnail tới khung ảnh lớn trong cùng lúc. Deck lớp 1 về đích
+    // ở cỡ 96% (chỉ nhỏ hơn ảnh lớn 4%) và lệch xuống 16px, gần như
+    // cùng vị trí và cùng cỡ với card đích (100%). Hai card cùng hội
+    // tụ về khung ảnh lớn cùng lúc nên chồng lên nhau giữa chừng, dù
+    // đã cho hạ cánh cùng lúc ở 0.9s. Cho hạ cánh cùng lúc không sửa
+    // được, vì cả hai vẫn đang bay tới cùng một chỗ trong cùng lúc.
+    // Cách sửa: ảnh đích đặt sẵn rõ nét đúng khung ảnh lớn từ đầu
+    // (z 100), ảnh lớn cũ trượt xuống ra khỏi khung để lộ ảnh đích,
+    // các card deck bay từ stack về chui xuống DƯỚI ảnh đích đã nằm
+    // sẵn. Trong lúc chuyển không bao giờ có hai ảnh lớn cùng bay
+    // tới khung, nên không va nhau. Lỗi hiện ra đột ngột không quay
+    // lại: ảnh đích đã nằm sẵn ở khung, không bay vào nên không
+    // phình to giữa chừng.
+    var drop = viewer.clientHeight - rects.big.y + 80;   // xuống quá đáy khung
+    var longest = DUR + 0.15;
     list.forEach(function (p, i) {
       var c = cards[p.id];
       var s = stateFor(i - current);
@@ -428,34 +429,45 @@
       resetTilt(c);
       c.el.style.visibility = "";
       gsap.killTweensOf(c.el);
-      // Card đích phải giữ z-index của stack (dưới các thumbnail đi
-      // trước nó) cho tới khi bắt đầu bay lên ảnh lớn. Không nâng lên
-      // z đích ngay từ đầu, nếu không nó đè lên các thumbnail khác
-      // dù vẫn đang ở trong stack.
       gsap.set(c.el, { opacity: 1 });
-      if (s.kind === "big" && (from === "thumb" || from === "reserve")) {
-        // Card đích: đợi stack bắt đầu dọn (0.2s) rồi bay 0.7s, hạ
-        // cánh ở 0.9s cùng lúc deck về đích. Nâng z lên z đích
-        // trong onStart, đúng lúc bắt đầu bay.
-        gsap.to(c.el, vars(s, { duration: FLY, ease: "power3.inOut", delay: TARGET_AT,
-          onStart: function () { gsap.set(c.el, { zIndex: s.z }); } }));
-        longest = Math.max(longest, TARGET_AT + FLY);
-      } else if (s.kind === "deck" && (from === "thumb" || from === "reserve")) {
-        // Các card bay về deck đi CÙNG LÚC (không so le từng cái)
-        // để stack rời đi như một khối. Ease power3.out: rời stack
-        // rất nhanh lúc đầu nhưng hạ cánh chậm dần, về đích cùng
-        // lúc với card đích (0.9s) nên không có card deck nào nằm
-        // yên to trong khung trước khi card đích bay tới. Nâng z
-        // lên z đích trong onStart, đúng lúc bắt đầu bay.
-        gsap.to(c.el, vars(s, { duration: CLEAR, ease: "power3.out", delay: 0,
-          onStart: function () { gsap.set(c.el, { zIndex: s.z }); } }));
-        longest = Math.max(longest, CLEAR);
+      if (s.kind === "big") {
+        // Ảnh đích: đặt sẵn rõ nét đúng khung, nằm dưới ảnh lớn cũ sắp trượt đi.
+        // (Nhảy tới xa nên đích luôn là dự trữ, đang bị che sau thumbnail
+        // back, nên việc đặt sẵn nó lên khung là vô hình ở stack.)
+        gsap.set(c.el, vars(s, { zIndex: 100 }));
+      } else if (from === "big") {
+        // Ảnh lớn cũ: trượt xuống ra khỏi khung để lộ ảnh đích, xong
+        // thì về chỗ deck sâu nhất sau chồng deck (bị che hoàn toàn,
+        // vì nhảy tới xa nên nó luôn về lớp 4 trở xuống, cùng khung
+        // với lớp 3 và bị lớp 3 che). Nâng z lên 120 để trượt đi
+        // trên ảnh đích, không bị ảnh đích đè khi hai ảnh cùng ở
+        // một khung lúc bắt đầu.
+        gsap.set(c.el, { zIndex: 120 });
+        longest = Math.max(longest, 0.65);
+        gsap.to(c.el, { y: "+=" + drop, rotation: 3, duration: 0.65,
+          ease: "power2.in",
+          onComplete: function () { gsap.set(c.el, vars(s, { zIndex: s.z })); } });
+      } else if (s.kind === "deck") {
+        // Deck (cũ hoặc từ stack bay về): chui xuống dưới ảnh đích
+        // đã nằm sẵn (z 100), nên chỉ cần bay về vị trí deck. Nâng
+        // z lên z đích trong onStart, đúng lúc bắt đầu bay, để
+        // trong lúc chờ (0.12s) card vẫn giữ z cũ ở stack, không
+        // nhảy lên trên các thumbnail khác rồi đứng yên đó.
+        var deckDelay = (from === "thumb" || from === "reserve") ? 0.12 : 0;
+        gsap.to(c.el, vars(s, { duration: DUR, ease: EASE, delay: deckDelay,
+          onStart: function () { gsap.set(c.el, { zIndex: s.z }); },
+          onComplete: function () { gsap.set(c.el, { zIndex: s.z }); } }));
+        longest = Math.max(longest, deckDelay + DUR);
       } else {
-        // Ảnh lớn / deck cũ lùi sâu xuống dưới (bị các card bay tới che);
-        // thumbnail / dự trữ còn lại dịch nấc trong stack. Bắt đầu ngay
-        // nên nâng z lên z đích luôn.
-        gsap.set(c.el, { zIndex: s.z });
-        gsap.to(c.el, vars(s, { duration: DUR, ease: EASE }));
+        // Thumbnail / dự trữ còn lại: dịch nấc trong stack, cùng
+        // lúc (cùng độ trễ 0.12) để stack đi như một khối. Nâng z
+        // lên z đích trong onStart, đúng lúc bắt đầu bay, để trong
+        // lúc chờ card vẫn giữ z cũ, không nhảy lên trên các
+        // thumbnail khác rồi đứng yên đó.
+        gsap.to(c.el, vars(s, { duration: DUR, ease: EASE, delay: 0.12,
+          onStart: function () { gsap.set(c.el, { zIndex: s.z }); },
+          onComplete: function () { gsap.set(c.el, { zIndex: s.z }); } }));
+        longest = Math.max(longest, 0.12 + DUR);
       }
       applyKind(c, s.kind);
     });
