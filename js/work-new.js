@@ -377,21 +377,23 @@
         // Ảnh đích: đặt sẵn rõ nét đúng khung, nằm dưới các ảnh sắp slide đi.
         gsap.set(c.el, vars(s, { zIndex: 100, opacity: 1 }));
       } else if ((from === "big" || from === "deck") && s.kind === "reserve") {
-        // Không cần ở điểm cuối: slide xuống ra khỏi khung (lớp trên đi
-        // trước), xong thì về chỗ dự trữ sau stack (bị che).
+        // Không cần ở điểm cuối: slide xuống ra khỏi khung CÙNG LÚC
+        // (không so le theo thứ tự như trước) để cả chồng trượt đi như
+        // một khối, xong thì về chỗ dự trữ sau stack (bị che).
         var cur = parseInt(c.el.style.zIndex, 10) || 100;
         var order = Math.max(0, 100 - cur);
         gsap.set(c.el, { zIndex: 110 + Math.min(cur, 100) - 90, opacity: 1 });
-        var d = order * 0.05;
-        longest = Math.max(longest, d + 0.65);
+        longest = Math.max(longest, 0.65);
         gsap.to(c.el, { y: "+=" + drop, rotation: (order % 2 ? -3 : 3), duration: 0.65,
-          ease: "power2.in", delay: d,
+          ease: "power2.in", delay: 0,
           onComplete: function () { gsap.set(c.el, vars(s, { zIndex: s.z })); } });
       } else {
         // Card còn cần: deck -> thumbnail bay từ dưới ảnh đích về stack;
         // deck -> deck bước lên dưới ảnh đích; thumbnail dịch nấc.
+        // Các thumbnail mới bay vào stack CÙNG LÚC (cùng độ trễ 0.12)
+        // để stack hiện lên như một khối, không nhảy từng cái.
         gsap.set(c.el, { zIndex: s.z, opacity: 1 });
-        var delay = (s.kind === "thumb" || s.kind === "reserve") ? 0.12 + FOLLOW_DELAY * (i - current - 1) : 0;
+        var delay = (s.kind === "thumb" || s.kind === "reserve") ? 0.12 : 0;
         gsap.to(c.el, vars(s, { duration: DUR, ease: EASE, delay: delay,
           onComplete: function () { gsap.set(c.el, { zIndex: s.z }); } }));
         longest = Math.max(longest, delay + DUR);
@@ -401,8 +403,8 @@
     return longest;
   }
 
-  function farForward(fromIndex) {
-    var FLY = 0.7, GAP = 0.09, longest = DUR;
+  function farForward() {
+    var FLY = 0.7, longest = DUR;
     list.forEach(function (p, i) {
       var c = cards[p.id];
       var s = stateFor(i - current);
@@ -416,9 +418,11 @@
       // dù vẫn đang ở trong stack.
       gsap.set(c.el, { opacity: 1 });
       if ((s.kind === "deck" || s.kind === "big") && (from === "thumb" || from === "reserve")) {
-        // Bay vào chồng ảnh lớn lần lượt theo thứ tự (cái trước nằm dưới).
-        // Nâng z lên z đích trong onStart, đúng lúc bắt đầu bay.
-        var d = (i - fromIndex - 1) * GAP;
+        // Các card bay vào chồng ảnh lớn đi CÙNG LÚC (không so le từng
+        // cái 0.09s như trước) để stack rời đi như một khối, không nhảy
+        // liên tục. Card đích bay sau một nhịp ngắn để bay cuối cùng,
+        // nằm trên. Nâng z lên z đích trong onStart, đúng lúc bắt đầu bay.
+        var d = (s.kind === "big") ? 0.15 : 0;
         gsap.to(c.el, vars(s, { duration: FLY, ease: "power3.inOut", delay: d,
           onStart: function () { gsap.set(c.el, { zIndex: s.z }); } }));
         longest = Math.max(longest, d + FLY);
@@ -439,7 +443,6 @@
     if (index === current) return false;
     var dir = index > current ? 1 : -1;
     var n = Math.abs(index - current);
-    var fromIndex = current;
     shownIndex = index;
     animateInfo(0.12, dir);
     current = index;
@@ -447,7 +450,7 @@
     var total;
     if (n < FAR || reduceMotion || (opts && opts.dragged)) total = moveCards(dir, DUR, EASE, opts);
     else if (dir < 0) total = farBack();
-    else total = farForward(fromIndex);
+    else total = farForward();
     lockFor(total * 1000 + 60);
     return true;
   }
