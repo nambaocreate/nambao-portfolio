@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Selected Works — Nam Bảo (Staging)</title>
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-  <meta name="description" content="Selected works by Nam Bảo (staging, theo Figma Frame 26): Vore, EGG:01, RMIT25, Đô Thành Cổ Tích, Tad.atelier, VIBE Expo and Tuổi Hồng 28.">
+  <meta name="description" content="Independent and agency works by Nam Bảo (staging, theo Figma Frame 26): Vore, EGG:01, RMIT25, Việt Cổ Truyện, Tad.atelier, VIBE Expo and Tuổi Hồng 28.">
   <meta name="robots" content="noindex, nofollow">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -36,9 +36,14 @@
         <a class="nav-contact" href="#contact"><span data-roll>Contact</span></a>
       </nav>
 
-      <!-- Hàng trên: nhãn SELECTED WORKS trái, số thứ tự phải -->
+      <!-- Hàng trên: nút chuyển trang Independent / Agency bên trái, số thứ tự bên phải -->
       <div class="wn-top">
-        <p class="wn-label">Selected Works</p>
+        <div class="wn-switch" id="wn-switch" role="group" aria-label="Chọn nhóm dự án">
+          <button type="button" class="wn-switch-btn is-active" data-coll="independent" aria-pressed="true">Independent Works</button>
+          <span class="wn-switch-slash" aria-hidden="true">/</span>
+          <button type="button" class="wn-switch-btn" data-coll="agency" aria-pressed="false">Agency Works</button>
+          <span class="wn-switch-note">(at Collective Design Agency)</span>
+        </div>
         <p class="wn-count" id="wn-count" aria-live="polite">01/07</p>
       </div>
 
@@ -48,7 +53,7 @@
           <div class="wn-info" id="wn-info">
             <h1 class="wn-title" id="wn-title">Vore</h1>
             <p class="wn-meta" id="wn-meta">
-              <span class="wn-year" id="wn-year"></span><span class="wn-dash" id="wn-dash" aria-hidden="true"></span><span class="wn-cat" id="wn-cat">Food &amp; beverage</span>
+              <span class="wn-cat" id="wn-cat">Food &amp; beverage</span><span class="wn-dash" id="wn-dash" aria-hidden="true"></span><span class="wn-year" id="wn-year">2025</span>
             </p>
             <ul class="wn-tags" id="wn-tags"></ul>
           </div>
@@ -89,7 +94,7 @@
     <p class="wn-lightbox-cap" id="wn-lightbox-cap"></p>
   </div>
 
-  <div class="cursor" aria-hidden="true"><span data-cursor-label="read">Read</span><span data-cursor-label="open">Open</span></div>
+  <div class="cursor" aria-hidden="true"><span data-cursor-label="read">Read</span><span data-cursor-label="open">Open</span><span data-cursor-label="newtab"><svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true"><path d="M5 21L21 5M8 5h13v13" stroke="#fff" stroke-width="2"/></svg></span></div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="js/work-new.js"></script>
