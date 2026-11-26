@@ -604,17 +604,22 @@ body.contact-open .wn-nav { position: relative; z-index: 2000; }
 }
 
 .contact-copied {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 5px;
   height: 22px;
   margin-top: 6px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 400;
+  color: #0c6a28;
   opacity: 0;
   transform: translateY(4px);
   transition: opacity .25s ease, transform .25s ease;
 }
 
 .contact-copied.is-show { opacity: 1; transform: none; }
+
+.contact-copied-tick { flex: none; }
 
 .contact-socials {
   display: flex;
