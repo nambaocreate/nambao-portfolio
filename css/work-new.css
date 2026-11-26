@@ -139,6 +139,56 @@
 
 .wn-count { font-variant-numeric: tabular-nums; }
 
+/* ---------- Nút chuyển trang: INDEPENDENT WORKS / AGENCY WORKS ----------
+   Mục đang chọn đen, mục còn lại xám; ghi chú "(AT COLLECTIVE DESIGN
+   AGENCY)" chỉ hiện khi đang ở Agency Works. Cỡ 15px như nav. */
+.wn-switch {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.wn-switch-btn {
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 0;
+  font-family: var(--font);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: var(--ink);
+  opacity: 0.32;
+  cursor: pointer;
+  transition: opacity 0.4s var(--ease-out);
+}
+.wn-switch-btn:hover { opacity: 0.6; }
+.wn-switch-btn.is-active { opacity: 1; cursor: default; }
+
+.wn-switch-slash { font-size: 15px; line-height: 1.2; }
+
+.wn-switch-note {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-left: 4px;
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: opacity 0.45s var(--ease-out), transform 0.45s var(--ease-out);
+  pointer-events: none;
+}
+.wn-switch.is-agency .wn-switch-note { opacity: 1; transform: none; }
+
+/* Con trỏ "mở tab mới": đĩa đen có mũi tên chéo, dùng chung con trỏ
+   của main.js (thêm class cursor--newtab khi hover ảnh lớn Agency). */
+.cursor.cursor--newtab { width: 88px; height: 88px; }
+.cursor--newtab [data-cursor-label="newtab"] { opacity: 1; }
+.cursor [data-cursor-label="newtab"] { display: flex; }
+
 /* ---------- Hàng chính: thông tin trái, ảnh lớn phải ----------
    Figma: tiêu đề y 264 (cách hàng trên ~85px), ảnh lớn
    x 970, 910 x 547.9. Lưới 2 cột: trái co giãn, phải 910px. */
@@ -337,7 +387,14 @@
   --r: 5px;
   will-change: transform, width, height;
   -webkit-tap-highlight-color: transparent;
+  touch-action: none;   /* để kéo thả bằng ngón tay trên iPad */
+  user-select: none;
+  -webkit-user-select: none;
 }
+
+.wn-card.is-thumb { cursor: grab; }
+.wn-cards.is-dragging .wn-card { cursor: grabbing; }
+.wn-cards.is-dragging .wn-card:hover .wn-card-inner { box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3); }
 
 .wn-card-inner {
   position: relative;
@@ -501,6 +558,11 @@
   }
 
   .wn-title { white-space: normal; }
+
+  .wn-card { touch-action: pan-y; }
+
+  .wn-switch { flex-wrap: wrap; row-gap: 6px; }
+  .wn-switch-btn, .wn-switch-slash { font-size: 13px; }
 
   .wn-tags { margin-top: 24px; }
 
