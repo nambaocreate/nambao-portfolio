@@ -65,7 +65,7 @@
       tags: ["TYPEFACE DESIGN"],
       image: "assets/work/agency-cda-independence.jpg", alt: "Chữ CDA Independence trên nền Dinh Độc Lập", width: 1600, height: 900,
       url: AGENCY_BASE + "cda-independence" },
-    { id: "a-vietnam-is-awesome", title: "Vietnam Is Awesome", year: "2025", tag: "Other Industries",
+    { id: "a-vietnam-is-awesome", title: "Vietnam Is Awesome", year: "2025", tag: "Travel & Tourism",
       tags: ["VISUAL IDENTITY", "BRAND CŌMPASS™"],
       image: "assets/work/agency-vietnam-is-awesome.jpg", alt: "Poster Vietnam Is Awesome trên vỉa hè", width: 1168, height: 625,
       url: AGENCY_BASE + "vietnam-is-awesome" },
