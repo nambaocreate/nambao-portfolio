@@ -328,6 +328,7 @@
       var s = stateFor(i - current);
       var from = c.kind;
       resetTilt(c);
+      var rel = i - current;
       var zDuring = (from === "big" && s.kind !== "big" && s.kind !== "deck") ? 150 : s.z;
       if (s.kind === "reserve") zDuring = s.z;
       if (opts && opts.dragged === c) zDuring = Math.max(zDuring, 150);
@@ -337,8 +338,24 @@
       if (dir > 0 && s.kind === "thumb") delay = FOLLOW_DELAY * (i - current) * k;
       if (dir < 0 && (s.kind === "thumb" || s.kind === "reserve")) delay = FOLLOW_DELAY * (i - current - 1) * k;
       if (opts && opts.dragged === c) delay = 0;
+      // Ảnh lớn cũ thu về thumbnail giữa/cuối (rel > 1) khi lùi: lúc rời
+      // khỏi khung ảnh lớn nó phải ở trên (z 150) để không chìm sau ảnh
+      // lớn mới, nhưng khi tới gần stack thumbnail thì phải hạ xuống z
+      // đích để nằm DƯỚI các thumbnail đi trước nó (vd Việt Cổ Truyện
+      // về thumbnail back phải nằm dưới EGG:01 front và RMIT25 mid).
+      // Hạ z ở giữa đường bay (progress 0.5), đúng lúc nó rời khỏi
+      // vùng ảnh lớn. Thumbnail front (rel 1) là cao nhất trong stack
+      // nên giữ z 150 suốt đường bay, không cần hạ.
+      var dropZ = (from === "big" && s.kind === "thumb" && rel > 1 && !(opts && opts.dragged === c));
+      var zDropped = false;
       gsap.to(c.el, vars(s, {
         duration: dur, ease: ease, delay: delay, overwrite: "auto",
+        onUpdate: function () {
+          if (dropZ && !zDropped && this.progress() > 0.5) {
+            zDropped = true;
+            gsap.set(c.el, { zIndex: s.z });
+          }
+        },
         onComplete: function () { gsap.set(c.el, { zIndex: s.z }); }
       }));
       applyKind(c, s.kind);
