@@ -91,15 +91,9 @@
       url: AGENCY_BASE + "cypeace" }
   ];
 
-  function uniqueTags(arr) {
-    var seen = {}, out = ["All"];
-    arr.forEach(function (p) { if (!seen[p.tag]) { seen[p.tag] = 1; out.push(p.tag); } });
-    return out;
-  }
   var COLLECTIONS = {
-    independent: { projects: INDEPENDENT,
-      filters: ["All", "Food & beverage", "Education", "Architecture", "Art", "Entertainment"] },
-    agency: { projects: AGENCY, filters: uniqueTags(AGENCY) }
+    independent: { projects: INDEPENDENT },
+    agency: { projects: AGENCY }
   };
   var ALL = INDEPENDENT.concat(AGENCY);
 
@@ -140,7 +134,6 @@
 
   /* ---------- Trạng thái ---------- */
   var activeColl = /agency/i.test(location.hash) ? "agency" : "independent";
-  var activeFilter = "All";
   var list = COLLECTIONS[activeColl].projects.slice();
   var current = 0;
   var busyUntil = 0;
@@ -185,7 +178,6 @@
 
   /* ---------- Tính cỡ ảnh lớn và stack cho vừa màn hình ---------- */
   var mainEl = document.querySelector(".wn-main");
-  var industryEl = document.querySelector(".wn-industry");
   function fitLayout() {
     if (!isPinnedLayout()) {
       viewer.style.removeProperty("--big-w");
@@ -200,7 +192,7 @@
     viewer.style.setProperty("--big-w", Math.round(bigW) + "px");
     var gap = parseFloat(getComputedStyle(mainEl).columnGap) || 40;
     var leftW = inner - gap - bigW;
-    var used = industryEl.offsetWidth + filtersEl.offsetWidth + 25;
+    var used = filtersEl.offsetWidth + 25;
     var ts = Math.max(0.55, Math.min(1, (leftW - used - 32) / 271));
     viewer.style.setProperty("--ts", ts.toFixed(3));
   }
@@ -291,6 +283,7 @@
     metaEl.classList.toggle("wn-meta--no-year", !p.year);
     tagsEl.innerHTML = p.tags.map(function (t) { return '<li class="wn-tag">' + t + "</li>"; }).join("");
     countEl.textContent = pad(current + 1) + "/" + pad(list.length);
+    markActiveName();
   }
 
   function animateInfo(delay, dir) {
@@ -451,35 +444,48 @@
     lockFor((landAt + 0.1) * 1000);
   }
 
-  /* ---------- Filter ---------- */
-  function renderFilters() {
-    var names = COLLECTIONS[activeColl].filters;
-    filtersEl.innerHTML = names.map(function (name) {
-      var on = name === activeFilter;
-      return '<li><button type="button" class="wn-filter' + (on ? " is-active" : "") +
-        '" data-filter="' + name + '" aria-pressed="' + on + '">' + name + "</button></li>";
+  /* ---------- Danh sách tên dự án (thay cho filter) ----------
+     Cột trái hiện tên toàn bộ dự án của trang đang xem. Dự án đang
+     xem màu đen, các dự án khác màu xám; hover thì đậm dần. Bấm tên
+     thì chuyển tới dự án đó với cùng motion như bấm thumbnail. Tên
+     đổi màu đúng lúc tiêu đề đổi (trong renderInfo). Bề rộng cột cố
+     định theo tên dài nhất của cả 2 trang, nên khi đổi trang stack
+     thumbnail không bị xê dịch. */
+  function renderNames() {
+    filtersEl.innerHTML = list.map(function (p, i) {
+      return '<li><button type="button" class="wn-filter" data-index="' + i + '">' + p.title + "</button></li>";
     }).join("");
+    markActiveName();
   }
 
-  function setFilter(name) {
-    if (name === activeFilter) return;
-    activeFilter = name;
+  function markActiveName() {
     filtersEl.querySelectorAll(".wn-filter").forEach(function (btn) {
-      var on = btn.getAttribute("data-filter") === name;
+      var on = parseInt(btn.getAttribute("data-index"), 10) === current;
       btn.classList.toggle("is-active", on);
-      btn.setAttribute("aria-pressed", on ? "true" : "false");
+      if (on) btn.setAttribute("aria-current", "true");
+      else btn.removeAttribute("aria-current");
     });
-    var all = COLLECTIONS[activeColl].projects;
-    var newList = name === "All" ? all.slice() : all.filter(function (p) { return p.tag === name; });
-    if (!newList.length) newList = all.slice();
-    transitionToList(newList, 1);
+  }
+
+  function lockNamesWidth() {
+    var keep = list, w = 0;
+    filtersEl.style.width = "auto";
+    ["independent", "agency"].forEach(function (k) {
+      list = COLLECTIONS[k].projects;
+      renderNames();
+      w = Math.max(w, filtersEl.offsetWidth);
+    });
+    list = keep;
+    filtersEl.style.width = Math.ceil(w) + "px";
   }
 
   filtersEl.addEventListener("click", function (event) {
     var btn = event.target.closest(".wn-filter");
     if (!btn) return;
-    var name = btn.getAttribute("data-filter");
-    setFilter(activeFilter === name ? "All" : name);
+    var i = parseInt(btn.getAttribute("data-index"), 10);
+    if (isNaN(i)) return;
+    pendingStep = 0;
+    goTo(i);
   });
 
   /* ---------- Đổi trang: Independent Works / Agency Works ----------
@@ -500,16 +506,15 @@
     if (name === activeColl || !COLLECTIONS[name]) return;
     var slideDir = name === "agency" ? -1 : 1;
     activeColl = name;
-    activeFilter = "All";
     renderSwitch();
     try { history.replaceState(null, "", name === "agency" ? "#agency" : location.pathname + location.search); } catch (e) {}
 
     if (reduceMotion) {
-      renderFilters();
+      renderNames();
     } else {
       gsap.timeline()
         .to(filtersEl, { x: 24 * slideDir, opacity: 0, duration: 0.25, ease: "power2.in" })
-        .add(function () { renderFilters(); measure(); })
+        .add(function () { renderNames(); })
         .fromTo(filtersEl, { x: -24 * slideDir, opacity: 0 },
           { x: 0, opacity: 1, duration: 0.45, ease: "power3.out", clearProps: "transform,opacity" });
     }
@@ -788,10 +793,11 @@
 
   /* ---------- Khởi tạo ---------- */
   renderSwitch();
-  renderFilters();
+  lockNamesWidth();
+  renderNames();
   renderInfo();
   placeAll();
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(placeAll);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { lockNamesWidth(); renderNames(); placeAll(); });
   window.addEventListener("load", placeAll);
   requestAnimationFrame(function () { viewer.classList.add("is-ready"); });
 })();
