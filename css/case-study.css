@@ -534,3 +534,16 @@
     transition: none;
   }
 }
+
+/* Fallback cho trình duyệt không có View Transition (Firefox):
+   khi vào từ /work, nav của trang case study fade vào nhẹ
+   thay vì dùng cross-document transition. */
+@supports not (view-transition-name: none) {
+  html.cs-from-work .cs-nav {
+    animation: cs-nav-in 0.4s cubic-bezier(0.33, 1, 0.68, 1) 0.05s both;
+  }
+  @keyframes cs-nav-in {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: none; }
+  }
+}

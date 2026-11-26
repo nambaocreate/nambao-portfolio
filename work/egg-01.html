@@ -11,9 +11,19 @@
   <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700&family=Sarina&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/styles.css">
   <link rel="stylesheet" href="../css/case-study.css">
-  <!-- Preload ảnh hero để trang vẽ hero ngay khi tới, không chớp khung trống. -->
-  <link rel="preload" as="image" href="../assets/case-study/egg-01/01-hero.jpg">
-  <script>document.documentElement.classList.add("js");</script>
+  <link rel="preload" as="image" href="/assets/case-study/egg-01/01-hero.jpg" fetchpriority="high">
+  <!-- Chrome: không vẽ frame đầu tiên cho tới khi đã parse xong #cs-hero -->
+  <link rel="expect" href="#cs-hero" blocking="render">
+  <script>
+    document.documentElement.classList.add("js");
+    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+    try {
+      if (sessionStorage.getItem("cs-enter")) {
+        document.documentElement.classList.add("cs-from-work");
+        sessionStorage.removeItem("cs-enter");
+      }
+    } catch (e) {}
+  </script>
 </head>
 <body>
   <!-- Trang case study EGG:01. Toàn bộ nội dung do js/case-study.js
@@ -21,20 +31,29 @@
        khung mỏng để có URL sạch /work/egg-01. Thêm dự án mới thì
        copy file này, đổi data-study và tiêu đề, rồi thêm dữ liệu. -->
   <main class="cs-root" id="cs-root" data-study="egg-01">
-    <nav class="nav cs-nav" aria-label="Main">
+    <header class="cs-hero" id="cs-hero">
+      <img class="cs-hero-img" src="/assets/case-study/egg-01/01-hero.jpg"
+           alt="Hộp bạc EGG:01 cạnh chai thủy tinh gân sóng có lòng đỏ cam"
+           width="1920" height="1860" decoding="sync" fetchpriority="high">
+      <nav class="nav cs-nav" aria-label="Main">
       <a class="nav-logo" href="/" aria-label="Nam Bảo, home">nambao</a>
       <div class="nav-menu-wrap" id="nav-menu-wrap">
         <ul class="nav-menu" id="nav-menu">
           <li><button type="button" class="nav-pill nav-pill--contact" id="nav-contact-btn" aria-expanded="false" aria-controls="contact-overlay">Contact</button></li>
-          <li><a class="nav-pill" href="/work">Work</a></li>
-          <li><a class="nav-pill" href="/#about">About</a></li>
-          <li><a class="nav-pill" href="/playground">Playground</a></li>
+          <li class="nav-menu-bar">
+            <a class="nav-pill nav-pill--work" href="/work">Work</a>
+            <span class="nav-menu-divider nav-menu-divider--1" aria-hidden="true"></span>
+            <a class="nav-pill nav-pill--about" href="/#about">About</a>
+            <span class="nav-menu-divider nav-menu-divider--2" aria-hidden="true"></span>
+            <a class="nav-pill nav-pill--playground" href="/playground">Playground</a>
+          </li>
         </ul>
         <button type="button" class="nav-ball" id="nav-ball" aria-label="Menu" aria-expanded="false" aria-controls="nav-menu">
-          <span class="nav-ball-rot"><span class="nav-ball-star" id="nav-ball-star" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" aria-hidden="true"><path d="M12 2v20M7 3.3L17 20.7M17 3.3L7 20.7" stroke="#000" stroke-width="3" stroke-linecap="round"/></svg></span></span>
+          <span class="nav-ball-rot"><span class="nav-ball-star" id="nav-ball-star" aria-hidden="true"></span></span>
         </button>
       </div>
     </nav>
+    </header>
   </main>
 
   <div class="cursor" aria-hidden="true"><span data-cursor-label="read">Read</span><span data-cursor-label="open">Open</span></div>
@@ -53,10 +72,10 @@
             <li><a href="https://www.linkedin.com/in/nam-bao/" target="_blank" rel="noopener" aria-label="LinkedIn"><img src="../assets/social/linkedin.svg" alt="" width="24" height="24"></a></li>
             <li><a href="https://www.behance.net/nam-bao" target="_blank" rel="noopener" aria-label="Behance"><img src="../assets/social/behance.svg" alt="" width="24" height="24"></a></li>
           </ul>
-          <p class="contact-logo" aria-hidden="true">nambao</p>
+          <img class="contact-logo" src="../assets/nav/logo-mark.svg" alt="" aria-hidden="true">
         </article>
         <article class="contact-card contact-card--back" aria-hidden="true">
-          <p class="contact-logo contact-logo--green" aria-hidden="true">nambao</p>
+          <img class="contact-logo" src="../assets/nav/logo-mark-green.svg" alt="" aria-hidden="true">
         </article>
       </div>
     </div>

@@ -297,66 +297,121 @@ ul { list-style: none; }
 .nav-menu-wrap {
   display: flex;
   align-items: center;
-  gap: 8px;
   margin-left: auto;
 }
 
+/* Menu dùng đúng shape SVG gốc trong Figma (node 1734:444):
+   pill CONTACT xanh lá (114.5x36.6, mép phải có tab lồi) và
+   dải vàng (350x36.6, mép trái có rãnh lõm khớp với tab) nên
+   chỗ nối có vết khuyết bán nguyệt đúng như thiết kế. Cục cam
+   chồng lên đầu phải của dải vàng 9px. Chữ Libre Franklin
+   Regular 16px, viết hoa hết. */
 .nav-menu {
   display: flex;
+  align-items: center;
   list-style: none;
-  border-radius: 999px;
-  overflow: hidden;
-  opacity: 0;
+  /* SLIDE thay vì fade: menu trượt ra từ phía cục tròn
+     (translateX) khi hover, không mờ dần. */
   visibility: hidden;
-  transform: translateX(14px);
-  transition: opacity .3s var(--ease-out), transform .3s var(--ease-out), visibility 0s .3s;
+  transform: translateX(28px);
+  transition: transform .35s var(--ease-out), visibility 0s .35s;
 }
 
 .nav-menu-wrap:hover .nav-menu,
 .nav-menu-wrap.is-menu-open .nav-menu {
-  opacity: 1;
   visibility: visible;
   transform: translateX(0);
-  transition: opacity .3s var(--ease-out), transform .3s var(--ease-out), visibility 0s;
+  transition: transform .35s var(--ease-out), visibility 0s;
 }
 
 .nav-menu li { display: flex; }
 
-.nav-menu li + li .nav-pill { border-left: 1px solid rgba(0, 0, 0, .18); }
-
 .nav-pill {
   display: block;
-  padding: 9px 18px;
   font-family: inherit;
-  font-size: 15px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 400;
   line-height: 1.21;
+  text-transform: uppercase;
   text-decoration: none;
   white-space: nowrap;
   color: #000;
-  background: var(--nav-lime);
   border: 0;
   cursor: pointer;
 }
 
-.nav-pill--contact { background: var(--green); color: #fff; }
+/* Pill CONTACT: đúng file SVG gốc (xanh lá #2BAE52, tab lồi ở
+   mép phải khớp rãnh của dải vàng). Chữ offwhite #f2f2f0. */
+.nav-pill--contact {
+  width: 114.5px;
+  height: 36.6px;
+  flex: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: url(../assets/nav/menu-contact.svg) no-repeat center / 100% 100%;
+  color: #f2f2f0;
+}
 
-.nav-pill:hover { filter: brightness(1.07); }
+.nav-pill--contact:hover { filter: brightness(1.07); }
 
-/* Cục tròn cam: dấu sao xoay chậm liên tục (20 giây/vòng).
-   Xoay nhanh 1 vòng khi hover (class .is-spinning do JS bật
-   trên dấu sao): sao là phần tử con của lớp xoay chậm nên
-   vòng nhanh cộng dồn lên vòng chậm, xong 360 độ thì về
-   đúng góc cũ nên tốc độ chậm tiếp tục mượt mà, không giật. */
+/* Dải vàng: đúng file SVG gốc (vàng #CFEB15, rãnh lõm ở mép
+   trái, đường chia dọc giữa các mục). Ba mục nằm đúng vị trí
+   Figma (Work 27px, About 118px, Playground 212px từ mép trái). */
+.nav-menu-bar {
+  position: relative;
+  width: 350px;
+  height: 36.6px;
+  flex: none;
+  background: url(../assets/nav/menu-bar.svg) no-repeat center / 100% 100%;
+}
+
+.nav-menu-bar .nav-pill {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 0;
+  background: none;
+}
+
+.nav-menu-bar .nav-pill--work { left: 27px; }
+.nav-menu-bar .nav-pill--about { left: 118px; }
+.nav-menu-bar .nav-pill--playground { left: 212px; }
+
+.nav-menu-bar .nav-pill:hover { opacity: .6; }
+
+.nav-menu-divider {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 27.3px;
+  background: url(../assets/nav/menu-divider.svg) no-repeat center / 100% 100%;
+}
+
+.nav-menu-divider--1 { left: 99px; }
+.nav-menu-divider--2 { left: 189px; }
+
+/* Cục tròn cam: đúng file SVG gốc (Ellipse 1, cam #E67021),
+   dấu sao đen 6 cánh đúng file SVG gốc, xoay chậm liên tục
+   (20 giây/vòng). Xoay nhanh 1 vòng khi hover (class
+   .is-spinning do JS bật trên dấu sao): sao là phần tử con
+   của lớp xoay chậm nên vòng nhanh cộng dồn lên vòng chậm,
+   xong 360 độ thì về đúng góc cũ nên tốc độ chậm tiếp tục
+   mượt mà, không giật. Cục cam chồng lên đầu phải của dải
+   vàng 9px (margin-left âm). */
 .nav-ball {
+  position: relative;
+  z-index: 2;
   width: 52px;
   height: 52px;
   flex: none;
   border: 0;
-  border-radius: 50%;
-  background: var(--nav-orange);
+  background: url(../assets/nav/nav-ball.svg) no-repeat center / contain;
   cursor: pointer;
   padding: 0;
+  margin-left: -9px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -364,7 +419,12 @@ ul { list-style: none; }
 
 .nav-ball-rot { display: flex; animation: nav-ball-spin 20s linear infinite; }
 
-.nav-ball-star { display: flex; }
+.nav-ball-star {
+  display: block;
+  width: 30px;
+  height: 29px;
+  background: url(../assets/nav/nav-star.svg) no-repeat center / contain;
+}
 
 .nav-ball-star.is-spinning { animation: nav-ball-spin .8s cubic-bezier(0.65, 0, 0.35, 1); }
 
@@ -468,11 +528,15 @@ body.contact-open .wn-nav { position: relative; z-index: 2000; }
   flex-direction: column;
   padding: 48px 36px 0;
   cursor: pointer;
+  /* Mặt trước nhô ra 1px, mặt sau lùi 1px (xem .contact-card--back):
+     hai mặt không còn cùng một mặt phẳng nên khi cả khối flip bị
+     tilt thì mặt đối diện không lòi ra ở mép do làm tròn điểm ảnh. */
+  transform: translateZ(1px);
 }
 
 .contact-card--back {
   background: #000;
-  transform: rotateY(180deg);
+  transform: rotateY(180deg) translateZ(1px);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -536,18 +600,17 @@ body.contact-open .wn-nav { position: relative; z-index: 2000; }
 
 .contact-socials img { width: 24px; height: 24px; display: block; }
 
+/* Logo lớn ở dưới cùng của card: vector gốc trong Figma
+   (node 1659:180, cũng là nguồn của favicon), không dùng chữ
+   font Sarina nữa. Monogram đen trên nền xanh lá (mặt trước),
+   monogram xanh lá trên nền đen (mặt sau). */
 .contact-logo {
-  margin-top: auto;
-  font-family: var(--font-script);
-  font-size: clamp(72px, 11vw, 120px);
-  line-height: .8;
-  letter-spacing: -0.02em;
-  color: #000;
-  margin-bottom: -0.06em;
+  display: block;
+  height: 190px;
+  width: auto;
+  margin: auto auto 0;
   user-select: none;
 }
-
-.contact-card--back .contact-logo { color: var(--green); }
 
 /* ================= ABOUT =================
    Section ghim lại (sticky top 0, z-index 2) để section
@@ -914,7 +977,7 @@ body.contact-open .wn-nav { position: relative; z-index: 2000; }
 @media (max-width: 900px) {
   .nav-logo { font-size: 36px; }
   .nav-ball { width: 48px; height: 48px; }
-  .nav-pill { font-size: 13px; padding: 8px 14px; }
+  .nav-ball-star { width: 28px; height: 27px; }
 
   /* Tắt hiệu ứng ghim và trượt đè trên mobile: các section
      xếp chồng bình thường, không sticky. */
@@ -966,23 +1029,24 @@ body.contact-open .wn-nav { position: relative; z-index: 2000; }
   .nav { padding-top: 32px; }
   .nav-logo { font-size: 30px; }
   .nav-ball { width: 44px; height: 44px; }
-  .nav-ball-star svg { width: 22px; height: 22px; }
-  .nav-pill { font-size: 12px; padding: 7px 11px; }
-  /* Menu thả xuống dưới cục tròn thay vì xếp ngang (không đủ chỗ). */
+  .nav-ball-star { width: 25px; height: 25px; }
+  /* Menu thả xuống dưới cục tròn thay vì xếp ngang (không đủ chỗ),
+     thu nhỏ cả cụm cho vừa màn hình hẹp. */
   .nav-menu-wrap { position: relative; }
   .nav-menu {
     position: absolute;
     top: calc(100% + 10px);
     right: 0;
-    transform: translateY(-6px);
+    transform: translateY(-6px) scale(.72);
+    transform-origin: top right;
   }
   .nav-menu-wrap:hover .nav-menu,
-  .nav-menu-wrap.is-menu-open .nav-menu { transform: translateY(0); }
+  .nav-menu-wrap.is-menu-open .nav-menu { transform: translateY(0) scale(.72); }
   .contact-card-flip { height: min(520px, calc(100svh - 120px)); }
   .contact-card--front,
   .contact-card--back { padding: 32px 24px 0; }
   .contact-email { font-size: 21px; }
-  .contact-logo { font-size: 64px; }
+  .contact-logo { height: 110px; }
   .about { padding-bottom: 40px; }
   .awards { padding-bottom: 40px; }
   .press-card { padding: 28px; }
@@ -1011,4 +1075,21 @@ body.contact-open .wn-nav { position: relative; z-index: 2000; }
   .press-row { transform: none; }
   .press-card { transform: none !important; top: 0; transition: none; }
   .press-card:hover { top: 0; }
+}
+
+/* Cross-document View Transition: trình duyệt giữ ảnh chụp trang cũ
+   (overlay full màn) và ghép mềm sang trang mới thay vì vẽ frame trống.
+   Chrome/Edge 126+, Safari 18.2+. Firefox bỏ qua, vẫn chạy fallback. */
+@view-transition { navigation: auto; }
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.35s;
+  animation-timing-function: cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) { animation: none !important; }
 }

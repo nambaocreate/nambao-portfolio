@@ -36,7 +36,7 @@
       image: "assets/work/vore.jpg", alt: "Ba poster của Vore treo trên tường", width: 1600, height: 900 },
     { id: "egg01", title: "EGG:01", year: "2025", tag: "Food & beverage",
       caseStudy: "/work/egg-01",
-      hero: { src: "assets/case-study/egg-01/01-hero.jpg", width: 1920, height: 1860 },
+      hero: { src: "/assets/case-study/egg-01/01-hero.jpg", width: 1920, height: 1860 },
       tags: ["BRAND IDENTITY", "PACKAGING DESIGN", "PRODUCT DESIGN", "ART DIRECTION"],
       image: "assets/work/egg01.jpg", alt: "Hộp bạc EGG:01 cạnh chai thủy tinh gân sóng có lòng đỏ cam", width: 1400, height: 1356 },
     { id: "rmit25", title: "RMIT 25th Anniversary Logo", year: "2025", tag: "Education",
@@ -53,7 +53,7 @@
       image: "assets/work/vibe.jpg", alt: "Render 3D sảnh expo cam của VIBE", width: 1000, height: 558 },
     { id: "th28", title: "Tuổi Hồng 28", year: "2024", tag: "Entertainment",
       caseStudy: "/work/tuoi-hong-28",
-      hero: { src: "assets/case-study/tuoi-hong-28/01-hero.jpg", width: 1920, height: 1280 },
+      hero: { src: "/assets/case-study/tuoi-hong-28/01-hero.jpg", width: 1920, height: 1280 },
       tags: ["BRAND IDENTITY", "EVENT DESIGN", "POSTER DESIGN", "ART DIRECTION"],
       image: "assets/work/th28.jpg", alt: "Bốn poster Tuổi Hồng 28 năm 2024 trên nền sọc hồng", width: 1600, height: 1067 }
   ];
@@ -287,80 +287,92 @@
     if (p.caseStudy) { expandToCaseStudy(p); }
   }
 
-  // Tải và giải mã xong một ảnh thì mới coi là sẵn sàng (để trang
-  // đích vẽ hero ngay khi tới, không chớp khung trống). Có timeout
-  // an toàn để không kẹt nếu ảnh lỗi hoặc mạng chậm.
-  function loadImage(src) {
-    return new Promise(function (resolve) {
-      var done = false;
-      function fin() { if (!done) { done = true; resolve(); } }
-      var im = new Image();
-      im.onload = function () {
-        if (im.decode) { im.decode().then(fin, fin); } else { fin(); }
-      };
-      im.onerror = fin;
-      im.src = src;
-      setTimeout(fin, 10000);
-    });
-  }
-
-  // Hiệu ứng mở rộng bằng tay: ảnh lớn phóng to từ vị trí đang hiện
-  // ra đúng vị trí và tỉ lệ hero ở trang đích (hero full-width, cao
-  // theo tỉ lệ, căn trên, xem css/case-study.css) rồi mới chuyển trang.
-  // Chỉ chuyển khi cả hiệu ứng xong VÀ ảnh hero đích đã tải và
-  // giải mã xong, nên trang đích hiện hero ngay, không chớp trắng.
-  // Không dùng View Transitions API nữa, để chắc chắn mượt trên
-  // mọi trình duyệt.
+  // Hiệu ứng mở rộng bằng tay + cross-document View Transition:
+  // ảnh lớn phóng to từ vị trí đang hiện ra đúng khung hero ở
+  // trang đích (full-width, cao theo tỉ lệ, căn trên, xem
+  // css/case-study.css). Overlay 2 lớp: ảnh card (có sẵn, hiện
+  // ngay) + ảnh hero thật (crossfade lên khi tải và giải mã xong).
+  // Chỉ chuyển trang khi cả hiệu ứng xong VÀ ảnh hero đã sẵn,
+  // rồi chờ thêm 2 frame để View Transition chụp đúng frame cuối
+  // (overlay = hero), nên trang đích trùng khít từng pixel,
+  // không nháy. Bấm Back thì dọn overlay khi trang trả về từ bfcache.
   var expanding = false;
   function expandToCaseStudy(p) {
     if (expanding) return;
     expanding = true;
+
     var c = cards[p.id];
     var img = c && c.img;
     var rect = img ? img.getBoundingClientRect() : null;
     var vw = document.documentElement.clientWidth || window.innerWidth;
     var vh = window.innerHeight;
-    // Đích: đúng khung ảnh hero sẽ hiện ở trang đích (full-width,
-    // cao theo tỉ lệ, căn trên, không crop). Vì hero tràn hết chiều
-    // rộng nên overlay phóng tới x=0, y=0, rộng bằng viewport, cao
-    // bằng viewport chia tỉ lệ (có thể cao hơn viewport, phần thừa
-    // nằm dưới fold, đúng như trang đích).
     var hw = (p.hero && p.hero.width) || 1920;
     var hh = (p.hero && p.hero.height) || 1080;
-    var ar = hw / hh;
-    var target = { x: 0, y: 0, w: vw, h: Math.round(vw / ar) };
-    // Bắt đầu tải ảnh hero đích ngay từ lúc bấm (song song với
-    // hiệu ứng mở rộng) để khi chuyển trang thì ảnh đã sẵn trong
-    // cache và đã giải mã xong.
-    var heroSrc = (p.hero && p.hero.src) || "";
-    var heroReady = heroSrc ? loadImage(heroSrc) : Promise.resolve();
-    var navigated = false;
-    function go() {
-      if (navigated) return;
-      navigated = true;
-      location.href = p.caseStudy;
-    }
-    // An toàn: không đợi quá 10 giây thì vẫn chuyển trang (overlay
-    // đã phủ full màn bằng ảnh nên chờ thêm không hỏng trải nghiệm).
-    setTimeout(go, 10000);
+    // Đích = đúng khung hero ở trang đích: full width, cao theo tỉ lệ, căn trên.
+    var target = { x: 0, y: 0, w: vw, h: Math.round(vw * hh / hw) };
+    var heroSrc = (p.hero && p.hero.src) || p.image;
+
+    // Overlay 2 lớp: ảnh card (có sẵn, hiện ngay) + ảnh hero thật (crossfade
+    // lên khi tải xong). Khi đổi trang, overlay đã là ĐÚNG file ảnh hero,
+    // nên trang đích trùng khít từng pixel, không nhảy màu/crop.
     var overlay = document.createElement("div");
     overlay.className = "wn-expand";
     overlay.setAttribute("aria-hidden", "true");
-    var oimg = document.createElement("img");
-    oimg.src = img ? (img.currentSrc || img.src) : p.image;
-    oimg.alt = "";
-    overlay.appendChild(oimg);
+    var low = new Image();
+    low.alt = "";
+    low.src = img ? (img.currentSrc || img.src) : p.image;
+    var high = new Image();
+    high.alt = "";
+    high.className = "wn-expand-hi";
+    overlay.appendChild(low);
+    overlay.appendChild(high);
     document.body.appendChild(overlay);
+
+    var heroShown = new Promise(function (resolve) {
+      var done = false;
+      function fin() { if (!done) { done = true; resolve(); } }
+      high.onload = function () {
+        var d = high.decode ? high.decode() : Promise.resolve();
+        d.then(function () {
+          gsap.to(high, { opacity: 1, duration: reduceMotion ? 0 : 0.3, ease: "power1.out", onComplete: fin });
+        }, fin);
+      };
+      high.onerror = fin;
+      high.src = heroSrc;
+      setTimeout(fin, 8000); // mạng quá chậm thì vẫn đi tiếp
+    });
+
     var start = rect || { left: vw / 2 - 455, top: vh / 2 - 274, width: 910, height: 548 };
-    gsap.set(overlay, { left: start.left, top: start.top, width: start.width, height: start.height });
-    if (cursorEl) cursorEl.style.opacity = "0";
-    var dur = reduceMotion ? 0 : 0.6;
-    gsap.to(overlay, {
-      left: target.x, top: target.y, width: target.w, height: target.h,
-      duration: dur, ease: "power3.inOut",
-      onComplete: function () { heroReady.then(go); }
+    var r0 = c ? getComputedStyle(c.inner).borderRadius : "0px";
+    gsap.set(overlay, { left: start.left, top: start.top, width: start.width, height: start.height, borderRadius: r0 });
+    if (cursorEl) gsap.to(cursorEl, { opacity: 0, duration: 0.2 });
+
+    var expanded = new Promise(function (resolve) {
+      gsap.to(overlay, {
+        left: target.x, top: target.y, width: target.w, height: target.h, borderRadius: 0,
+        duration: reduceMotion ? 0 : 0.75, ease: "expo.inOut", onComplete: resolve
+      });
+    });
+
+    try { sessionStorage.setItem("cs-enter", "1"); } catch (e) {}
+
+    Promise.all([expanded, heroShown]).then(function () {
+      // Chờ 1 frame để frame cuối (overlay = hero) chắc chắn đã vẽ,
+      // rồi mới chuyển trang; View Transition sẽ chụp đúng frame này.
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () { location.href = p.caseStudy; });
+      });
     });
   }
+
+  // Bấm Back: trang được trả về từ bfcache với overlay còn phủ màn hình.
+  window.addEventListener("pageshow", function (e) {
+    if (!e.persisted) return;
+    var ov = document.querySelectorAll(".wn-expand");
+    for (var i = 0; i < ov.length; i++) ov[i].remove();
+    expanding = false;
+    if (cursorEl) { gsap.set(cursorEl, { clearProps: "opacity" }); cursorEl.style.opacity = ""; }
+  });
 
   /* ---------- Đặt tất cả card không animation (khởi tạo, resize) ---------- */
   function placeAll() {

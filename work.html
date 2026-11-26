@@ -14,8 +14,8 @@
   <!-- Preload ảnh hero của 2 trang case study đã launch để bấm ảnh
        lớn thì chuyển trang không bị chớp trắng (ảnh đã có sẵn
        trong cache, hero ở trang đích hiện ngay). -->
-  <link rel="preload" as="image" href="assets/case-study/egg-01/01-hero.jpg">
-  <link rel="preload" as="image" href="assets/case-study/tuoi-hong-28/01-hero.jpg">
+  <link rel="preload" as="image" href="/assets/case-study/egg-01/01-hero.jpg">
+  <link rel="preload" as="image" href="/assets/case-study/tuoi-hong-28/01-hero.jpg">
   <script>document.documentElement.classList.add("js");</script>
 </head>
 <body class="work-new-page">
@@ -33,12 +33,16 @@
         <div class="nav-menu-wrap" id="nav-menu-wrap">
           <ul class="nav-menu" id="nav-menu">
             <li><button type="button" class="nav-pill nav-pill--contact" id="nav-contact-btn" aria-expanded="false" aria-controls="contact-overlay">Contact</button></li>
-            <li><a class="nav-pill" href="/work">Work</a></li>
-            <li><a class="nav-pill" href="/#about">About</a></li>
-            <li><a class="nav-pill" href="/playground">Playground</a></li>
+            <li class="nav-menu-bar">
+              <a class="nav-pill nav-pill--work" href="/work">Work</a>
+              <span class="nav-menu-divider nav-menu-divider--1" aria-hidden="true"></span>
+              <a class="nav-pill nav-pill--about" href="/#about">About</a>
+              <span class="nav-menu-divider nav-menu-divider--2" aria-hidden="true"></span>
+              <a class="nav-pill nav-pill--playground" href="/playground">Playground</a>
+            </li>
           </ul>
           <button type="button" class="nav-ball" id="nav-ball" aria-label="Menu" aria-expanded="false" aria-controls="nav-menu">
-            <span class="nav-ball-rot"><span class="nav-ball-star" id="nav-ball-star" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" aria-hidden="true"><path d="M12 2v20M7 3.3L17 20.7M17 3.3L7 20.7" stroke="#000" stroke-width="3" stroke-linecap="round"/></svg></span></span>
+            <span class="nav-ball-rot"><span class="nav-ball-star" id="nav-ball-star" aria-hidden="true"></span></span>
           </button>
         </div>
       </nav>
@@ -118,10 +122,10 @@
             <li><a href="https://www.linkedin.com/in/nam-bao/" target="_blank" rel="noopener" aria-label="LinkedIn"><img src="assets/social/linkedin.svg" alt="" width="24" height="24"></a></li>
             <li><a href="https://www.behance.net/nam-bao" target="_blank" rel="noopener" aria-label="Behance"><img src="assets/social/behance.svg" alt="" width="24" height="24"></a></li>
           </ul>
-          <p class="contact-logo" aria-hidden="true">nambao</p>
+          <img class="contact-logo" src="assets/nav/logo-mark.svg" alt="" aria-hidden="true">
         </article>
         <article class="contact-card contact-card--back" aria-hidden="true">
-          <p class="contact-logo contact-logo--green" aria-hidden="true">nambao</p>
+          <img class="contact-logo" src="assets/nav/logo-mark-green.svg" alt="" aria-hidden="true">
         </article>
       </div>
     </div>

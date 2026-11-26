@@ -70,21 +70,28 @@
 
   /* ---------- Hero: ảnh tràn full chiều rộng, nav đè lên trên ----------
      Ảnh rộng 100%, cao tự động theo đúng tỉ lệ gốc, không crop,
-     kéo xuống dưới fold (xem css/case-study.css). */
-  var hero = el("header", "cs-hero");
-  var heroImg = document.createElement("img");
-  heroImg.className = "cs-hero-img";
-  heroImg.src = data.hero.src;
-  heroImg.alt = data.hero.alt || "";
-  heroImg.width = data.hero.width;
-  heroImg.height = data.hero.height;
-  heroImg.loading = "eager";
-  heroImg.decoding = "async";
-  heroImg.setAttribute("fetchpriority", "high");
-  hero.appendChild(heroImg);
-  var nav = document.querySelector(".cs-nav");
-  if (nav) hero.appendChild(nav);
-  root.appendChild(hero);
+     kéo xuống dưới fold (xem css/case-study.css). Hero đã viết
+     sẵn trong HTML (work/egg-01.html, work/tuoi-hong-28.html)
+     để frame đầu tiên đã có ảnh, không nháy; ở đây chỉ dùng lại,
+     chỉ tạo mới khi mở trang mà không có hero sẵn. */
+  var hero = document.getElementById("cs-hero");
+  if (!hero) {
+    hero = el("header", "cs-hero");
+    hero.id = "cs-hero";
+    var heroImg = document.createElement("img");
+    heroImg.className = "cs-hero-img";
+    heroImg.src = data.hero.src;
+    heroImg.alt = data.hero.alt || "";
+    heroImg.width = data.hero.width;
+    heroImg.height = data.hero.height;
+    heroImg.loading = "eager";
+    heroImg.decoding = "sync";
+    heroImg.setAttribute("fetchpriority", "high");
+    hero.appendChild(heroImg);
+    var nav = document.querySelector(".cs-nav");
+    if (nav) hero.appendChild(nav);
+    root.insertBefore(hero, root.firstChild);
+  }
 
   /* ---------- Tiêu đề + Meta ---------- */
   var head = el("section", "cs-head");

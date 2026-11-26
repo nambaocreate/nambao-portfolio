@@ -49,7 +49,7 @@ window.CASE_STUDIES = {
     title: "EGG:01",
     subtitle: "Exclusively For The Elite",
     hero: {
-      src: "../assets/case-study/egg-01/01-hero.jpg",
+      src: "/assets/case-study/egg-01/01-hero.jpg",
       alt: "EGG:01 hero, ribbed glass bottle",
       width: 1920, height: 1860
     },
@@ -127,7 +127,7 @@ window.CASE_STUDIES = {
     title: "TUOI HONG 28 Music Festival",
     subtitle: "Not An Ordinary Festival",
     hero: {
-      src: "../assets/case-study/tuoi-hong-28/01-hero.jpg",
+      src: "/assets/case-study/tuoi-hong-28/01-hero.jpg",
       alt: "Tuoi Hong 28 key visual",
       width: 1920, height: 1280
     },
