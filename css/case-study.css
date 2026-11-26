@@ -409,10 +409,13 @@
    phần tử). Chỉ dùng clip-path: lúc đầu cắt 100% từ trên (ẩn
    hoàn toàn), khi vào khung nhìn thì cắt về 0, vùng hiện mở rộng
    dần từ dưới lên, như một đường vô hình chạy lên và hiện dần
-   nội dung phía dưới. Trạng thái ẩn chỉ áp khi có class js trên
-   <html> (đã thêm bằng script trong head); nếu JS lỗi thì nội
-   dung vẫn hiện bình thường. Không áp cho hero (nav cố định nằm
-   trong hero, clip-path sẽ phá vị trí của nó). */
+   nội dung phía dưới. Reveal theo từng ảnh và từng khối chữ
+   (figure, textcol, tiêu đề, thẻ Next), không reveal cả section,
+   để đường wipe quét qua từng phần tử đang hiện rõ trên màn hình.
+   Trạng thái ẩn chỉ áp khi có class js trên <html> (đã thêm bằng
+   script trong head); nếu JS lỗi thì nội dung vẫn hiện bình thường.
+   Không áp cho hero (nav cố định nằm trong hero, clip-path sẽ phá
+   vị trí của nó). */
 .js .cs-reveal {
   clip-path: inset(100% 0 0 0);
   transition: clip-path 0.9s cubic-bezier(0.65, 0, 0.35, 1);

@@ -35,8 +35,10 @@
 
   // Một ảnh + caption (caption là <p> dưới ảnh, theo đúng Figma).
   // eager chỉ dùng cho hero, còn lại lazy để trang nhẹ.
+  // Mỗi ảnh reveal riêng (cs-reveal trên figure), không reveal
+  // cả section, để đường wipe quét qua từng ảnh đang hiện rõ.
   function figure(img, caption, eager) {
-    var f = el("figure", "cs-figure");
+    var f = el("figure", "cs-figure cs-reveal");
     var im = document.createElement("img");
     im.src = img.src;
     im.alt = img.alt || "";
@@ -50,8 +52,10 @@
     return f;
   }
 
+  // Cột chữ reveal riêng (cs-reveal trên cột), không reveal cả
+  // section, để mỗi khối chữ có motion wipe riêng khi cuộn tới.
   function textBlocks(blocks) {
-    var col = el("div", "cs-textcol");
+    var col = el("div", "cs-textcol cs-reveal");
     (blocks || []).forEach(function (b) {
       if (b.t === "h") {
         col.appendChild(el("h2", "cs-texthead", b.text));
@@ -83,12 +87,12 @@
   root.appendChild(hero);
 
   /* ---------- Tiêu đề + Meta ---------- */
-  var head = el("section", "cs-head cs-reveal");
-  var titleBox = el("div", "cs-titlebox");
+  var head = el("section", "cs-head");
+  var titleBox = el("div", "cs-titlebox cs-reveal");
   titleBox.appendChild(el("h1", "cs-title", data.title));
   if (data.subtitle) titleBox.appendChild(el("p", "cs-subtitle", data.subtitle));
   head.appendChild(titleBox);
-  var meta = el("dl", "cs-meta");
+  var meta = el("dl", "cs-meta cs-reveal");
   data.meta.forEach(function (m) {
     var item = el("div", "cs-meta-item");
     item.appendChild(el("dt", "cs-meta-label", m.label));
@@ -100,9 +104,9 @@
 
   /* ---------- Intro ---------- */
   if (data.intro) {
-    var intro = el("section", "cs-intro cs-reveal");
-    intro.appendChild(el("h2", "cs-label", data.intro.label));
-    var paras = el("div", "cs-intro-paras");
+    var intro = el("section", "cs-intro");
+    intro.appendChild(el("h2", "cs-label cs-reveal", data.intro.label));
+    var paras = el("div", "cs-intro-paras cs-reveal");
     data.intro.paragraphs.forEach(function (t) {
       paras.appendChild(el("p", "cs-intro-p", t));
     });
@@ -149,14 +153,15 @@
       else { sec.appendChild(col); sec.appendChild(imgFig); }
     } else if (s.type === "text") {
       sec = el("section", "cs-sec cs-textsec");
-      sec.appendChild(el("h2", "cs-texthead", s.heading));
-      var body = el("div", "cs-textbody");
+      sec.appendChild(el("h2", "cs-texthead cs-reveal", s.heading));
+      var body = el("div", "cs-textbody cs-reveal");
       s.paragraphs.forEach(function (t) { body.appendChild(el("p", "cs-body", t)); });
       sec.appendChild(body);
     } else {
       return;
     }
-    sec.classList.add("cs-reveal");
+    // Không reveal cả section nữa: từng ảnh (figure) và từng khối
+    // chữ (textcol, texthead, textbody) đã có cs-reveal riêng.
     root.appendChild(sec);
   });
 
@@ -172,12 +177,12 @@
 
   /* ---------- Next Project: Work Card có ảnh cover kèm tên ---------- */
   if (data.next && data.next.length) {
-    var next = el("section", "cs-next cs-reveal");
-    next.appendChild(el("h2", "cs-label", "Next Project"));
+    var next = el("section", "cs-next");
+    next.appendChild(el("h2", "cs-label cs-reveal", "Next Project"));
     var row = el("div", "cs-next-row");
     data.next.forEach(function (p) {
       var a = document.createElement("a");
-      a.className = "cs-next-card";
+      a.className = "cs-next-card cs-reveal";
       a.href = p.href;
       if (p.cover) {
         var cover = el("span", "cs-next-cover");
@@ -264,36 +269,47 @@
   })();
 
   /* ---------- Reveal khi cuộn: clip-path, không fade, không slide ----------
-     Mỗi khối (tiêu đề, intro, từng section, credits, next, footer) bắt
-     đầu bị cắt 100% từ trên (xem css .cs-reveal), khi vào khung nhìn
-     thì clip mở về 0, vùng hiện mở rộng dần từ dưới lên như một đường
-     vô hình chạy lên. Không áp cho hero (nav cố định nằm trong hero).
-     Nếu không có IntersectionObserver hoặc người dùng giảm chuyển
-     động thì hiện hết ngay, không để nội dung bị ẩn.
-     Nguyên nhân lỗi trước đây (trang trắng dưới hero): phần tử được
-     quan sát (.cs-reveal) tự nó bị clip-path cắt về diện tích 0, nên
-     IntersectionObserver không bao giờ thấy nó giao nhau và không
-     bao giờ thêm class is-in, thành vòng lặp bế tắc (ẩn mãi). Cách
-     sửa: dùng thêm bộ kiểm tra theo vị trí hình học
-     (getBoundingClientRect, không bị clip-path ảnh hưởng) làm cơ chế
-     chính, chạy khi cuộn, đổi kích thước, lúc tải trang, và lặp lại
-     trong vài giây đầu; giữ IntersectionObserver làm cơ chế phụ.
-     Nhờ vậy nội dung không bao giờ bị ẩn vĩnh viễn. */
+     Mỗi ảnh và mỗi khối chữ (không phải cả section) bắt đầu bị cắt
+     100% từ trên (xem css .cs-reveal), khi vào khung nhìn thì clip
+     mở về 0, vùng hiện mở rộng dần từ dưới lên như một đường vô
+     hình chạy lên. Không áp cho hero (nav cố định nằm trong hero).
+     Nếu người dùng giảm chuyển động thì hiện hết ngay, không để
+     nội dung bị ẩn.
+     Vì sao đợt trước không thấy motion: reveal làm theo từng section
+     (khối cao 800-1100px) và kích hoạt khi đỉnh section vừa chạm đáy
+     viewport (92%). Wipe lộ từ dưới lên, mà đáy section nằm xa dưới
+     viewport nên gần như toàn bộ đường wipe chạy ngoài màn hình, chỉ
+     thấy phần cuối rất ngắn, lẫn với chuyển động cuộn nên không nhận
+     ra. Cách sửa: reveal theo từng ảnh và từng khối chữ (nhỏ hơn,
+     vừa khung nhìn hơn) và kích hoạt khi đỉnh phần tử đã vào sâu
+     trong viewport (70%), để đường wipe quét qua phần tử đang hiện
+     rõ trên màn hình.
+     Không dùng IntersectionObserver: phần tử bị clip-path cắt về
+     diện tích 0 nên observer không bao giờ thấy nó giao nhau (vòng
+     lặp bế tắc). Chỉ dùng bộ kiểm tra theo vị trí hình học
+     (getBoundingClientRect, không bị clip-path ảnh hưởng), chạy khi
+     cuộn, đổi kích thước, lúc tải trang, và lặp lại trong vài giây
+     đầu. Nhờ vậy nội dung không bao giờ bị ẩn vĩnh viễn. */
   (function reveal() {
     var els = Array.prototype.slice.call(document.querySelectorAll(".cs-reveal"));
     if (!els.length) return;
-    if (reduceMotion || typeof IntersectionObserver !== "function") {
+    if (reduceMotion) {
       els.forEach(function (el) { el.classList.add("is-in"); });
       return;
     }
-    // Danh sách khối chưa hiện; rút ngắn dần khi từng khối hiện ra.
+    // Danh sách phần tử chưa hiện; rút ngắn dần khi từng cái hiện ra.
     var pending = els.slice();
     function inView(el) {
       // getBoundingClientRect trả về khung layout, không bị clip-path
       // ảnh hưởng, nên đo được dù phần tử đang bị cắt ẩn.
       var r = el.getBoundingClientRect();
       var vh = window.innerHeight || document.documentElement.clientHeight;
-      return r.top < vh * 0.92 && r.bottom > 0;
+      // Đã cuộn qua rồi (đáy nằm trên mép viewport) thì hiện luôn,
+      // không để ẩn mãi. Còn không thì hiện khi đỉnh đã vào sâu
+      // trong viewport (70%) để đường wipe quét qua phần tử đang
+      // hiện rõ, không chạy ngoài màn hình.
+      if (r.bottom <= 0) return true;
+      return r.top < vh * 0.7 && r.bottom > 0;
     }
     function check() {
       if (!pending.length) return;
@@ -311,16 +327,11 @@
     }
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("is-in");
-          io.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.1, rootMargin: "0px 0px -5% 0px" });
-    els.forEach(function (el) { io.observe(el); });
-    check();
+    // Hoãn lần kiểm tra đầu sang frame sau để trình duyệt vẽ xong
+    // trạng thái cắt ẩn trước, rồi mới thêm is-in thì transition
+    // clip-path mới chạy; nếu thêm ngay trong cùng tác vụ vẽ thì
+    // phần tử hiện luôn mà không có chuyển động.
+    requestAnimationFrame(check);
     // Lưới an toàn: lặp lại trong 5 giây đầu, phòng khi sự kiện cuộn
     // bị lỡ; sau 5 giây thì dừng để không chạy mãi.
     var guard = setInterval(function () {
