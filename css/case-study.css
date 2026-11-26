@@ -547,3 +547,136 @@
     to   { opacity: 1; transform: none; }
   }
 }
+
+/* ---------- Lightbox xem ảnh lớn ----------
+   Bấm bất kỳ ảnh nào trong trang case study (hero + mọi ảnh
+   nội dung, không tính ảnh cover Next Project vốn là link sang
+   dự án khác) thì mở pop up xem ảnh đó ở độ phân giải đầy đủ.
+   Tái dùng đúng motif lightbox cũ của trang Work (xem
+   css/work-new.css .wn-lightbox): nền tối 0.94, ảnh
+   object-fit contain giữ đúng tỉ lệ gốc không crop, nút Close
+   dạng pill chữ hoa. Thêm mũi tên hai bên và phím mũi tên để
+   chuyển ảnh, kèm số thứ tự (3 / 12) và caption.
+   Overlay tạo bằng JS, nằm ngoài .cs-root và cố định trên
+   cùng (z-index 3000, trên nav 1000 và contact overlay 1500,
+   dưới con trỏ 9999) nên không động tới reveal clip-path khi
+   cuộn hay View Transition khi vào/ra trang case study. */
+
+.cs-hero-img,
+.cs-figure img {
+  cursor: pointer;
+}
+
+.cs-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  background: rgba(10, 10, 10, 0.94);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.cs-lightbox[hidden] { display: none; }
+
+.cs-lightbox.is-open { opacity: 1; }
+
+.cs-lightbox-frame {
+  display: flex;
+}
+
+.cs-lightbox-frame img {
+  width: auto;
+  height: auto;
+  max-width: min(92vw, 1600px);
+  max-height: 86vh;
+  object-fit: contain;
+  display: block;
+  border-radius: 10px;
+}
+
+.cs-lightbox-close,
+.cs-lightbox-prev,
+.cs-lightbox-next {
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: transparent;
+  color: #fff;
+  font-family: var(--font);
+  cursor: pointer;
+}
+
+.cs-lightbox-close:hover,
+.cs-lightbox-prev:hover,
+.cs-lightbox-next:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.cs-lightbox-close {
+  position: absolute;
+  top: 32px;
+  right: 40px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  padding: 8px 14px;
+}
+
+.cs-lightbox-prev,
+.cs-lightbox-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  font-size: 20px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0 2px;
+}
+
+.cs-lightbox-prev { left: 40px; }
+.cs-lightbox-next { right: 40px; }
+
+.cs-lightbox-cap {
+  position: absolute;
+  left: 40px;
+  bottom: 32px;
+  max-width: 60vw;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 10.5px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.cs-lightbox-count {
+  position: absolute;
+  right: 40px;
+  bottom: 32px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 10.5px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 900px) {
+  .cs-lightbox-close { top: 20px; right: 20px; }
+  .cs-lightbox-prev { left: 12px; }
+  .cs-lightbox-next { right: 12px; }
+  .cs-lightbox-prev,
+  .cs-lightbox-next { width: 40px; height: 40px; }
+  .cs-lightbox-cap { left: 20px; bottom: 20px; }
+  .cs-lightbox-count { right: 20px; bottom: 20px; }
+  .cs-lightbox-frame img { max-height: 80vh; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cs-lightbox { transition: none; }
+}

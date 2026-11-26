@@ -1036,9 +1036,11 @@ body.contact-open .wn-nav { position: relative; z-index: 2000; }
 }
 
 .cursor--read,
-.cursor--open { width: 120px; height: 120px; }
+.cursor--open,
+.cursor--view { width: 120px; height: 120px; }
 .cursor--read [data-cursor-label="read"] { opacity: 1; }
 .cursor--open [data-cursor-label="open"] { opacity: 1; }
+.cursor--view [data-cursor-label="view"] { opacity: 1; }
 
 /* Đĩa "coming soon": chữ dài hơn "Open" nên đĩa rộng hơn
    (140px) và chữ nhỏ hơn (8px) để vừa trong đĩa. */

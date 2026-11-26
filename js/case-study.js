@@ -409,4 +409,148 @@
     }, 400);
     setTimeout(function () { clearInterval(guard); }, 5000);
   })();
+
+  /* ---------- Lightbox xem ảnh lớn ----------
+     Bấm bất kỳ ảnh nào trong trang case study (hero + mọi ảnh
+     nội dung trong .cs-figure) thì mở pop up xem ảnh đó ở độ
+     phân giải đầy đủ (dùng đúng URL ảnh gốc, đã cache sẵn).
+     Không tính ảnh cover Next Project: đó là link sang dự án
+     khác, bấm vào vẫn chuyển trang như cũ. Overlay tạo bằng JS
+     một lần, nằm ngoài .cs-root nên không động tới reveal
+     clip-path khi cuộn hay View Transition khi vào/ra trang.
+     Đóng bằng nút Close, bấm ra ngoài ảnh (nền overlay hoặc
+     chính ảnh, đúng như lightbox cũ của trang Work), hoặc Esc.
+     Mũi tên hai bên và phím mũi tên trái/phải chuyển qua lại
+     giữa các ảnh trong cùng case study (quay vòng), kèm số thứ
+     tự và caption (figcaption nếu có, không thì alt của ảnh).
+     Mở lightbox thì khóa cuộn nền, đóng thì trả lại; focus
+     chuyển vào nút Close khi mở và trả về ảnh đã bấm khi đóng.
+     Hover ảnh thì con trỏ hiện đĩa đen chữ View, cùng hệ con
+     trỏ Read/Open/coming soon của site (xem js/main.js). */
+  (function lightbox() {
+    var imgs = Array.prototype.slice.call(
+      root.querySelectorAll(".cs-hero-img, .cs-figure img")
+    );
+    if (!imgs.length) return;
+    var total = imgs.length;
+
+    function captionOf(img) {
+      var fig = img.closest("figure");
+      var cap = fig ? fig.querySelector("figcaption") : null;
+      if (cap && cap.textContent) return cap.textContent;
+      return img.alt || "";
+    }
+
+    var box = document.createElement("div");
+    box.className = "cs-lightbox";
+    box.setAttribute("hidden", "");
+    box.setAttribute("role", "dialog");
+    box.setAttribute("aria-modal", "true");
+    box.setAttribute("aria-label", "Xem ảnh lớn");
+    box.innerHTML =
+      '<div class="cs-lightbox-frame"><img alt=""></div>' +
+      '<button type="button" class="cs-lightbox-close">Close</button>' +
+      '<button type="button" class="cs-lightbox-prev" aria-label="Ảnh trước">‹</button>' +
+      '<button type="button" class="cs-lightbox-next" aria-label="Ảnh sau">›</button>' +
+      '<p class="cs-lightbox-cap"></p>' +
+      '<p class="cs-lightbox-count"></p>';
+    document.body.appendChild(box);
+
+    var lbImg = box.querySelector(".cs-lightbox-frame img");
+    var lbCap = box.querySelector(".cs-lightbox-cap");
+    var lbCount = box.querySelector(".cs-lightbox-count");
+    var lbClose = box.querySelector(".cs-lightbox-close");
+    var lbPrev = box.querySelector(".cs-lightbox-prev");
+    var lbNext = box.querySelector(".cs-lightbox-next");
+
+    var current = 0;
+    var isOpen = false;
+    var lastFocus = null;
+    var hideTimer = null;
+    var prevBodyOverflow = "";
+
+    function preload(i) {
+      var pre = new Image();
+      pre.src = imgs[(i + total) % total].src;
+    }
+
+    function show(i) {
+      current = (i + total) % total;
+      var img = imgs[current];
+      lbImg.src = img.src;
+      lbImg.alt = img.alt || "";
+      lbImg.width = img.width;
+      lbImg.height = img.height;
+      lbCap.textContent = captionOf(img);
+      lbCount.textContent = (current + 1) + " / " + total;
+      preload(current + 1);
+      preload(current - 1);
+    }
+
+    function open(i) {
+      if (isOpen) { show(i); return; }
+      isOpen = true;
+      lastFocus = document.activeElement;
+      show(i);
+      if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
+      box.hidden = false;
+      prevBodyOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      // Thêm is-open ở frame sau để transition opacity chạy;
+      // thêm ngay trong cùng tác vụ thì overlay hiện luôn mà
+      // không có hiệu ứng mờ vào.
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () { box.classList.add("is-open"); });
+      });
+      lbClose.focus();
+    }
+
+    function close(instant) {
+      if (!isOpen) return;
+      isOpen = false;
+      box.classList.remove("is-open");
+      document.body.style.overflow = prevBodyOverflow;
+      if (lastFocus && lastFocus.focus) lastFocus.focus();
+      if (instant || reduceMotion) {
+        box.hidden = true;
+      } else {
+        hideTimer = setTimeout(function () { box.hidden = true; }, 320);
+      }
+    }
+
+    imgs.forEach(function (img, i) {
+      img.addEventListener("click", function () { open(i); });
+    });
+    lbClose.addEventListener("click", function () { close(); });
+    lbPrev.addEventListener("click", function (e) { e.stopPropagation(); show(current - 1); });
+    lbNext.addEventListener("click", function (e) { e.stopPropagation(); show(current + 1); });
+    // Bấm ra ngoài ảnh (nền overlay) hoặc bấm chính ảnh thì
+    // đóng, đúng như lightbox cũ của trang Work.
+    box.addEventListener("click", function (e) {
+      if (e.target === box || e.target === lbImg) close();
+    });
+    document.addEventListener("keydown", function (e) {
+      if (!isOpen) return;
+      if (e.key === "Escape") { e.preventDefault(); close(); }
+      else if (e.key === "ArrowLeft") { e.preventDefault(); show(current - 1); }
+      else if (e.key === "ArrowRight") { e.preventDefault(); show(current + 1); }
+    });
+    // Rời trang (kể cả bấm Back) thì đóng ngay để ảnh chụp
+    // chuyển trang không dính overlay tối.
+    window.addEventListener("pagehide", function () { close(true); });
+
+    // Hover ảnh trong case study thì con trỏ hiện đĩa đen chữ
+    // View, cùng hệ con trỏ Read/Open/coming soon của site.
+    // Chỉ trên thiết bị có chuột và không giảm chuyển động,
+    // giống handler Next Project ở trên.
+    if (finePointer && !reduceMotion) {
+      var cursorEl = document.querySelector(".cursor");
+      if (cursorEl) {
+        imgs.forEach(function (img) {
+          img.addEventListener("mouseenter", function () { cursorEl.classList.add("cursor--view"); });
+          img.addEventListener("mouseleave", function () { cursorEl.classList.remove("cursor--view"); });
+        });
+      }
+    }
+  })();
 })();
