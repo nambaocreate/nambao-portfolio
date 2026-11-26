@@ -103,7 +103,6 @@
   var FOLLOW_DELAY = 0.05;                // thumbnail sau đi theo trễ nhẹ từng cái
   var DECK_SCALE = 0.04;                  // deck ảnh lớn: mỗi lớp nhỏ đi 4%
   var DECK_Y = 16;                        // mỗi lớp lệch xuống 16px
-  var DECK_FADE = 0.22;                   // mỗi lớp mờ thêm 22%
   var DECK_VISIBLE = 3;                   // chỉ thấy 3 lớp dưới ảnh lớn
   var THUMB_VISIBLE = 3;                  // 3 thumbnail thấy được
   var SLIDE = 80;                         // quãng trượt ngang khi card rời / vào stack
@@ -216,9 +215,12 @@
       return { kind: "big", r: rects.big, scale: 1, dy: 0, opacity: 1, radius: 10, z: 100 };
     }
     if (rel < 0) {
-      var k = -rel, kk = Math.min(k, DECK_VISIBLE + 1);
+      // Deck KHÔNG trong suốt (v8): chỉ nhỏ dần và lệch xuống. Card trong
+      // suốt chồng lên nhau làm hình "fade lẫn vào nhau" khi chuyển; lớp
+      // sâu hơn 3 nằm đúng sau lớp 3 nên bị che hoàn toàn.
+      var k = -rel, kk = Math.min(k, DECK_VISIBLE);
       return { kind: "deck", r: rects.big, scale: 1 - DECK_SCALE * kk, dy: DECK_Y * kk,
-        opacity: k <= DECK_VISIBLE ? 1 - DECK_FADE * k : 0, radius: 10, z: 100 - k };
+        opacity: 1, radius: 10, z: 100 - k };
     }
     var slot = Math.min(rel, THUMB_VISIBLE) - 1;
     return { kind: rel <= THUMB_VISIBLE ? "thumb" : "reserve", r: rects.thumbs[slot],
@@ -306,85 +308,121 @@
     moveTimer = setTimeout(afterMove, ms + 20);
   }
 
-  /* ---------- Chuyển dự án trong cùng danh sách ----------
-     Một bước (moveCards) = mọi card dịch đúng 1 nấc theo rel mới.
-     Nhảy xa (vd 05 về 02, bấm tên hoặc thumbnail xa) KHÔNG đưa mọi
-     card bay một lúc (rối, nhiều card mờ chồng nhau), mà chạy thành
-     chuỗi bước 1 dự án nối nhau nhanh như lật bài; bước sau bắt đầu
-     khi bước trước đi được ~45% nên chuyển động liền mạch. Chữ (tiêu
-     đề, meta, số, tên đang chọn) chỉ đổi 1 lần, thẳng tới dự án đích.
-     Card bị đẩy ra khỏi stack (thumbnail thứ 3 khi lùi, hoặc ảnh lớn /
-     deck về vị trí dự trữ) lùi ra SAU stack, dịch trái, thu nhỏ và mờ
-     đi, rồi mới về chỗ dự trữ (bị che) — không bị che mất đột ngột. */
-  var STEP_DUR = 0.45, STEP_GAP = 0.2, LAST_DUR = 0.7;
-  var chain = [];
-
-  function clearChain() {
-    chain.forEach(function (t) { t.kill(); });
-    chain = [];
-  }
+  /* ---------- Chuyển dự án trong cùng danh sách (v8) ----------
+     Không có card nào fade tại khung ảnh lớn:
+     - Nhảy 1–3 dự án: mọi card chạy thẳng 1 lần tới chỗ mới.
+     - Nhảy lùi từ 4 dự án (vd 07 về 01): ảnh đích nằm sẵn rõ nét ở
+       đúng khung, dưới cùng; ảnh lớn cũ và các lớp deck không cần ở
+       điểm cuối slide XUỐNG ra khỏi khung để lộ ảnh đích; card còn
+       cần (thành thumbnail) bay từ dưới ảnh đích về stack.
+     - Nhảy tới từ 4 dự án (vd 01 về 07): thumbnail lần lượt bay thẳng
+       vào chồng ảnh lớn theo thứ tự, card đích bay cuối cùng, nằm trên.
+     Card rời stack (thành dự trữ) trượt vào sau card thứ 3, bị che,
+     không mờ. Chữ chỉ đổi 1 lần, thẳng tới dự án đích. */
+  var FAR = 4;
 
   function moveCards(dir, dur, ease, opts) {
-    measure();
     var k = dur / DUR;
     list.forEach(function (p, i) {
       var c = cards[p.id];
       var s = stateFor(i - current);
       var from = c.kind;
       resetTilt(c);
-      var leaving = s.kind === "reserve" && from !== "reserve";
       var zDuring = (from === "big" && s.kind !== "big" && s.kind !== "deck") ? 150 : s.z;
-      if (leaving) zDuring = s.z;
+      if (s.kind === "reserve") zDuring = s.z;
       if (opts && opts.dragged === c) zDuring = Math.max(zDuring, 150);
-      gsap.set(c.el, { zIndex: zDuring });
+      gsap.set(c.el, { zIndex: zDuring, opacity: 1 });
       c.el.style.visibility = "";
       var delay = 0;
       if (dir > 0 && s.kind === "thumb") delay = FOLLOW_DELAY * (i - current) * k;
       if (dir < 0 && (s.kind === "thumb" || s.kind === "reserve")) delay = FOLLOW_DELAY * (i - current - 1) * k;
       if (opts && opts.dragged === c) delay = 0;
-      if (leaving) {
-        gsap.to(c.el, vars(s, {
-          x: s.r.x - 36, scale: 0.9, opacity: 0,
-          duration: dur, ease: ease, delay: delay, overwrite: "auto",
-          onComplete: function () { gsap.set(c.el, vars(s, { zIndex: s.z })); }
-        }));
+      gsap.to(c.el, vars(s, {
+        duration: dur, ease: ease, delay: delay, overwrite: "auto",
+        onComplete: function () { gsap.set(c.el, { zIndex: s.z }); }
+      }));
+      applyKind(c, s.kind);
+    });
+    return dur;
+  }
+
+  function farBack() {
+    var drop = viewer.clientHeight - rects.big.y + 80;   // xuống quá đáy khung
+    var longest = DUR + 0.15;
+    list.forEach(function (p, i) {
+      var c = cards[p.id];
+      var s = stateFor(i - current);
+      var from = c.kind;
+      resetTilt(c);
+      c.el.style.visibility = "";
+      gsap.killTweensOf(c.el);
+      if (s.kind === "big") {
+        // Ảnh đích: đặt sẵn rõ nét đúng khung, nằm dưới các ảnh sắp slide đi.
+        gsap.set(c.el, vars(s, { zIndex: 100, opacity: 1 }));
+      } else if ((from === "big" || from === "deck") && s.kind === "reserve") {
+        // Không cần ở điểm cuối: slide xuống ra khỏi khung (lớp trên đi
+        // trước), xong thì về chỗ dự trữ sau stack (bị che).
+        var cur = parseInt(c.el.style.zIndex, 10) || 100;
+        var order = Math.max(0, 100 - cur);
+        gsap.set(c.el, { zIndex: 110 + Math.min(cur, 100) - 90, opacity: 1 });
+        var d = order * 0.05;
+        longest = Math.max(longest, d + 0.65);
+        gsap.to(c.el, { y: "+=" + drop, rotation: (order % 2 ? -3 : 3), duration: 0.65,
+          ease: "power2.in", delay: d,
+          onComplete: function () { gsap.set(c.el, vars(s, { zIndex: s.z })); } });
       } else {
-        gsap.to(c.el, vars(s, {
-          duration: dur, ease: ease, delay: delay, overwrite: "auto",
-          onComplete: function () { gsap.set(c.el, { zIndex: s.z }); }
-        }));
+        // Card còn cần: deck -> thumbnail bay từ dưới ảnh đích về stack;
+        // deck -> deck bước lên dưới ảnh đích; thumbnail dịch nấc.
+        gsap.set(c.el, { zIndex: s.z, opacity: 1 });
+        var delay = (s.kind === "thumb" || s.kind === "reserve") ? 0.12 + FOLLOW_DELAY * (i - current - 1) : 0;
+        gsap.to(c.el, vars(s, { duration: DUR, ease: EASE, delay: delay,
+          onComplete: function () { gsap.set(c.el, { zIndex: s.z }); } }));
+        longest = Math.max(longest, delay + DUR);
       }
       applyKind(c, s.kind);
     });
+    return longest;
+  }
+
+  function farForward(fromIndex) {
+    var FLY = 0.7, GAP = 0.09, longest = DUR;
+    list.forEach(function (p, i) {
+      var c = cards[p.id];
+      var s = stateFor(i - current);
+      var from = c.kind;
+      resetTilt(c);
+      c.el.style.visibility = "";
+      gsap.killTweensOf(c.el);
+      gsap.set(c.el, { opacity: 1, zIndex: s.z });
+      if ((s.kind === "deck" || s.kind === "big") && (from === "thumb" || from === "reserve")) {
+        // Bay vào chồng ảnh lớn lần lượt theo thứ tự (cái trước nằm dưới).
+        var d = (i - fromIndex - 1) * GAP;
+        gsap.to(c.el, vars(s, { duration: FLY, ease: "power3.inOut", delay: d }));
+        longest = Math.max(longest, d + FLY);
+      } else {
+        // Ảnh lớn / deck cũ lùi sâu xuống dưới (bị các card bay tới che);
+        // thumbnail / dự trữ còn lại dịch nấc trong stack.
+        gsap.to(c.el, vars(s, { duration: DUR, ease: EASE }));
+      }
+      applyKind(c, s.kind);
+    });
+    return longest;
   }
 
   function goTo(index, opts) {
     index = Math.max(0, Math.min(index, list.length - 1));
     if (index === current) return false;
-    clearChain();
     var dir = index > current ? 1 : -1;
     var n = Math.abs(index - current);
+    var fromIndex = current;
     shownIndex = index;
     animateInfo(0.12, dir);
+    current = index;
+    measure();
     var total;
-    if (n === 1 || reduceMotion || (opts && opts.dragged)) {
-      current = index;
-      moveCards(dir, DUR, EASE, opts);
-      total = DUR;
-    } else {
-      for (var j = 1; j <= n; j++) {
-        (function (j) {
-          var last = j === n;
-          var run = function () {
-            current += dir;
-            moveCards(dir, last ? LAST_DUR : STEP_DUR, last ? "power3.out" : "power2.inOut");
-          };
-          if (j === 1) run();
-          else chain.push(gsap.delayedCall((j - 1) * STEP_GAP, run));
-        })(j);
-      }
-      total = (n - 1) * STEP_GAP + LAST_DUR;
-    }
+    if (n < FAR || reduceMotion || (opts && opts.dragged)) total = moveCards(dir, DUR, EASE, opts);
+    else if (dir < 0) total = farBack();
+    else total = farForward(fromIndex);
     lockFor(total * 1000 + 60);
     return true;
   }
@@ -417,7 +455,6 @@
   function transitionToList(newList, slideDir) {
     pendingStep = 0;
     measure();
-    clearChain();
     list = newList;
     current = 0;
     shownIndex = 0;
@@ -447,9 +484,19 @@
             ease: "power2.in", delay: order * 0.04, overwrite: "auto",
             onComplete: function () { applyKind(c, "out"); } });
         } else {
-          gsap.set(c.el, { zIndex: c.kind === "big" ? 90 : 80 });
-          gsap.to(c.el, { opacity: 0, duration: 0.3, delay: landAt - 0.05, ease: "power1.out",
-            overwrite: "auto", onComplete: function () { applyKind(c, "out"); } });
+          if (c.kind === "big") {
+            // Ảnh lớn cũ nằm yên dưới tới khi ảnh mới phủ kín rồi ẩn (không fade).
+            gsap.set(c.el, { zIndex: 90 });
+            gsap.delayedCall(landAt, function () {
+              if (list.indexOf(c.p) < 0) { gsap.set(c.el, { opacity: 0 }); applyKind(c, "out"); }
+            });
+          } else {
+            // Deck cũ (lộ mép dưới ảnh lớn): slide xuống ra khỏi khung.
+            gsap.set(c.el, { zIndex: 80 });
+            gsap.to(c.el, { y: "+=" + (viewer.clientHeight - rects.big.y + 80), duration: 0.6,
+              ease: "power2.in", delay: Math.max(0, flyAt - 0.1), overwrite: "auto",
+              onComplete: function () { gsap.set(c.el, { opacity: 0 }); applyKind(c, "out"); } });
+          }
         }
         c.el.style.pointerEvents = "none";
         c.kind = "leaving";
