@@ -146,7 +146,9 @@
 .wn-main {
   flex: none;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 910px);
+  /* --big-w do JS tính: tối đa 910px, ~49% bề ngang nội dung như Figma,
+     và đủ thấp để hàng filter + thumbnail luôn nằm trọn trong màn hình. */
+  grid-template-columns: minmax(0, 1fr) var(--big-w, minmax(0, 910px));
   gap: 40px;
   margin-top: clamp(40px, 8.5vh, 88px);
 }
@@ -276,133 +278,96 @@
 
 .wn-filter.is-active { opacity: 1; }
 
-/* ---------- Thumbnail xếp chồng, ALIGN LỀ DƯỚI ----------
-   3 thumbnail hiện của 3 dự án TIẾP THEO theo thứ tự, xếp
-   chồng lệch ngang như Figma: cái trước (dự án kế tiếp)
-   to nhất và ở phải nhất, cái sau nhỏ dần, lệch trái.
-   Thêm 1 thumbnail dự trữ (reserve) là dự án thứ 4 tiếp
-   theo, đã đặt sẵn ở vị trí back và ẩn sau thumbnail back
-   để stack không tụt xuống 2 rồi mới thêm cái thứ 3.
-   Tất cả có lề dưới thẳng hàng (bottom: 0, chỉ lệch
-   ngang, không lệch dọc). Tỉ lệ khung ~1.3, bo 5px,
-   ảnh cover. Bấm thumbnail để nhảy tới dự án đó. */
+/* ---------- Khung giữ chỗ thumbnail (v4) ----------
+   3 khung vô hình đúng vị trí Figma (back, mid, front, align
+   lề dưới). Card thật nằm trong .wn-cards, JS đo khung này
+   để đặt card. Khung không bao giờ đổi nên stack không bao
+   giờ "spawn" hay nháy. */
 
 .wn-thumbs {
   position: relative;
   flex: 1;
   min-width: 0;
-  height: 135px;
+  height: calc(118px * var(--ts, 1));
   margin-left: 25px;
   align-self: flex-end;
+  pointer-events: none;
 }
 
-.wn-thumb {
+.wn-slot {
   position: absolute;
   bottom: 0;
   left: 0;
-  border: 0;
-  padding: 0;
-  background: transparent;
-  border-radius: 5px;
-  overflow: hidden;
-  cursor: pointer;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.04);
-  transition: transform 0.45s var(--ease-out), box-shadow 0.45s var(--ease-out);
-  will-change: transform;
-}
-
-.wn-thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  pointer-events: none;
-}
-
-/* Vị trí quạt: sau (nhỏ nhất, trái nhất, thấp nhất),
-   giữa, trước (to nhất, phải nhất, cao nhất). */
-.wn-thumb--back {
-  width: 118px;
   aspect-ratio: 1.3;
-  transform: translate(0, 0);
-  z-index: 1;
 }
+/* --ts do JS tính (0.55-1): thu nhỏ stack khi cột trái hẹp để stack
+   luôn cách ảnh lớn một khoảng, không đè lên ảnh lớn. */
+.wn-slot--back  { width: calc(118px * var(--ts, 1)); transform: translateX(0); }
+.wn-slot--mid   { width: calc(136px * var(--ts, 1)); transform: translateX(calc(39px * var(--ts, 1))); }
+.wn-slot--front { width: calc(153px * var(--ts, 1)); transform: translateX(calc(118px * var(--ts, 1))); }
 
-.wn-thumb--mid {
-  width: 136px;
-  aspect-ratio: 1.3;
-  transform: translate(39px, 0);
-  z-index: 2;
-}
-
-.wn-thumb--front {
-  width: 153px;
-  aspect-ratio: 1.3;
-  transform: translate(118px, 0);
-  z-index: 3;
-}
-
-/* Thumbnail dự trữ: dự án thứ 4 tiếp theo, đã đặt sẵn ở vị trí back
-   (sau thumbnail back), ẩn sau nó (opacity 0, z-index 0, không bấm
-   được) để khi thumbnail trước bay đi thì nó đã có sẵn ở vị trí back,
-   stack không tụt xuống 2 rồi mới thêm cái thứ 3 (đó là nguồn của
-   flash ở bản trước). JS làm mờ dần nó lên trong lúc bay. */
-.wn-thumb--reserve {
-  width: 118px;
-  aspect-ratio: 1.3;
-  transform: translate(0, 0);
-  z-index: 0;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.wn-thumb:hover {
-  transform: translate(var(--tx, 0), var(--ty, 0)) translateY(-4px);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
-}
-
-.wn-thumb--back:hover { --tx: 0; --ty: 0; }
-.wn-thumb--mid:hover { --tx: 39px; --ty: 0; }
-.wn-thumb--front:hover { --tx: 118px; --ty: 0; }
-
-/* Thumbnail của dự án không thuộc filter thì biến mất
-   (JS gỡ khỏi DOM khi đổi filter, không chỉ ẩn). */
-.wn-thumbs.is-empty { visibility: hidden; }
-
-/* ---------- Ảnh lớn bên phải ----------
-   Figma: 910 x 547.9, bo 10px, ảnh cover. Hover tương tác
-   như thẻ (theo note, giống selected work của
-   radiance.family): ảnh nhấc lên, nghiêng 3D theo chuột,
-   bóng đổ mềm, ảnh bên trong zoom nhẹ. Bấm để xem full. */
-
+/* Khung giữ chỗ ảnh lớn: 910 x 548, card ảnh lớn đặt đè lên. */
 .wn-media {
-  position: relative;
-  border-radius: 10px;
-  overflow: hidden;
-  background: transparent;
+  width: 100%;
   aspect-ratio: 910 / 548;
-  cursor: pointer;
-  transform-style: preserve-3d;
-  will-change: transform;
-  transition: box-shadow 0.5s var(--ease-out);
+  pointer-events: none;
 }
 
-.wn-media img {
+/* ---------- Lớp card (v4) ----------
+   Mỗi dự án là 1 card cố định. JS (GSAP) đặt x, y, width,
+   height, scale, opacity, z-index và --r (bo góc) theo vai
+   trò: ảnh lớn / deck dưới ảnh lớn / thumbnail / dự trữ. */
+
+.wn-cards {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.wn-card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  --r: 5px;
+  will-change: transform, width, height;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.wn-card-inner {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--r);
+  overflow: hidden;
+  background: #e3e3e3;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.45s var(--ease-out);
+  will-change: transform;
+}
+
+.wn-card-inner img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+  pointer-events: none;
   transform: scale(1.02);
   transition: transform 0.8s var(--ease-out);
-  will-change: transform;
-  pointer-events: none;
 }
 
-.wn-media:hover {
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
-}
+/* Hover thumbnail: bóng đổ (nghiêng do JS). */
+.wn-card.is-thumb:hover .wn-card-inner { box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22); }
 
-.wn-media:hover img { transform: scale(1.07); }
+/* Hover ảnh lớn: bóng đổ mềm, ảnh trong zoom nhẹ, hiện "Click to view". */
+.wn-card.is-big:hover .wn-card-inner { box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28); }
+.wn-card.is-big:hover img { transform: scale(1.07); }
 
 .wn-media-hint {
   position: absolute;
@@ -421,22 +386,16 @@
   transition: opacity 0.35s ease, transform 0.35s var(--ease-out);
   pointer-events: none;
 }
+.wn-card.is-big:hover .wn-media-hint { opacity: 1; transform: none; }
 
-.wn-media:hover .wn-media-hint {
-  opacity: 1;
-  transform: none;
-}
-
-/* Khi vừa chuyển dự án, tắt hover cho tới khi chuột thực sự di chuyển
-   trên ảnh (tránh dự án mới hiện ra đã ở trạng thái hover chỉ vì con
-   trỏ đang ở giữa viewport, nằm trên mép trái ảnh). JS thêm class này
-   khi đổi dự án và khi đóng lightbox, gỡ khi chuột di chuyển trên ảnh. */
-.wn-media--no-hover:hover { box-shadow: none; }
-.wn-media--no-hover:hover img { transform: scale(1.02); }
-.wn-media--no-hover:hover .wn-media-hint {
-  opacity: 0;
-  transform: translateY(6px);
-}
+/* Đang chuyển dự án, hoặc vừa đóng lightbox mà chuột chưa di
+   chuyển: tắt hover để card mới không hiện ra ở trạng thái hover. */
+.wn-cards.is-moving .wn-card:hover .wn-card-inner,
+.wn-cards.no-hover .wn-card:hover .wn-card-inner { box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.04); }
+.wn-cards.is-moving .wn-card:hover img,
+.wn-cards.no-hover .wn-card:hover img { transform: scale(1.02); }
+.wn-cards.is-moving .wn-media-hint,
+.wn-cards.no-hover .wn-media-hint { opacity: 0 !important; }
 
 /* ---------- Lightbox xem ảnh full ----------
    Ảnh phóng từ khung ảnh lớn ra full màn hình (FLIP bằng
@@ -517,15 +476,16 @@
    Màn hình hẹp: viewer xếp dọc, ảnh lớn lên trên, thông
    tin và filter xuống dưới, thumbnail xếp ngang. */
 
-@media (max-width: 1200px) {
-  .wn-main { grid-template-columns: minmax(0, 1fr) minmax(0, 640px); }
+@media (max-width: 1280px) {
+  .wn-industry { width: 80px; }
+  .wn-filters { width: 150px; }
 }
 
 @media (max-width: 900px) {
   .wn-viewer {
     height: auto;
     min-height: 100svh;
-    position: static;
+    position: relative;
     overflow: visible;
     padding: 24px 20px 40px;
   }
@@ -555,9 +515,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .wn-media,
-  .wn-media img,
-  .wn-thumb,
+  .wn-card-inner,
+  .wn-card-inner img,
   .js .wn-viewer { transition: none; transform: none; }
   .js .wn-viewer { opacity: 1; }
 }
