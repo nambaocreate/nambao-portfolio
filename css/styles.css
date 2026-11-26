@@ -268,7 +268,7 @@ ul { list-style: none; }
 
 /* ================= NAV MỚI: logo Sarina trái, cục cam xoay phải =================
    Theo Figma (node 1732:432): ban đầu chỉ có logo "nambao" chữ
-   Sarina bên trái và cục tròn cam 52px bên phải (dấu sao đen
+   Sarina bên trái và cục tròn cam 40px bên phải (dấu sao đen
    bên trong xoay chậm liên tục, 20 giây một vòng; hover vào
    cục tròn thì sao xoay nhanh 1 vòng trong 0,8 giây rồi về
    tốc độ chậm). Hover vào nhóm (cục tròn hoặc menu) thì
@@ -276,17 +276,20 @@ ul { list-style: none; }
    nền xanh lá, WORK / ABOUT / PLAYGROUND nền vàng chanh,
    nối nhau thành một thanh pill bo tròn, có đường chia mỏng
    giữa các mục. Menu ở lại khi di chuột từ cục tròn sang
-   các mục để bấm được (cả nhóm là một vùng hover chung). */
+   các mục để bấm được (cả nhóm là một vùng hover chung).
+   Toàn bộ nav đã thu nhỏ còn 75% so với bản trước (cục tròn
+   52 xuống 40px, chữ menu 16 xuống 12px, bar 36.6 xuống
+   27.5px, logo 42 xuống 32px). */
 
 .nav {
   display: flex;
   align-items: center;
-  padding-top: 40px; /* lề trên 40px, đúng margin Figma */
+  padding-top: 30px; /* lề trên 30px (40px thu còn 75%) */
 }
 
 .nav-logo {
   font-family: var(--font-script);
-  font-size: 42px; /* Figma 56px, thu về 75% như cỡ chữ toàn site */
+  font-size: 32px; /* thu nhỏ còn 75%: 42px xuống 32px */
   line-height: 1;
   letter-spacing: -0.03em;
   color: inherit;
@@ -304,24 +307,30 @@ ul { list-style: none; }
    pill CONTACT xanh lá (114.5x36.6, mép phải có tab lồi) và
    dải vàng (350x36.6, mép trái có rãnh lõm khớp với tab) nên
    chỗ nối có vết khuyết bán nguyệt đúng như thiết kế. Cục cam
-   chồng lên đầu phải của dải vàng 9px. Chữ Libre Franklin
-   Regular 16px, viết hoa hết. */
+   chồng lên đầu phải của dải vàng 7px. Chữ Libre Franklin
+   Regular 12px, viết hoa hết. Toàn bộ hiển thị thu còn 75%
+   (SVG giữ nguyên tỉ lệ, chỉ thu kích thước hiển thị). */
 .nav-menu {
   display: flex;
   align-items: center;
   list-style: none;
-  /* SLIDE thay vì fade: menu trượt ra từ phía cục tròn
-     (translateX) khi hover, không mờ dần. */
+  /* REVEAL từ cục tròn: menu mở dần từ mép phải (chỗ tiếp giáp
+     với cục tròn, gọi là tip) sang trái cho tới đủ chiều rộng,
+     giống như menu mọc ra từ cục tròn. Dùng clip-path: lúc ẩn
+     chỉ còn một lát mỏng ở mép phải sát cục tròn, lúc hiện mở
+     hết. KHÔNG fade (không đổi opacity), KHÔNG trượt nguyên
+     khối (không translateX): chữ bên trong đứng yên, chỉ được
+     lộ dần ra từ phải sang trái. */
   visibility: hidden;
-  transform: translateX(28px);
-  transition: transform .35s var(--ease-out), visibility 0s .35s;
+  clip-path: inset(0 0 0 100%);
+  transition: clip-path .35s var(--ease-out), visibility 0s .35s;
 }
 
 .nav-menu-wrap:hover .nav-menu,
 .nav-menu-wrap.is-menu-open .nav-menu {
   visibility: visible;
-  transform: translateX(0);
-  transition: transform .35s var(--ease-out), visibility 0s;
+  clip-path: inset(0 0 0 0);
+  transition: clip-path .35s var(--ease-out), visibility 0s;
 }
 
 .nav-menu li { display: flex; }
@@ -329,7 +338,7 @@ ul { list-style: none; }
 .nav-pill {
   display: block;
   font-family: inherit;
-  font-size: 16px;
+  font-size: 12px;
   font-weight: 400;
   line-height: 1.21;
   text-transform: uppercase;
@@ -343,8 +352,8 @@ ul { list-style: none; }
 /* Pill CONTACT: đúng file SVG gốc (xanh lá #2BAE52, tab lồi ở
    mép phải khớp rãnh của dải vàng). Chữ offwhite #f2f2f0. */
 .nav-pill--contact {
-  width: 114.5px;
-  height: 36.6px;
+  width: 86px; /* 114.5px thu còn 75% */
+  height: 27.5px; /* 36.6px thu còn 75% */
   flex: none;
   padding: 0;
   display: flex;
@@ -361,8 +370,8 @@ ul { list-style: none; }
    Figma (Work 27px, About 118px, Playground 212px từ mép trái). */
 .nav-menu-bar {
   position: relative;
-  width: 350px;
-  height: 36.6px;
+  width: 263px; /* 350px thu còn 75% */
+  height: 27.5px; /* 36.6px thu còn 75% */
   flex: none;
   background: url(../assets/nav/menu-bar.svg) no-repeat center / 100% 100%;
 }
@@ -375,9 +384,9 @@ ul { list-style: none; }
   background: none;
 }
 
-.nav-menu-bar .nav-pill--work { left: 27px; }
-.nav-menu-bar .nav-pill--about { left: 118px; }
-.nav-menu-bar .nav-pill--playground { left: 212px; }
+.nav-menu-bar .nav-pill--work { left: 20px; } /* 27px thu còn 75% */
+.nav-menu-bar .nav-pill--about { left: 89px; } /* 118px thu còn 75% */
+.nav-menu-bar .nav-pill--playground { left: 159px; } /* 212px thu còn 75% */
 
 .nav-menu-bar .nav-pill:hover { opacity: .6; }
 
@@ -386,12 +395,12 @@ ul { list-style: none; }
   top: 50%;
   transform: translateY(-50%);
   width: 1px;
-  height: 27.3px;
+  height: 20.5px; /* 27.3px thu còn 75% */
   background: url(../assets/nav/menu-divider.svg) no-repeat center / 100% 100%;
 }
 
-.nav-menu-divider--1 { left: 99px; }
-.nav-menu-divider--2 { left: 189px; }
+.nav-menu-divider--1 { left: 74px; } /* 99px thu còn 75% */
+.nav-menu-divider--2 { left: 142px; } /* 189px thu còn 75% */
 
 /* Cục tròn cam: đúng file SVG gốc (Ellipse 1, cam #E67021),
    dấu sao đen 6 cánh đúng file SVG gốc, xoay chậm liên tục
@@ -400,18 +409,18 @@ ul { list-style: none; }
    của lớp xoay chậm nên vòng nhanh cộng dồn lên vòng chậm,
    xong 360 độ thì về đúng góc cũ nên tốc độ chậm tiếp tục
    mượt mà, không giật. Cục cam chồng lên đầu phải của dải
-   vàng 9px (margin-left âm). */
+   vàng 7px (margin-left âm, 9px thu còn 75%). */
 .nav-ball {
   position: relative;
   z-index: 2;
-  width: 52px;
-  height: 52px;
+  width: 40px; /* 52px thu còn 75% */
+  height: 40px;
   flex: none;
   border: 0;
   background: url(../assets/nav/nav-ball.svg) no-repeat center / contain;
   cursor: pointer;
   padding: 0;
-  margin-left: -9px;
+  margin-left: -7px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -421,8 +430,8 @@ ul { list-style: none; }
 
 .nav-ball-star {
   display: block;
-  width: 30px;
-  height: 29px;
+  width: 23px; /* 30px thu còn 75% */
+  height: 22px; /* 29px thu còn 75% */
   background: url(../assets/nav/nav-star.svg) no-repeat center / contain;
 }
 
@@ -450,13 +459,13 @@ ul { list-style: none; }
   left: 0;
   right: 0;
   z-index: 1000;
-  padding: 40px var(--pad) 0;
+  padding: 30px var(--pad) 0;
   color: #000;
 }
 
 /* ================= CONTACT: overlay tối + card xanh lá lật mặt =================
    Theo Figma (node 1732:432): bấm CONTACT thì nền tối lại và
-   card xanh lá #2bae52 (813x569) hiện ở giữa màn hình. Trong
+   card xanh lá #2bae52 (813x521) hiện ở giữa màn hình. Trong
    card: nhãn "get in touch", email lớn đậm (bấm thì copy),
    4 logo nền tảng trong ô vuông đen 48px (bấm thì mở tab
    mới), logo "nambao" chữ Sarina lớn màu đen ở dưới cùng.
@@ -497,15 +506,43 @@ body.contact-open .wn-nav { position: relative; z-index: 2000; }
   transition: opacity .35s ease, visibility 0s;
 }
 
+/* Lớp nền đặc ngay sau card (giữ nguyên cách sửa 1px tách hai
+   mặt card, chỉ sửa thêm nguyên nhân thật phía sau modal):
+   khi card nghiêng 3D, mép card hở ra và qua lớp overlay mờ
+   60% sẽ thấy ảnh hero wheel phía sau (mũi nhọn đủ màu, dài
+   60-90px) lòi ra dưới mép card. Lớp này là một panel đen đặc
+   ở giữa, đủ che card cộng vùng card nghiêng tới (mép card
+   lệch tối đa khoảng 60px khi nghiêng 5-7 độ), mờ dần ra mép
+   để giữ cảm giác nền tối mờ xung quanh, nên vùng quanh card
+   luôn sạch, không còn ảnh hero nào lòi ra được. pointer-events
+   none để bấm nền vẫn đóng modal như cũ (JS đóng khi
+   e.target === overlay). */
+.contact-overlay::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(1400px, 96vw);
+  height: min(1000px, 92svh);
+  transform: translate(-50%, -50%);
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 78%, rgba(0, 0, 0, 0) 96%);
+  pointer-events: none;
+}
+
 .contact-card-tilt {
   transform-style: preserve-3d;
   will-change: transform;
 }
 
 .contact-card-flip {
+  --card-w: min(813px, calc(100vw - 48px)); /* chiều rộng card, logo dùng để giữ đúng tỉ lệ chữ */
   position: relative;
-  width: min(813px, calc(100vw - 48px));
-  height: min(569px, calc(100svh - 160px));
+  width: var(--card-w);
+  /* Cao 521px đúng khung Frame 5 trong Figma (813x521): hình
+     chữ nhật nền bên trong cao 569.111px nhưng tràn ra ngoài
+     khung và bị cắt (overflow-clip), nên chiều cao thật của
+     card là 521px, không phải 569px. */
+  height: min(521px, calc(100svh - 160px));
   transform-style: preserve-3d;
   transition: transform .7s var(--ease-out);
 }
@@ -600,17 +637,38 @@ body.contact-open .wn-nav { position: relative; z-index: 2000; }
 
 .contact-socials img { width: 24px; height: 24px; display: block; }
 
-/* Logo lớn ở dưới cùng của card: vector gốc trong Figma
-   (node 1659:180, cũng là nguồn của favicon), không dùng chữ
-   font Sarina nữa. Monogram đen trên nền xanh lá (mặt trước),
-   monogram xanh lá trên nền đen (mặt sau). */
+/* Logo lớn ở dưới cùng của card: đúng thiết kế Figma gốc
+   (node 1732:327, trong khung Frame 5 813x521): chữ "nambao"
+   font Sarina Regular, cỡ 190.618px, letter-spacing -5.7185px,
+   đặt ở left 0, top 347.6px. Với cỡ này chữ TRÀN RA NGOÀI mép
+   phải của card (rộng 874px so với card 813px) và khung chữ
+   tràn qua mép dưới (347.6 + 190.618 = 538.2 so với card cao
+   521px), bị cắt bởi biên card (overflow hidden), đúng như
+   thiết kế, không phải lỗi: KHÔNG thu nhỏ chữ cho vừa, KHÔNG
+   căn giữa, KHÔNG thêm padding để chữ nằm gọn trong card.
+   Đã đo bằng file font Sarina thật: nét chữ chạm mép trái
+   (tràn 10px) và mép phải (tràn 76px), khớp ảnh chụp Figma
+   (nét chữ chạm cả hai mép, đáy chữ cách mép dưới card 15px).
+   Cỡ chữ và letter-spacing theo tỉ lệ chiều rộng card
+   (190.618/813.565 = 23.43% và -5.7185/813.565 = -0.70%) qua
+   biến --card-w để card thu nhỏ trên màn hình hẹp thì chữ vẫn
+   đúng tỉ lệ; top theo % chiều cao card (347.6/521 = 66.72%).
+   Màu đen trên mặt trước xanh lá, màu xanh lá trên mặt sau đen. */
 .contact-logo {
-  display: block;
-  height: 190px;
-  width: auto;
-  margin: auto auto 0;
+  position: absolute;
+  left: 0;
+  top: 66.72%;
+  font-family: var(--font-script);
+  font-size: calc(var(--card-w) * 0.2343);
+  letter-spacing: calc(var(--card-w) * -0.00703);
+  line-height: 1;
+  white-space: nowrap;
+  color: #000;
   user-select: none;
+  pointer-events: none;
 }
+
+.contact-card--back .contact-logo { color: var(--green); }
 
 /* ================= ABOUT =================
    Section ghim lại (sticky top 0, z-index 2) để section
@@ -975,9 +1033,9 @@ body.contact-open .wn-nav { position: relative; z-index: 2000; }
 }
 
 @media (max-width: 900px) {
-  .nav-logo { font-size: 36px; }
-  .nav-ball { width: 48px; height: 48px; }
-  .nav-ball-star { width: 28px; height: 27px; }
+  .nav-logo { font-size: 27px; } /* 36px thu còn 75% */
+  .nav-ball { width: 36px; height: 36px; } /* 48px thu còn 75% */
+  .nav-ball-star { width: 21px; height: 20px; } /* 28x27 thu còn 75% */
 
   /* Tắt hiệu ứng ghim và trượt đè trên mobile: các section
      xếp chồng bình thường, không sticky. */
@@ -1026,27 +1084,33 @@ body.contact-open .wn-nav { position: relative; z-index: 2000; }
 }
 
 @media (max-width: 640px) {
-  .nav { padding-top: 32px; }
-  .nav-logo { font-size: 30px; }
-  .nav-ball { width: 44px; height: 44px; }
-  .nav-ball-star { width: 25px; height: 25px; }
-  /* Menu thả xuống dưới cục tròn thay vì xếp ngang (không đủ chỗ),
-     thu nhỏ cả cụm cho vừa màn hình hẹp. */
+  .nav { padding-top: 24px; } /* 32px thu còn 75% */
+  .nav-logo { font-size: 23px; } /* 30px thu còn 75% */
+  .nav-ball { width: 33px; height: 33px; } /* 44px thu còn 75% */
+  .nav-ball-star { width: 19px; height: 19px; } /* 25px thu còn 75% */
+  /* Menu thả xuống dưới cục tròn thay vì xếp ngang (không đủ chỗ).
+     Reveal dọc: mở dần từ trên (sát cục tròn) xuống dưới bằng
+     clip-path, không fade, không trượt. Thu nhỏ cả cụm còn 90%
+     cho vừa màn hình hẹp (menu gốc đã thu còn 75% nên chỉ cần
+     scale nhẹ, không còn scale .72 như trước). */
   .nav-menu-wrap { position: relative; }
   .nav-menu {
     position: absolute;
     top: calc(100% + 10px);
     right: 0;
-    transform: translateY(-6px) scale(.72);
+    transform: scale(.9);
     transform-origin: top right;
+    clip-path: inset(0 0 100% 0);
   }
   .nav-menu-wrap:hover .nav-menu,
-  .nav-menu-wrap.is-menu-open .nav-menu { transform: translateY(0) scale(.72); }
+  .nav-menu-wrap.is-menu-open .nav-menu {
+    transform: scale(.9);
+    clip-path: inset(0 0 0 0);
+  }
   .contact-card-flip { height: min(520px, calc(100svh - 120px)); }
   .contact-card--front,
   .contact-card--back { padding: 32px 24px 0; }
   .contact-email { font-size: 21px; }
-  .contact-logo { height: 110px; }
   .about { padding-bottom: 40px; }
   .awards { padding-bottom: 40px; }
   .press-card { padding: 28px; }
@@ -1064,6 +1128,7 @@ body.contact-open .wn-nav { position: relative; z-index: 2000; }
   .roll-letter { transition: none; }
   .nav-ball-rot,
   .nav-ball-star.is-spinning { animation: none; }
+  .nav-menu { transition: none; } /* reveal hiện ngay, không chạy clip-path */
   .cursor { display: none; }
   /* Tắt ghim, trượt đè và vòng xoay: vòng đứng yên ở trạng
      thái tĩnh, các section xếp chồng bình thường. */
