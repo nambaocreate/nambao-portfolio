@@ -9,21 +9,18 @@
    Ảnh luôn hiện ở tỉ lệ gốc (width/height thật, CSS chỉ giới
    hạn chiều rộng hiển thị), không crop.
 
-   Chuyển trang: `@view-transition { navigation: auto; }` để
-   ảnh hero ở đây morph với ảnh lớn bên /work (cùng
-   view-transition-name, xem js/case-study.js và js/work-new.js).
+   Chuyển trang: bấm ảnh lớn bên /work sẽ chạy hiệu ứng mở rộng
+   bằng tay (xem js/work-new.js, overlay phóng to rồi mới chuyển
+   trang), không dùng View Transitions API nữa, để chắc chắn
+   mượt trên mọi trình duyệt và không bị chớp trắng.
    ============================================================ */
-
-@view-transition {
-  navigation: auto;
-}
 
 .cs-root {
   background: var(--hero-bg);
   overflow-x: clip;
 }
 
-/* ---------- Hero: ảnh full-bleed, nav đè lên trên ---------- */
+/* ---------- Hero: ảnh full-bleed, nav cố định đè lên trên ---------- */
 .cs-hero {
   position: relative;
 }
@@ -34,12 +31,32 @@
   display: block;
 }
 
+/* Nav cố định trên cùng, trắng khi còn trên hero (đọc được trên
+   ảnh tối), đen khi đã cuộn qua hero (class cs-nav--dark do
+   js/case-study.js bật theo vị trí cuộn). Logo đen gốc nên khi
+   nav trắng thì đảo màu bằng filter invert. */
 .cs-hero .nav {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
+  z-index: 1000;
   padding: 40px 40px 0;
+  color: #fff;
+  transition: color 0.3s ease;
+}
+
+.cs-hero .nav .nav-logo img {
+  filter: invert(1);
+  transition: filter 0.3s ease;
+}
+
+.cs-nav--dark {
+  color: #000;
+}
+
+.cs-nav--dark .nav-logo img {
+  filter: none;
 }
 
 .cs-hero .nav-center a,
@@ -61,7 +78,9 @@
 .cs-titlebox {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  /* Figma: gap 24px ở cỡ chữ 68.8px; web dùng 75% (51.6px) nên
+     gap thu theo tỉ lệ còn 18px, tagline sát title như Figma. */
+  gap: 18px;
   min-width: 0;
 }
 
@@ -71,6 +90,11 @@
   font-weight: 700;
   line-height: 1;
   letter-spacing: -0.03em;
+}
+
+/* Tagline xám #818181 theo đúng Figma (title đen, tagline xám). */
+.cs-subtitle {
+  color: #818181;
 }
 
 .cs-meta {
@@ -227,12 +251,16 @@
   max-width: 100%;
 }
 
-/* ---------- Text + image: cột chữ + ảnh, căn đáy ---------- */
+/* ---------- Text + image: cột chữ + ảnh, căn đáy ----------
+   Figma: cột chữ 293px, ảnh 1220px (hoặc 1386/1100px riêng),
+   hai đầu dồn ra biên (justify-between, không gap cố định).
+   Ảnh co lại khi màn hẹp (flex 1 1 auto + max-width = số đo
+   Figma) để không đè cột chữ; cột chữ giữ đúng rộng Figma,
+   không co lại, nên chữ luôn đủ rộng để đọc. */
 .cs-textimage {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  gap: 24px;
 }
 
 .cs-textimage--center {
@@ -244,7 +272,7 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 24px;
-  min-width: 0;
+  flex: none;
 }
 
 .cs-textcol .cs-body {
@@ -252,8 +280,8 @@
 }
 
 .cs-textimage .cs-figure {
-  flex: none;
-  max-width: 100%;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 /* ---------- Text section: tiêu đề trái, đoạn văn phải ---------- */
@@ -286,15 +314,40 @@
 
 .cs-next-row {
   display: flex;
-  gap: 32px;
+  gap: 20px;
   flex-wrap: wrap;
 }
 
+/* Work Card: ảnh cover trên, hàng tiêu đề dưới (tên 24px SemiBold
+   + Tag Pill ở Figma, web dùng 75% nên tên 18px, pill 9px, gap
+   24px). Ảnh cover hiện đúng tỉ lệ gốc, không crop, không đè
+   lên chữ. Card rộng 910px như Figma (1840 trừ gap 20 chia 2). */
 .cs-next-card {
   display: flex;
-  align-items: baseline;
-  gap: 16px;
+  flex-direction: column;
+  gap: 24px;
+  flex: 1 1 0;
+  min-width: 0;
   text-decoration: none;
+}
+
+.cs-next-cover {
+  display: block;
+  width: 100%;
+}
+
+.cs-next-cover img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.cs-next-titlerow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
 }
 
 .cs-next-title {
@@ -369,6 +422,14 @@
 
   .cs-next {
     padding: 48px 40px;
+  }
+
+  .cs-next-row {
+    flex-direction: column;
+  }
+
+  .cs-next-card {
+    width: 100%;
   }
 }
 

@@ -72,8 +72,6 @@
   heroImg.loading = "eager";
   heroImg.decoding = "async";
   heroImg.setAttribute("fetchpriority", "high");
-  // Tên transition trùng với ảnh lớn bên /work (xem work-new.js).
-  heroImg.style.viewTransitionName = data.vt;
   hero.appendChild(heroImg);
   var nav = document.querySelector(".cs-nav");
   if (nav) hero.appendChild(nav);
@@ -132,9 +130,11 @@
     } else if (s.type === "text-image") {
       sec = el("section", "cs-sec cs-textimage" + (s.align === "center" ? " cs-textimage--center" : ""));
       var imgFig = figure(s.image, s.image.caption);
-      imgFig.style.width = (s.imageWidth || 1220) + "px";
+      // Ảnh co lại khi màn hẹp (max-width = số đo Figma), không đè cột chữ.
+      imgFig.style.maxWidth = (s.imageWidth || 1220) + "px";
       var col = textBlocks(s.text);
-      if (s.textWidth) col.style.width = s.textWidth + "px";
+      // Cột chữ giữ đúng rộng Figma (293, hoặc textWidth riêng), không co lại.
+      col.style.width = (s.textWidth || 293) + "px";
       // Figma đặt ảnh trái hay phải theo từng section (xem data).
       if (s.imageSide === "left") { sec.appendChild(imgFig); sec.appendChild(col); }
       else { sec.appendChild(col); sec.appendChild(imgFig); }
@@ -160,7 +160,7 @@
     root.appendChild(cred);
   }
 
-  /* ---------- Next Project ---------- */
+  /* ---------- Next Project: Work Card có ảnh cover kèm tên ---------- */
   if (data.next && data.next.length) {
     var next = el("section", "cs-next");
     next.appendChild(el("h2", "cs-label", "Next Project"));
@@ -169,8 +169,22 @@
       var a = document.createElement("a");
       a.className = "cs-next-card";
       a.href = p.href;
-      a.appendChild(el("span", "cs-next-title", p.title));
-      if (p.tag) a.appendChild(el("span", "cs-next-tag", p.tag));
+      if (p.cover) {
+        var cover = el("span", "cs-next-cover");
+        var cimg = document.createElement("img");
+        cimg.src = p.cover.src;
+        cimg.alt = p.cover.alt || "";
+        cimg.width = p.cover.width;
+        cimg.height = p.cover.height;
+        cimg.loading = "lazy";
+        cimg.decoding = "async";
+        cover.appendChild(cimg);
+        a.appendChild(cover);
+      }
+      var trow = el("span", "cs-next-titlerow");
+      trow.appendChild(el("span", "cs-next-title", p.title));
+      if (p.tag) trow.appendChild(el("span", "cs-next-tag", p.tag));
+      a.appendChild(trow);
       row.appendChild(a);
     });
     next.appendChild(row);
@@ -191,4 +205,27 @@
     '</div>' +
     '<img class="footer-logo" src="../assets/logo-footer.svg" alt="nam bao" width="1784" height="384">';
   root.appendChild(footer);
+
+  /* ---------- Nav: trắng trên hero, đen khi cuộn qua hero ----------
+     Nav cố định trên cùng (xem css/case-study.css). Khi hero còn
+     hiện thì nav trắng, đọc được trên ảnh tối; cuộn qua hero sang
+     section tiếp theo thì nav đổi sang đen, đọc được trên nền sáng.
+     Đổi bằng class theo vị trí cuộn, không dùng mix-blend-mode. */
+  (function navMode() {
+    var navEl = document.querySelector(".cs-nav");
+    if (!navEl || !hero) return;
+    var ticking = false;
+    function update() {
+      ticking = false;
+      // Đáy hero vừa qua đáy nav thì nav đen, còn không thì nav trắng.
+      var past = window.scrollY >= hero.offsetHeight - 70;
+      navEl.classList.toggle("cs-nav--dark", past);
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    update();
+  })();
 })();

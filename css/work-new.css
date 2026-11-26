@@ -1,9 +1,22 @@
-/* Chuyen trang case study: `@view-transition { navigation: auto; }`
-   de anh lon ben nay morph thanh hero o trang case study
-   (cung view-transition-name, xem js/work-new.js). Trinh duyet
-   khong ho tro thi chi la chuyen trang thuong. */
-@view-transition {
-  navigation: auto;
+/* Chuyen trang case study: hiệu ứng mở rộng bằng tay (xem
+   js/work-new.js). Bấm ảnh lớn của dự án đã launch thì một
+   lớp phủ chứa ảnh đó phóng to từ vị trí ảnh lớn ra full màn
+   hình rồi mới chuyển trang; hero ở trang case study là cùng
+   một ảnh nên không bị chớp trắng. Không dùng View Transitions
+   API nữa, để chắc chắn mượt trên mọi trình duyệt. */
+.wn-expand {
+  position: fixed;
+  z-index: 2000;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--hero-bg);
+}
+
+.wn-expand img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 /* ============================================================

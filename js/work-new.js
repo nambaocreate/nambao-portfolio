@@ -35,7 +35,8 @@
       tags: ["BRAND IDENTITY", "LOGO DESIGN", "ART DIRECTION", "PRINT DESIGN"],
       image: "assets/work/vore.jpg", alt: "Ba poster của Vore treo trên tường", width: 1600, height: 900 },
     { id: "egg01", title: "EGG:01", year: "2025", tag: "Food & beverage",
-      caseStudy: "/work/egg-01", vt: "cs-hero-egg01",
+      caseStudy: "/work/egg-01",
+      hero: { src: "assets/case-study/egg-01/01-hero.jpg", width: 1920, height: 1860 },
       tags: ["BRAND IDENTITY", "PACKAGING DESIGN", "PRODUCT DESIGN", "ART DIRECTION"],
       image: "assets/work/egg01.jpg", alt: "Hộp bạc EGG:01 cạnh chai thủy tinh gân sóng có lòng đỏ cam", width: 1400, height: 1356 },
     { id: "rmit25", title: "RMIT 25th Anniversary Logo", year: "2025", tag: "Education",
@@ -51,7 +52,8 @@
       tags: ["BRAND IDENTITY", "EVENT DESIGN", "EXHIBITION DESIGN", "STAGE DESIGN"],
       image: "assets/work/vibe.jpg", alt: "Render 3D sảnh expo cam của VIBE", width: 1000, height: 558 },
     { id: "th28", title: "Tuổi Hồng 28", year: "2024", tag: "Entertainment",
-      caseStudy: "/work/tuoi-hong-28", vt: "cs-hero-th28",
+      caseStudy: "/work/tuoi-hong-28",
+      hero: { src: "assets/case-study/tuoi-hong-28/01-hero.jpg", width: 1920, height: 1280 },
       tags: ["BRAND IDENTITY", "EVENT DESIGN", "POSTER DESIGN", "ART DIRECTION"],
       image: "assets/work/th28.jpg", alt: "Bốn poster Tuổi Hồng 28 năm 2024 trên nền sọc hồng", width: 1600, height: 1067 }
   ];
@@ -253,11 +255,6 @@
         : "Case study coming soon: " + c.p.title);
     c.el.setAttribute("aria-label", label);
     c.el.style.visibility = kind === "out" ? "hidden" : "";
-    // Anh lon cua du an da co case study mang ten transition trung
-    // voi hero o trang case study, de bam anh morph thanh hero.
-    // Chi anh lon moi co ten (moi du an chi co 1 card nen khong
-    // bao gio trung ten); thumbnail va deck thi khong.
-    if (c.img) c.img.style.viewTransitionName = (kind === "big" && c.p.caseStudy) ? c.p.vt : "";
   }
 
   function resetTilt(c) {
@@ -281,13 +278,51 @@
   }
 
   // Bấm ảnh lớn / tiêu đề lớn: agency mở tab mới, independent đã
-  // có case study thì sang trang đó (cross-document view transition
-  // morph ảnh thành hero, xem css/work-new.css), chưa có thì không
-  // làm gì — lightbox cũ đã bỏ, không mở gì thay thế.
+  // có case study thì ảnh phóng to ra full màn rồi mới sang trang
+  // case study (hiệu ứng mở rộng bằng tay, xem expandToCaseStudy),
+  // chưa có thì không làm gì — lightbox cũ đã bỏ, không mở gì thay thế.
   function openProject(p) {
     if (!p) return;
     if (p.url) { window.open(p.url, "_blank", "noopener"); return; }
-    if (p.caseStudy) { location.href = p.caseStudy; }
+    if (p.caseStudy) { expandToCaseStudy(p); }
+  }
+
+  // Hiệu ứng mở rộng bằng tay: ảnh lớn phóng to từ vị trí đang hiện
+  // ra full màn hình (đúng vị trí và tỉ lệ hero ở trang đích) rồi
+  // mới chuyển trang. Ảnh lớn và hero là cùng một ảnh nên chuyển
+  // động liền mạch; hero đã preload sẵn (xem work.html) nên trang
+  // đích hiện hero ngay, không chớp trắng. Không dùng View
+  // Transitions API nữa, để chắc chắn mượt trên mọi trình duyệt.
+  var expanding = false;
+  function expandToCaseStudy(p) {
+    if (expanding) return;
+    expanding = true;
+    var c = cards[p.id];
+    var img = c && c.img;
+    var rect = img ? img.getBoundingClientRect() : null;
+    var vw = window.innerWidth;
+    var vh = window.innerHeight;
+    // Đích: hero full chiều rộng, cao theo đúng tỉ lệ hero.
+    var hw = (p.hero && p.hero.width) || 1920;
+    var hh = (p.hero && p.hero.height) || 1080;
+    var targetH = Math.round(vw * hh / hw);
+    var overlay = document.createElement("div");
+    overlay.className = "wn-expand";
+    overlay.setAttribute("aria-hidden", "true");
+    var oimg = document.createElement("img");
+    oimg.src = img ? (img.currentSrc || img.src) : p.image;
+    oimg.alt = "";
+    overlay.appendChild(oimg);
+    document.body.appendChild(overlay);
+    var start = rect || { left: vw / 2 - 455, top: vh / 2 - 274, width: 910, height: 548 };
+    gsap.set(overlay, { left: start.left, top: start.top, width: start.width, height: start.height });
+    if (cursorEl) cursorEl.style.opacity = "0";
+    var dur = reduceMotion ? 0 : 0.6;
+    gsap.to(overlay, {
+      left: 0, top: 0, width: vw, height: Math.max(targetH, vh),
+      duration: dur, ease: "power3.inOut",
+      onComplete: function () { location.href = p.caseStudy; }
+    });
   }
 
   /* ---------- Đặt tất cả card không animation (khởi tạo, resize) ---------- */

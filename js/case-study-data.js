@@ -23,26 +23,27 @@
 //                riêng đoạn Bottle Design là 596).
 //   text       : tiêu đề trái (287) + các đoạn văn phải (596), gap 172.
 // - credits: {label, lines[]} — chỉ TH28 có.
-// - next: [{title, tag, href}] — thẻ dự án tiếp theo ở cuối trang.
-// - vt: tên view-transition dùng chung với trang /work (ảnh lớn bên
-//   /work và hero ở đây cùng tên thì bấm ảnh sẽ morph thành hero).
+// - next: [{title, tag, href, cover}] — thẻ dự án tiếp theo ở cuối
+//   trang, dạng Work Card có ảnh cover kèm tên (theo Figma).
+//   cover: {src, width, height} là ảnh cover thật của dự án đó.
 //
 // Lưu ý nội dung (không tự sửa, để Bảo quyết):
 // - EGG: một số caption trong Figma không còn khớp ảnh sau khi đổi
 //   thứ tự (vd caption full-width "Bottle silhouette, ribbed glass"
 //   đang nằm dưới ảnh wordmark Frame 3). Dữ liệu dưới đây copy y
 //   nguyên caption từ Figma, không viết lại.
+// - TH28 hero dùng 1.png (4500x3000, key visual), theo quyết định
+//   của Bảo 26/11/2026, thay banner sạch hero-banner.jpg. 1.png
+//   cũng là ảnh ở section text-image slot 6, nên hero và section
+//   đó trùng ảnh; giữ nguyên section đó, để Bảo quyết.
 // - EGG hero gần vuông (1920x1860) nên màn hình đầu chủ yếu là hero,
 //   đó là hệ quả trực tiếp của việc không crop.
-// - TH28 hero dùng ảnh banner sạch (hero-banner.jpg, 1600x798),
-//   KHÔNG dùng ảnh chụp màn hình Facebook (avatar-cover-facebook-2.png).
 
 window.CASE_STUDIES = {
   "egg-01": {
     slug: "egg-01",
     title: "EGG:01",
     subtitle: "Exclusively For The Elite",
-    vt: "cs-hero-egg01",
     hero: {
       src: "../assets/case-study/egg-01/01-hero.jpg",
       alt: "EGG:01 hero, ribbed glass bottle",
@@ -87,10 +88,12 @@ window.CASE_STUDIES = {
         image: { src: "../assets/case-study/egg-01/11-text-image.jpg", alt: "EGG:01 bottle design", width: 1920, height: 1075 },
         text: [
           { t: "p", text: "The visual motifs expand on cell division and bitmap logic, suggesting a time when scientific systems began to transcend biology,", w: 293 },
-          { t: "p", text: "gradually abstracting life into something designed, optimized, and emotionally detached.", w: 293 },
-          { t: "h", text: "Bottle Design" },
-          { t: "p", text: "The silhouette is recognizable and easily understood, allowing viewers to intuitively perceive the association without it becoming illustrative. This creates a surreal presence, as if technology itself has evolved into a substitute organism. The design suggests a future where life is no longer respected, but copied and replaced by industrial systems, transforming nature into a functional asset.", w: 596 }
+          { t: "p", text: "gradually abstracting life into something designed, optimized, and emotionally detached.", w: 293 }
         ] },
+      { type: "text", heading: "Bottle Design", paragraphs: [
+        "The bottle's design explores the idea of technology replacing the living creature that once created life. The bottle's shape is inspired by a chicken, but abstracted enough to avoid literal imitation.",
+        "The silhouette is recognizable and easily understood, allowing viewers to intuitively perceive the association without it becoming illustrative. This creates a surreal presence, as if technology itself has evolved into a substitute organism. The design suggests a future where life is no longer respected, but copied and replaced by industrial systems, transforming nature into a functional asset."
+      ] },
       { type: "portrait",
         image: { src: "../assets/case-study/egg-01/12-portrait.jpg", alt: "Bottle cap, close up", width: 1920, height: 1077 },
         caption: "Bottle cap, close up" },
@@ -104,13 +107,14 @@ window.CASE_STUDIES = {
       { type: "text-image", imageSide: "right", imageWidth: 1386,
         image: { src: "../assets/case-study/egg-01/15-image-text.jpg", alt: "EGG:01 logo", width: 1920, height: 1077 },
         text: [
+          { t: "p", text: "It's futuristic, but avoids those typical sci-fi cliches.", w: 293 },
           { t: "p", text: "Everything from the motifs to the bitmap logic hints at a world where systems have moved past nature,", w: 293 }
         ] },
     ],
     credits: null,
     next: [
-      { title: "Đô Thành Cổ Tích", tag: "Art", href: "/work" },
-      { title: "Tad.atelier", tag: "Architecture", href: "/work" }
+      { title: "Đô Thành Cổ Tích", tag: "Art", href: "/work", cover: { src: "../assets/work/dothanh.jpg", alt: "Đô Thành Cổ Tích cover", width: 1393, height: 853 } },
+      { title: "Tad.atelier", tag: "Architecture", href: "/work", cover: { src: "../assets/work/tad.jpg", alt: "Tad.atelier cover", width: 1400, height: 989 } }
     ]
   },
 
@@ -118,11 +122,10 @@ window.CASE_STUDIES = {
     slug: "tuoi-hong-28",
     title: "TUOI HONG 28 Music Festival",
     subtitle: "Not An Ordinary Festival",
-    vt: "cs-hero-th28",
     hero: {
       src: "../assets/case-study/tuoi-hong-28/01-hero.jpg",
-      alt: "Tuoi Hong 28 festival banner",
-      width: 1600, height: 798
+      alt: "Tuoi Hong 28 key visual",
+      width: 1920, height: 1280
     },
     meta: [
       { label: "INDUSTRY", value: "Entertainment / Music Festival" },
@@ -147,7 +150,10 @@ window.CASE_STUDIES = {
       ] },
       { type: "text-image", imageSide: "left",
         image: { src: "../assets/case-study/tuoi-hong-28/06-text-image.jpg", alt: "Tuoi Hong 28 key visual", width: 1920, height: 1280 },
-        text: [] },
+        text: [
+          { t: "p", text: "The brand identity is inspired by the phrase 'from ordinary to extraordinary,' signifying that everyone has the potential to shine on stage with their talent.", w: 293 },
+          { t: "p", text: "Things that are often overlooked in daily life become magically radiant in the musical world of 'Tuoi Hong'.", w: 293 }
+        ] },
       { type: "duo", images: [
         { src: "../assets/case-study/tuoi-hong-28/07-b1.jpg", alt: "Photo booth, key visual in use", width: 1920, height: 1280, caption: "Photo booth, key visual in use" },
         { src: "../assets/case-study/tuoi-hong-28/08-b2.jpg", alt: "Poster standee", width: 1920, height: 1280, caption: "Poster standee" }
@@ -196,7 +202,7 @@ window.CASE_STUDIES = {
       ]
     },
     next: [
-      { title: "Vore", tag: "", href: "/work" }
+      { title: "Vore", tag: "", href: "/work", cover: { src: "../assets/work/vore.jpg", alt: "Vore cover", width: 1600, height: 900 } }
     ]
   }
 };
