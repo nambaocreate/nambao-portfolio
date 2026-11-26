@@ -979,45 +979,50 @@ body.contact-open .wn-nav { position: relative; z-index: 2000; }
   overflow: hidden;
 }
 
-/* Logo footer vẽ như viết tay: logo là SVG inline chứa CENTERLINE
-   (đường giữa / khung xương) của từng chữ font Sarina, lấy bằng cách
-   raster hoá outline rồi skeletonize (scikit-image) và trace thành path.
-   Mỗi chữ gồm vài nét bút vẽ theo thứ tự viết tự nhiên; stroke dày 220
-   (đủ đậm để đọc rõ, vừa đủ để lỗ counter của a/b/o không bị lấp),
-   KHÔNG còn fill: chính nét bút tạo thành chữ. Khi cuộn tới footer,
-   observer của main.js thêm .is-visible cho .footer-draw: từng nét vẽ
-   dần theo stroke-dashoffset, tốc độ ~8500 units/s, nghỉ ngắn giữa
-   các nét (tổng ~3.7s). Không có JS thì logo hiện luôn (nét đã vẽ
-   xong); giảm chuyển động thì cũng hiện luôn, không chạy vẽ. */
+/* Logo footer vẽ kiểu Trim Paths (After Effects): logo là SVG inline
+   chứa OUTLINE GỐC của từng chữ font Sarina (7 path: n, a, m, b, a, o;
+   chữ "o" có 2 contour ngoài + lỗ counter), lấy bằng fontTools từ font
+   Sarina, KHÔNG phải centerline hay vẽ lại. Khi cuộn tới footer,
+   observer của main.js thêm .is-visible cho .footer-draw: từng path tự
+   vẽ ra dần theo stroke-dashoffset (Trim Paths), tốc độ theo độ dài
+   outline, tổng ~2.81s. Điểm quan trọng: fill-opacity của từng chữ
+   chạy ĐỒNG BỘ với stroke của chính chữ đó (cùng delay --dd, cùng thời
+   lượng --dur, cùng easing), chữ vẽ tới đâu thì tô tới đó, không tách
+   rời như bản cũ (bản cũ tô sau khi vẽ xong). Nét vẽ đen 20 units, đầu
+   tròn. Không có JS thì logo hiện luôn đầy đủ; giảm chuyển động thì
+   cũng hiện luôn, không chạy vẽ. */
 .footer-logo-svg {
   display: block;
   height: calc(100vw * 0.2343);
   width: calc(100vw * 0.2343 * 4.5814);
-  --sw: 220;
 }
 
 .footer-logo-svg path {
-  fill: none;
+  fill: #000;
   stroke: #000;
-  stroke-width: var(--sw);
+  stroke-width: 20;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 
 .js .footer-logo-svg path {
+  fill-opacity: 0;
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
-  transition: stroke-dashoffset var(--dur, 0.5s) cubic-bezier(0.6, 0, 0.3, 1) var(--dd, 0s);
+  transition: stroke-dashoffset var(--dur, 0.5s) cubic-bezier(0.6, 0, 0.3, 1) var(--dd, 0s),
+    fill-opacity var(--dur, 0.5s) cubic-bezier(0.6, 0, 0.3, 1) var(--dd, 0s);
 }
 
 .js .footer-draw.is-visible .footer-logo-svg path {
   stroke-dashoffset: 0;
+  fill-opacity: 1;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .js .footer-logo-svg path {
     transition: none;
     stroke-dashoffset: 0;
+    fill-opacity: 1;
   }
 }
 
