@@ -57,16 +57,22 @@
           <div class="wn-bottom">
             <p class="wn-industry">[Industry]</p>
             <ul class="wn-filters" id="wn-filters"></ul>
-            <div class="wn-thumbs" id="wn-thumbs" aria-label="Các dự án tiếp theo"></div>
+            <!-- Khung giữ chỗ: card thật nằm trong #wn-cards, JS đo các khung này -->
+            <div class="wn-thumbs" id="wn-thumbs" aria-hidden="true">
+              <span class="wn-slot wn-slot--back"></span>
+              <span class="wn-slot wn-slot--mid"></span>
+              <span class="wn-slot wn-slot--front"></span>
+            </div>
           </div>
         </div>
 
-        <div class="wn-media work-media" id="wn-media" role="button" tabindex="0" aria-label="Xem ảnh lớn">
-          <img id="wn-img" src="assets/work/vore.jpg" alt="Ba poster của Vore treo trên tường" width="1600" height="900">
-          <span class="wn-media-hint">Click to view</span>
-        </div>
+        <!-- Khung giữ chỗ ảnh lớn (card thật nằm trong #wn-cards) -->
+        <div class="wn-media" id="wn-media" aria-hidden="true"></div>
       </div>
 
+
+      <!-- Lớp chứa toàn bộ card dự án (ảnh lớn, deck, thumbnail) -->
+      <div class="wn-cards" id="wn-cards"></div>
     </div>
   </div>
 
