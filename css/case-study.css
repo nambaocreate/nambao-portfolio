@@ -9,6 +9,19 @@
    Ảnh luôn hiện ở tỉ lệ gốc (width/height thật, CSS chỉ giới
    hạn chiều rộng hiển thị), không crop.
 
+   GRID 6 CỘT (toàn trang case study căn theo grid này):
+   Khung 1920, lề hai bên 40px, chiều rộng nội dung 1840px.
+   6 cột, mỗi cột 290px, gutter 20px (cùng gutter 20 của
+   Figma, như section Awards ở homepage). 6x290 + 5x20 =
+   1840. Biên cột (tính từ mép trái nội dung): 0, 290, 310,
+   600, 620, 910, 930, 1220, 1240, 1530, 1550, 1840.
+   Nhịp cột: 1 cột 290, 2 cột 600, 3 cột 910, 4 cột 1220,
+   5 cột 1530, 6 cột 1840. Mọi phần tử đều đặt cạnh trái và
+   cạnh phải vào biên cột (hoặc đường lề/gutter). Khoảng
+   cách giữa cột chữ và ảnh kề bên là MỘT giá trị duy nhất:
+   gutter 20px, ở mọi section chữ và ảnh. Nhịp dọc giữa các
+   section là 120px, nhất quán toàn trang.
+
    Chuyển trang: bấm ảnh lớn bên /work sẽ chạy hiệu ứng mở rộng
    bằng tay (xem js/work-new.js, overlay phóng to rồi mới chuyển
    trang), không dùng View Transitions API nữa, để chắc chắn
@@ -179,14 +192,16 @@
 
 .cs-texthead {
   flex: none;
-  width: 287px;
+  /* Grid: 1 cột (290px). */
+  width: 290px;
   font-size: 18px;
   font-weight: 600;
   line-height: 1.2;
 }
 
 .cs-textbody {
-  max-width: 596px;
+  /* Grid: 2 cột (600px). */
+  max-width: 600px;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -219,7 +234,8 @@
   display: flex;
   flex-direction: column;
   gap: 32px;
-  max-width: 1200px;
+  /* Grid: 4 cột (1220px), cạnh phải rơi vào biên cột x=1220. */
+  max-width: 1220px;
 }
 
 .cs-intro-p {
@@ -233,7 +249,9 @@
   width: 100%;
 }
 
-/* ---------- Trio: 3 ảnh 600, gap 20 ---------- */
+/* ---------- Trio: 3 ảnh, mỗi ảnh 2 cột (600), gap là gutter 20 ----------
+   Ảnh 1: cột 1-2 (0-600), ảnh 2: cột 3-4 (620-1220),
+   ảnh 3: cột 5-6 (1240-1840). */
 .cs-trio {
   display: flex;
   gap: 20px;
@@ -245,7 +263,8 @@
   max-width: 600px;
 }
 
-/* ---------- Duo: 2 ảnh 910, lệch chiều cao, gap 20 ---------- */
+/* ---------- Duo: 2 ảnh, mỗi ảnh 3 cột (910), gap là gutter 20 ----------
+   Ảnh 1: cột 1-3 (0-910), ảnh 2: cột 4-6 (930-1840). */
 .cs-duo {
   display: flex;
   gap: 20px;
@@ -258,42 +277,52 @@
   max-width: 910px;
 }
 
-/* ---------- Pair: 2 ảnh rộng khác nhau, dồn 2 đầu ---------- */
+/* ---------- Pair: ảnh rộng 3 cột (910) + ảnh hẹp 2 cột (600) ----------
+   Ảnh rộng: cột 1-3 (0-910) hoặc cột 4-6 (930-1840) tùy thứ tự;
+   ảnh hẹp: 2 cột còn lại. Khoảng cách giữa hai ảnh là 330px
+   (1 cột 290 + 2 gutter 20), tức một cột trống ở giữa, nên
+   cả hai ảnh đều đặt cạnh vào biên cột. */
 .cs-pair {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 24px;
+  gap: 20px;
 }
 
 .cs-pair .cs-figure {
   /* Cho co lại theo tỉ lệ khi màn hẹp để không tràn khung; ở màn
-     rộng vẫn giữ đúng rộng Figma (không grow). */
+     rộng vẫn giữ đúng rộng grid (không grow). */
   flex: 0 1 auto;
   min-width: 0;
   max-width: 100%;
 }
 
-/* ---------- Portrait: một ảnh căn giữa, rộng 926 ---------- */
+/* ---------- Portrait: một ảnh 4 cột (1220), căn giữa ----------
+   Căn giữa trong 1840 nên cạnh trái x=310 (đầu cột 2) và cạnh
+   phải x=1530 (cuối cột 5), cả hai đều là biên cột. */
 .cs-portrait {
   display: flex;
   justify-content: center;
 }
 
 .cs-portrait .cs-figure {
-  width: 926px;
+  width: 1220px;
   max-width: 100%;
 }
 
 /* ---------- Text + image: cột chữ + ảnh, căn đáy ----------
-   Figma: cột chữ 293px, ảnh 1220px (hoặc 1386/1100px riêng),
-   hai đầu dồn ra biên (justify-between, không gap cố định).
-   Ảnh co lại khi màn hẹp (flex 1 1 auto + max-width = số đo
-   Figma) để không đè cột chữ; cột chữ giữ đúng rộng Figma,
-   không co lại, nên chữ luôn đủ rộng để đọc. */
+   Grid: cột chữ 1 cột (290px) + gutter 20px + ảnh 5 cột
+   (1530px); riêng section chữ rộng (TH28 slot cuối) thì cột
+   chữ 2 cột (600px) + gutter 20px + ảnh 4 cột (1220px).
+   Khoảng cách chữ tới ảnh là MỘT giá trị duy nhất (gutter
+   20px) ở mọi section, không còn mỗi section một khoảng như
+   trước (space-between cho ra 327/161/20px tùy ảnh). Ảnh co
+   lại khi màn hẹp (flex 1 1 auto + max-width = số đo grid)
+   để không đè cột chữ; cột chữ giữ đúng rộng grid, không co
+   lại, nên chữ luôn đủ rộng để đọc. */
 .cs-textimage {
   display: flex;
-  justify-content: space-between;
+  gap: 20px;
   align-items: flex-end;
 }
 
@@ -320,10 +349,14 @@
   min-width: 0;
 }
 
-/* ---------- Text section: tiêu đề trái, đoạn văn phải ---------- */
+/* ---------- Text section: tiêu đề trái, đoạn văn phải ----------
+   Grid: tiêu đề 1 cột (290px), thân bài 2 cột (600px), khoảng
+   cách giữa hai cột là 330px (1 cột 290 + 2 gutter 20) nên thân
+   bài bắt đầu ở x=620 (đầu cột 3) và kết thúc ở x=1220 (cuối
+   cột 4), cả hai cạnh đều là biên cột. */
 .cs-textsec {
   display: flex;
-  gap: 172px;
+  gap: 330px;
   align-items: flex-start;
 }
 
@@ -340,12 +373,17 @@
   line-height: 1.4;
 }
 
-/* ---------- Next Project ---------- */
+/* ---------- Next Project ----------
+   Nhịp dọc nhất quán 120px: padding-top 120px (cách section
+   trước), padding-bottom 40px; cộng padding-top 80px của
+   footer thì khoảng cách tới nội dung footer cũng là 120px.
+   Hàng thẻ: 2 thẻ thì mỗi thẻ 3 cột (910), gap gutter 20;
+   1 thẻ thì thẻ tràn 6 cột (1840). */
 .cs-next {
   display: flex;
   flex-direction: column;
   gap: 24px;
-  padding: 80px 40px;
+  padding: 120px 40px 40px;
 }
 
 .cs-next-row {
@@ -465,7 +503,9 @@
   .cs-portrait .cs-figure,
   .cs-textimage .cs-figure {
     width: 100% !important;
-    max-width: 100%;
+    /* Ghi đè cả max-width inline (JS đặt theo rộng grid) để ảnh
+       không bao giờ vượt quá khung màn hình hẹp. */
+    max-width: 100% !important;
   }
 
   .cs-textimage {
@@ -474,7 +514,11 @@
   }
 
   .cs-textcol {
+    /* Ghi đè cả min-width inline (JS đặt theo rộng grid) để cột
+       chữ không tràn màn hình hẹp; width 100% đã có !important
+       nhưng min-width inline vẫn thắng nếu không ghi đè. */
     width: 100% !important;
+    min-width: 0 !important;
   }
 
   .cs-textsec {

@@ -11,17 +11,21 @@
 // - meta: [{label, value}] — hiện chồng dọc, label trên, value dưới.
 // - intro: {label, paragraphs[]} — nhãn section rồi các đoạn văn.
 // - sections: từng khối theo đúng thứ tự Figma, mỗi khối một type:
-//   full       : một ảnh toàn chiều rộng (1840) + caption.
-//   trio       : 3 ảnh ngang hàng, mỗi ảnh 600 + caption.
-//   duo        : 2 ảnh lệch chiều cao, mỗi ảnh 910 + caption.
-//   pair       : 2 ảnh, ảnh 1 rộng a, ảnh 2 rộng b, cách nhau (space-between).
-//   portrait   : một ảnh căn giữa, rộng 926 + caption.
-//   text-image : cột chữ + ảnh 1220 (mặc định) hoặc imageWidth riêng;
+//   full       : một ảnh toàn chiều rộng (1840, 6 cột) + caption.
+//   trio       : 3 ảnh ngang hàng, mỗi ảnh 2 cột (600) + caption.
+//   duo        : 2 ảnh lệch chiều cao, mỗi ảnh 3 cột (910) + caption.
+//   pair       : 2 ảnh, ảnh rộng 3 cột (910), ảnh hẹp 2 cột (600),
+//                cách nhau 330px (1 cột trống ở giữa).
+//   portrait   : một ảnh căn giữa, 4 cột (1220) + caption.
+//   text-image : cột chữ + ảnh, khoảng cách chữ tới ảnh là gutter
+//                20px ở mọi section. Mặc định: cột chữ 1 cột (290),
+//                ảnh 5 cột (1530); riêng section chữ rộng (TH28 slot
+//                cuối) thì cột chữ 2 cột (600), ảnh 4 cột (1220).
 //                imageSide 'left' | 'right' là phía của ẢNH.
 //                text là mảng block: {t:'p', text, w} hoặc {t:'h', text}.
-//                w là chiều rộng cột chữ của đoạn đó (theo Figma: 293,
-//                riêng đoạn Bottle Design là 596).
-//   text       : tiêu đề trái (287) + các đoạn văn phải (596), gap 172.
+//                w là chiều rộng tối đa của đoạn đó, bằng rộng cột chữ.
+//   text       : tiêu đề trái 1 cột (290) + các đoạn văn phải 2 cột
+//                (600), cách nhau 330px (thân bài bắt đầu ở cột 3).
 // - credits: {label, lines[]} — chỉ TH28 có.
 // - next: [{title, tag, href, cover}] — thẻ dự án tiếp theo ở cuối
 //   trang, dạng Work Card có ảnh cover kèm tên (theo Figma).
@@ -73,22 +77,22 @@ window.CASE_STUDIES = {
       { type: "text-image", imageSide: "left",
         image: { src: "../assets/case-study/egg-01/06-text-image.jpg", alt: "EGG:01 visual motif", width: 1920, height: 1081 },
         text: [
-          { t: "p", text: "The visual motifs expand on cell division and bitmap logic, suggesting a time when scientific systems began to transcend biology,", w: 293 },
-          { t: "p", text: "gradually abstracting life into something designed, optimized, and emotionally detached.", w: 293 }
+          { t: "p", text: "The visual motifs expand on cell division and bitmap logic, suggesting a time when scientific systems began to transcend biology,", w: 290 },
+          { t: "p", text: "gradually abstracting life into something designed, optimized, and emotionally detached.", w: 290 }
         ] },
       { type: "duo", images: [
         { src: "../assets/case-study/egg-01/07-b1.jpg", alt: "Packaging, box row", width: 1920, height: 1058, caption: "Packaging, box row" },
         { src: "../assets/case-study/egg-01/08-b2.jpg", alt: "Bottle and box, close up", width: 1920, height: 1753, caption: "Bottle and box, close up" }
       ] },
       { type: "pair", images: [
-        { src: "../assets/case-study/egg-01/09-f1a.jpg", alt: "Bottle array, production run", width: 1920, height: 1094, w: 906, caption: "Bottle array, production run" },
+        { src: "../assets/case-study/egg-01/09-f1a.jpg", alt: "Bottle array, production run", width: 1920, height: 1094, w: 910, caption: "Bottle array, production run" },
         { src: "../assets/case-study/egg-01/10-f1b.jpg", alt: "Online store, product page", width: 1920, height: 1991, w: 600, caption: "Online store, product page" }
       ] },
       { type: "text-image", imageSide: "right",
         image: { src: "../assets/case-study/egg-01/11-text-image.jpg", alt: "EGG:01 bottle design", width: 1920, height: 1075 },
         text: [
-          { t: "p", text: "The visual motifs expand on cell division and bitmap logic, suggesting a time when scientific systems began to transcend biology,", w: 293 },
-          { t: "p", text: "gradually abstracting life into something designed, optimized, and emotionally detached.", w: 293 }
+          { t: "p", text: "The visual motifs expand on cell division and bitmap logic, suggesting a time when scientific systems began to transcend biology,", w: 290 },
+          { t: "p", text: "gradually abstracting life into something designed, optimized, and emotionally detached.", w: 290 }
         ] },
       { type: "text", heading: "Bottle Design", paragraphs: [
         "The bottle's design explores the idea of technology replacing the living creature that once created life. The bottle's shape is inspired by a chicken, but abstracted enough to avoid literal imitation.",
@@ -99,16 +103,16 @@ window.CASE_STUDIES = {
         caption: "Bottle cap, close up" },
       { type: "pair", images: [
         { src: "../assets/case-study/egg-01/13-f2a.jpg", alt: "Nutrient Matrix, specification sheet", width: 1920, height: 1077, w: 600, caption: "Nutrient Matrix, specification sheet" },
-        { src: "../assets/case-study/egg-01/14-f2b.jpg", alt: "Bottle and box, on water", width: 1920, height: 1860, w: 906, caption: "Bottle and box, on water" }
+        { src: "../assets/case-study/egg-01/14-f2b.jpg", alt: "Bottle and box, on water", width: 1920, height: 1860, w: 910, caption: "Bottle and box, on water" }
       ] },
       { type: "text", heading: "Logo", paragraphs: [
         "It sits right between biology and engineering, balancing organic roots with a cold, artificial structure."
       ] },
-      { type: "text-image", imageSide: "right", imageWidth: 1386,
+      { type: "text-image", imageSide: "right",
         image: { src: "../assets/case-study/egg-01/15-image-text.jpg", alt: "EGG:01 logo", width: 1920, height: 1077 },
         text: [
-          { t: "p", text: "It's futuristic, but avoids those typical sci-fi cliches.", w: 293 },
-          { t: "p", text: "Everything from the motifs to the bitmap logic hints at a world where systems have moved past nature,", w: 293 }
+          { t: "p", text: "It's futuristic, but avoids those typical sci-fi cliches.", w: 290 },
+          { t: "p", text: "Everything from the motifs to the bitmap logic hints at a world where systems have moved past nature,", w: 290 }
         ] },
     ],
     credits: null,
@@ -151,15 +155,15 @@ window.CASE_STUDIES = {
       { type: "text-image", imageSide: "left",
         image: { src: "../assets/case-study/tuoi-hong-28/06-text-image.jpg", alt: "Tuoi Hong 28 key visual", width: 1920, height: 1280 },
         text: [
-          { t: "p", text: "The brand identity is inspired by the phrase 'from ordinary to extraordinary,' signifying that everyone has the potential to shine on stage with their talent.", w: 293 },
-          { t: "p", text: "Things that are often overlooked in daily life become magically radiant in the musical world of 'Tuoi Hong'.", w: 293 }
+          { t: "p", text: "The brand identity is inspired by the phrase 'from ordinary to extraordinary,' signifying that everyone has the potential to shine on stage with their talent.", w: 290 },
+          { t: "p", text: "Things that are often overlooked in daily life become magically radiant in the musical world of 'Tuoi Hong'.", w: 290 }
         ] },
       { type: "duo", images: [
         { src: "../assets/case-study/tuoi-hong-28/07-b1.jpg", alt: "Photo booth, key visual in use", width: 1920, height: 1280, caption: "Photo booth, key visual in use" },
         { src: "../assets/case-study/tuoi-hong-28/08-b2.jpg", alt: "Poster standee", width: 1920, height: 1280, caption: "Poster standee" }
       ] },
       { type: "pair", images: [
-        { src: "../assets/case-study/tuoi-hong-28/09-f1a.jpg", alt: "Thehien Display, alphabet", width: 1920, height: 1154, w: 906, caption: "Thehien Display, alphabet" },
+        { src: "../assets/case-study/tuoi-hong-28/09-f1a.jpg", alt: "Thehien Display, alphabet", width: 1920, height: 1154, w: 910, caption: "Thehien Display, alphabet" },
         { src: "../assets/case-study/tuoi-hong-28/10-f1b.jpg", alt: "Thehien Display, letter forms", width: 1920, height: 1080, w: 600, caption: "Thehien Display, letter forms" }
       ] },
       { type: "text", heading: "Key Visual", paragraphs: [
@@ -171,23 +175,23 @@ window.CASE_STUDIES = {
         caption: "Key visual, 3D racket lute" },
       { type: "pair", images: [
         { src: "../assets/case-study/tuoi-hong-28/12-f2a.jpg", alt: "Ticket design, blank personalization space", width: 1333, height: 2000, w: 600, caption: "Ticket design, blank personalization space" },
-        { src: "../assets/case-study/tuoi-hong-28/13-f2b.jpg", alt: "Alphabet stickers", width: 1920, height: 1172, w: 906, caption: "Alphabet stickers" }
+        { src: "../assets/case-study/tuoi-hong-28/13-f2b.jpg", alt: "Alphabet stickers", width: 1920, height: 1172, w: 910, caption: "Alphabet stickers" }
       ] },
       { type: "text", heading: "Typography", paragraphs: [
         "In a world where everything shines with music, letters are no exception. Thehien Display, an experimental typeface designed specifically for Tuoi Hong, draws inspiration from musical notes.",
         "While Thehien Display is an experimental type that is not designed to be read, in applications requiring clarity, readability is ensured by pairing it with the secondary typeface, Bricolage Grotesque by Mathieu Triay."
       ] },
-      { type: "text-image", imageSide: "right", imageWidth: 1386,
+      { type: "text-image", imageSide: "right",
         image: { src: "../assets/case-study/tuoi-hong-28/14-image-text.jpg", alt: "Tuoi Hong 28 merchandise", width: 1920, height: 1281 },
         text: [
-          { t: "p", text: "In a branding identity built on individualism, even merchandise items are carefully considered to align with this philosophy.", w: 293 },
-          { t: "p", text: "Instead of just producing regular paper tickets, we have opted to design tickets with blank space, allowing owners to personalize it according to their own name and style.", w: 293 }
+          { t: "p", text: "In a branding identity built on individualism, even merchandise items are carefully considered to align with this philosophy.", w: 290 },
+          { t: "p", text: "Instead of just producing regular paper tickets, we have opted to design tickets with blank space, allowing owners to personalize it according to their own name and style.", w: 290 }
         ] },
-      { type: "text-image", imageSide: "left", imageWidth: 1100, textWidth: 720, align: "center",
+      { type: "text-image", imageSide: "left", imageWidth: 1220, textWidth: 600, align: "center",
         image: { src: "../assets/case-study/tuoi-hong-28/15-image-text.jpg", alt: "Ending, live stage performance", width: 1920, height: 1405, caption: "Ending, live stage performance" },
         text: [
-          { t: "p", text: "Alphabet stickers, cardholders, and lanyards, are also sold as a combo to create a cohesive system.", w: 293 },
-          { t: "p", text: "This enables ticket owners to customize their tickets and wear them around their necks for showing off in the event.", w: 293 }
+          { t: "p", text: "Alphabet stickers, cardholders, and lanyards, are also sold as a combo to create a cohesive system.", w: 600 },
+          { t: "p", text: "This enables ticket owners to customize their tickets and wear them around their necks for showing off in the event.", w: 600 }
         ] }
     ],
     credits: {

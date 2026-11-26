@@ -139,13 +139,17 @@
     } else if (s.type === "text-image") {
       sec = el("section", "cs-sec cs-textimage" + (s.align === "center" ? " cs-textimage--center" : ""));
       var imgFig = figure(s.image, s.image.caption);
-      // Ảnh co lại khi màn hẹp (max-width = số đo Figma), không đè cột chữ.
-      imgFig.style.maxWidth = (s.imageWidth || 1220) + "px";
+      // Grid: ảnh 5 cột (1530px) mặc định, riêng section chữ rộng
+      // (TH28 slot cuối) là 4 cột (1220px). Ảnh co lại khi màn
+      // hẹp để không đè cột chữ.
+      imgFig.style.maxWidth = (s.imageWidth || 1530) + "px";
       var col = textBlocks(s.text);
-      // Cột chữ giữ đúng rộng Figma (293, hoặc textWidth riêng), không co lại:
-      // đặt cả width lẫn min-width để không bao giờ co dưới rộng Figma,
-      // ảnh bên cạnh nhận hết phần co (xem css .cs-textimage .cs-figure).
-      var colW = (s.textWidth || 293) + "px";
+      // Grid: cột chữ 1 cột (290px) mặc định, riêng section chữ
+      // rộng là 2 cột (600px). Đặt cả width lẫn min-width để cột
+      // không bao giờ co dưới rộng grid; ảnh bên cạnh nhận hết
+      // phần co. Khoảng cách chữ tới ảnh là gutter 20px (xem css
+      // .cs-textimage), nhất quán ở mọi section.
+      var colW = (s.textWidth || 290) + "px";
       col.style.width = colW;
       col.style.minWidth = colW;
       // Figma đặt ảnh trái hay phải theo từng section (xem data).
