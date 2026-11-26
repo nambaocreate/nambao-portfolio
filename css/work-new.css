@@ -25,72 +25,30 @@
 .wn-expand .wn-expand-hi { opacity: 0; }
 
 /* ============================================================
-   Nam Bao Portfolio — trang Work MỚI, BẢN STAGING (work-new.html)
-   Theo Figma Frame 26 (Section 1, node 1685:596) trong file
-   NAM-BAO, KHÔNG động tới trang /work đang live (work.html,
-   css/work.css, js/work.js). Dùng chung token trong
-   css/styles.css (Libre Franklin, nền offwhite #F2F2F0,
-   chữ đen, easing --ease-out, con trỏ, chữ cuộn [data-roll]).
+   Nam Bao Portfolio — trang Work (/work), bản v7
+   Theo Figma Frame 28 (node 1742:156, file NAM-BAO, khung
+   1920 x 920, nền #F2F2F0, lề 40px). Dùng chung token trong
+   css/styles.css (Libre Franklin, chữ đen, --ease-out, con trỏ).
 
-   Thông số lấy đúng từ Figma Frame 26 (khung 1920 x 919.5,
-   lề 40px, nền #F2F2F0), nhưng cỡ chữ dùng mức 75% như
-   homepage (v4) vì Bảo thấy ở 100% bị chật (zoom Chrome
-   80% thì size mới đúng):
-   - Nav: y 40, cao 29, Libre Franklin Bold 20px trong Figma,
-     web dùng 15px (75%).
-   - SELECTED WORKS / 01/07: y 159.6, Regular 16px trong Figma,
-     web dùng 12px (75%), chữ đen.
-   - Tiêu đề: y 264, SemiBold 57.675px trong Figma, web dùng
-     43.26px (75%), tracking -1.73px, chữ đen, một dòng
-     (khung 748px); dịch trái -0.07em để mép trái chữ thẳng
-     hàng với SELECTED WORKS và năm (bù side bearing của font).
-   - Meta: y 341.9, Regular 16px trong Figma, web dùng 12px
-     (75%), tracking -0.16px; "2025" rồi vạch ngang 34px rồi
-     category viết hoa.
-   - Tag pill: cao 31px, nền #E3E3E3, chữ Medium 12px trong
-     Figma, web dùng 9px (75%), đen, padding 6px 8px, bo 4px;
-     tag VIẾT HOA, thể hiện scope dự án, 3-5 tag mỗi dự án.
-   - Ảnh lớn: x 970, y 277.6, 910 x 547.9, bo 10px, cover.
-   - [INDUSTRY]: y 676, SemiBold 12px trong Figma, web dùng
-     9px (75%), đen.
-   - Filter: x 152.5, y 676, Regular 16px trong Figma, web dùng
-     12px (75%), viết hoa, đen, cả cụm opacity 0.5; các mục
-     cách nhau 8px.
-   - Thumbnail: 3 cái xếp chồng, bo 5px, tỉ lệ ~1.3; cái trước
-     to nhất (153x118), cái sau nhỏ dần (136x105, 118x90);
-     tất cả ALIGN LỀ DƯỚI (bottom: 0, chỉ lệch ngang, không
-     lệch dọc) theo yêu cầu của Bảo.
+   Cả bố cục co giãn theo một đơn vị --u = 1px Figma:
+   --u = min(100vw / 1920, 100svh / 920), nên ở 1920 x 920 là đúng
+   từng px Figma, màn nhỏ hơn thì thu đều cả chữ lẫn ảnh (không vỡ
+   bố cục, không tràn khỏi một màn hình).
 
-   Cơ chế (theo note của Bảo trong section, bản staging v3):
-   - Viewer là một màn hình cố định (track chỉ 100vh, trang
-     không cuộn); lăn chuột 1 lần (wheel tick) thì sang đúng
-     1 dự án. Các lần lăn trong lúc khóa được xếp hàng rồi
-     chuyển tiếp sau khi animation xong, nên lăn nhanh 3 lần
-     thì qua đúng 3 dự án, không bị mất nhịp. Bấm thumbnail
-     hoặc phím mũi tên cũng chuyển được.
-   - Thumbnail của dự án tiếp theo slide và phóng to để
-     chồng lên ảnh lớn bên phải (hiệu ứng bay bằng GSAP,
-     0.7 giây); đồng thời thumbnail theo sau (mid, back)
-     phóng to và dịch lên trước cùng nhịp để lấp khoảng
-     trống, không bị giật. Stack luôn có sẵn 1 thumbnail
-     dự trữ (reserve) ẩn sau thumbnail back nên không tụt
-     xuống 2 rồi mới thêm cái thứ 3.
-   - Bấm filter thì chỉ còn dự án thuộc sector đó (cả khi
-     cuộn lẫn thumbnail), bấm All để về lại tất cả; thumbnail
-     của dự án đích cũng bay lên ảnh lớn như khi scroll (chạy
-     được khi chạm trên iPad/mobile).
-   - Số thứ tự đổi cùng lúc với tiêu đề, meta, tag và ảnh,
-     không chạy trước nội dung. Ảnh cũ mờ dần hoặc trượt đi
-     mượt, không nháy thành khung xám hay crop phóng to.
-   - Hover ảnh lớn: tương tác như thẻ (nhấc lên, nghiêng
-     theo chuột, bóng đổ, ảnh bên trong zoom nhẹ), theo
-     note "giống mục selected work của radiance.family".
-     Khi vừa chuyển dự án hoặc vừa đóng lightbox, hover
-     tạm tắt cho tới khi chuột thực sự di chuyển trên ảnh
-     (tránh dự án mới hiện ra đã ở trạng thái hover).
-   - Bấm ảnh lớn: ảnh phóng to full màn hình (xem full ảnh);
-     bản staging chưa có trang case study nên chưa nối sang
-     đó, sẽ nối tiếp khi trang case study được xây.
+   Thông số Figma:
+   - INDEPENDENT WORKS / AGENCY WORKS: y 223, Medium 25.31px, viết
+     hoa; đang chọn đen, còn lại #ACACAC; "/" cách 2 bên ~15px.
+   - Mục lục: y 304 (ngang mép trên ảnh trước + 20px), Regular
+     16px, line-height 1.21, tracking -0.32px, các dòng cách 13px;
+     số Italic rộng ~27px, cách tagline 20px. Đang xem đen, còn
+     lại #ACACAC.
+   - 03/07: Regular 16px, viết hoa, tracking 0.16px.
+   - Tên dự án: SemiBold 43.58px, tracking -1.31px.
+   - Tag pill: nền #E3E3E3, bo 2px, padding 8px 12px, Medium
+     12px viết hoa, tracking 0.12px, các pill cách 11px. Đáy hàng
+     tag thẳng đáy ảnh trước (y 824).
+   - Ảnh trước: x 970, y 283.9, 910 x 540.3, bo 10px. 3 lớp phía
+     sau nhô lên 27 / 45.4 / 57.4px (thông số trong js/work-new.js).
    ============================================================ */
 
 .work-new-page {
@@ -98,18 +56,14 @@
   overflow-x: clip;
 }
 
-/* ---------- Track cuộn + viewer ghim ----------
-   Track cao bằng số dự án (đang hiện) nhân 100vh: mỗi dự
-   án chiếm đúng một màn hình cuộn. Viewer ghim ở đỉnh
-   viewport (sticky top 0, cao 100svh) nên nội dung luôn
-   ở đúng một màn hình, chỉ đổi dự án khi cuộn qua ngưỡng. */
-
 .wn-track {
   position: relative;
   background: var(--hero-bg);
 }
 
 .wn-viewer {
+  --u: min(calc(100vw / 1920), calc(100vh / 920));
+  --u: min(calc(100vw / 1920), calc(100svh / 920));
   position: sticky;
   top: 0;
   height: 100vh;
@@ -123,53 +77,54 @@
   overflow: hidden;
 }
 
-/* ---------- Nav (giữ nguyên markup như /work, nằm trong viewer) ----------
-   Nav nằm trong viewer ghim nên luôn thấy khi cuộn qua dự án.
-   Cỡ chữ dùng mức 75% như homepage (15px), không dùng cỡ đầy
-   đủ 20px của Figma. Logo và link giữ nguyên như styles.css. */
-
 .wn-nav {
   flex: none;
   padding-top: 0;
-  /* Ép nav vào lớp compositing riêng để tránh bóng ma khi lightbox
-     đóng (hiện tượng link Contact hiện đôi trong lúc fade). */
   transform: translateZ(0);
 }
 
+/* Con trỏ "mở tab mới": đĩa đen có mũi tên chéo (dự án Agency). */
+.cursor.cursor--newtab { width: 88px; height: 88px; }
+.cursor--newtab [data-cursor-label="newtab"] { opacity: 1; }
+.cursor [data-cursor-label="newtab"] { display: flex; }
 
-/* ---------- Hàng trên: SELECTED WORKS / 01/07 ----------
-   Figma: y 159.6 (nav kết thúc ở y 69 nên cách nav 90px),
-   Regular 16px, chữ đen, SELECTED WORKS viết hoa. */
+/* ---------- Hàng chính ----------
+   Chiếm phần còn lại dưới nav, nội dung căn giữa theo chiều dọc
+   (lệch xuống một chút như Figma: trên ~146px, dưới ~96px). */
+.wn-main {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) calc(910 * var(--u));
+  column-gap: calc(40 * var(--u));
+  align-content: center;
+  padding-top: calc(70 * var(--u));
+  padding-bottom: calc(20 * var(--u));
+}
 
-.wn-top {
-  flex: none;
+.wn-left {
   display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-top: clamp(48px, 9.5vh, 96px);
+  flex-direction: column;
+  min-width: 0;
 }
 
-.wn-label,
-.wn-count {
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 1.21;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  white-space: nowrap;
-}
-
-.wn-count { font-variant-numeric: tabular-nums; }
-
-/* ---------- Nút chuyển trang: INDEPENDENT WORKS / AGENCY WORKS ----------
-   Mục đang chọn đen, mục còn lại xám; ghi chú "(AT COLLECTIVE DESIGN
-   AGENCY)" chỉ hiện khi đang ở Agency Works. Cỡ 15px như nav. */
+/* ---------- INDEPENDENT WORKS / AGENCY WORKS ---------- */
 .wn-switch {
   display: flex;
   align-items: baseline;
-  gap: 14px;
+  gap: calc(15 * var(--u));
   white-space: nowrap;
   min-width: 0;
+  margin-top: calc(-4 * var(--u));
+}
+
+.wn-switch-btn,
+.wn-switch-slash {
+  font-family: var(--font);
+  font-size: max(15px, calc(25.31 * var(--u)));
+  font-weight: 500;
+  line-height: 1.2;
+  text-transform: uppercase;
 }
 
 .wn-switch-btn {
@@ -177,222 +132,118 @@
   border: 0;
   background: none;
   padding: 0;
-  font-family: var(--font);
-  font-size: 15px;
-  font-weight: 400;
-  line-height: 1.2;
-  letter-spacing: 0.01em;
-  text-transform: uppercase;
-  color: var(--ink);
-  opacity: 0.32;
+  color: #acacac;
   cursor: pointer;
-  transition: opacity 0.4s var(--ease-out);
+  transition: color 0.4s var(--ease-out);
 }
-.wn-switch-btn:hover { opacity: 0.6; }
-.wn-switch-btn.is-active { opacity: 1; cursor: default; }
+.wn-switch-btn:hover { color: #6e6e6e; }
+.wn-switch-btn.is-active { color: var(--ink); cursor: default; }
 
-.wn-switch-slash { font-size: 15px; line-height: 1.2; }
-
-.wn-switch-note {
-  font-size: 9px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  margin-left: 4px;
-  opacity: 0;
-  transform: translateX(-8px);
-  transition: opacity 0.45s var(--ease-out), transform 0.45s var(--ease-out);
-  pointer-events: none;
-}
-.wn-switch.is-agency .wn-switch-note { opacity: 1; transform: none; }
-
-/* Con trỏ "mở tab mới": đĩa đen có mũi tên chéo, dùng chung con trỏ
-   của main.js (thêm class cursor--newtab khi hover ảnh lớn Agency). */
-.cursor.cursor--newtab { width: 88px; height: 88px; }
-.cursor--newtab [data-cursor-label="newtab"] { opacity: 1; }
-.cursor [data-cursor-label="newtab"] { display: flex; }
-
-/* ---------- Hàng chính: thông tin trái, ảnh lớn phải ----------
-   Figma: tiêu đề y 264 (cách hàng trên ~85px), ảnh lớn
-   x 970, 910 x 547.9. Lưới 2 cột: trái co giãn, phải 910px. */
-
-.wn-main {
-  flex: none;
-  display: grid;
-  /* --big-w do JS tính: tối đa 910px, ~49% bề ngang nội dung như Figma,
-     và đủ thấp để hàng filter + thumbnail luôn nằm trọn trong màn hình. */
-  grid-template-columns: minmax(0, 1fr) var(--big-w, minmax(0, 910px));
-  gap: 40px;
-  margin-top: clamp(40px, 8.5vh, 88px);
-}
-
-.wn-left {
+/* ---------- Mục lục: số + tagline ---------- */
+.wn-toc {
+  list-style: none;
+  margin: calc(51 * var(--u)) 0 0;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  min-width: 0;
-  min-height: 0;
+  gap: calc(13 * var(--u));
 }
 
-/* Tiêu đề: SemiBold 57.675px trong Figma, web dùng 43.26px (75%),
-   tracking -1.73px, một dòng ở 1920px; thu nhỏ theo viewport để
-   không vỡ dòng sớm. Dịch trái -0.07em để mép trái chữ thẳng hàng
-   với SELECTED WORKS và năm (bù side bearing của font). */
+.wn-toc-item {
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 0;
+  display: flex;
+  align-items: baseline;
+  gap: calc(20 * var(--u));
+  font-family: var(--font);
+  font-size: max(12px, calc(16 * var(--u)));
+  line-height: 1.21;
+  letter-spacing: -0.02em;
+  color: #acacac;
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.35s ease;
+}
+
+.wn-toc-num {
+  flex: none;
+  width: 1.7em;
+  font-style: italic;
+  font-variant-numeric: tabular-nums;
+}
+
+.wn-toc-line { transition: transform 0.45s var(--ease-out); }
+
+.wn-toc-item:hover { color: #5c5c5c; }
+.wn-toc-item:hover .wn-toc-line { transform: translateX(4px); }
+.wn-toc-item.is-active { color: var(--ink); cursor: default; }
+.wn-toc-item.is-active .wn-toc-line { transform: none; }
+
+/* ---------- Số thứ tự, tên dự án, tag (đáy cột trái) ---------- */
+.wn-info {
+  margin-top: auto;
+  padding-top: calc(32 * var(--u));
+}
+
+.wn-count {
+  font-size: max(12px, calc(16 * var(--u)));
+  font-weight: 400;
+  line-height: 1.21;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+
 .wn-title {
-  font-size: clamp(24px, 2.25vw, 43.26px);
+  margin-top: calc(6 * var(--u));
+  margin-left: -0.07em;   /* bù side bearing để mép chữ thẳng hàng 03/07 */
+  font-size: max(24px, calc(43.58 * var(--u)));
   font-weight: 600;
-  line-height: 1.1;
+  line-height: 1.2;
   letter-spacing: -0.03em;
-  margin-left: -0.07em;
   cursor: pointer;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* Meta: Regular 16px trong Figma, web dùng 12px (75%),
-   tracking -0.16px; năm rồi vạch ngang 34px rồi category viết hoa.
-   Không có năm thì chỉ hiện category (ẩn cả năm lẫn vạch). */
-.wn-meta {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  margin-top: 8px;
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 1.21;
-  letter-spacing: -0.01em;
-}
-
-.wn-cat { text-transform: uppercase; }
-
-.wn-dash {
-  flex: none;
-  width: 34px;
-  height: 1px;
-  background: var(--ink);
-}
-
-.wn-meta--no-year .wn-year,
-.wn-meta--no-year .wn-dash { display: none; }
-
-/* Tag pill: cao 31px, nền #E3E3E3, chữ Medium 12px trong Figma,
-   web dùng 9px (75%), đen, padding 6px 8px, bo 4px; các pill cách
-   nhau 8px. Tag VIẾT HOA, thể hiện scope dự án (3-5 tag). */
 .wn-tags {
+  list-style: none;
+  margin: calc(16 * var(--u)) 0 0 calc(-4 * var(--u));
+  padding: 0;
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 42px;
+  gap: calc(11 * var(--u));
 }
 
 .wn-tag {
   background: #e3e3e3;
-  border-radius: 4px;
-  padding: 6px 8px;
-  font-size: 9px;
+  border-radius: 2px;
+  padding: calc(8 * var(--u)) calc(12 * var(--u));
+  font-size: max(9px, calc(12 * var(--u)));
   font-weight: 500;
   line-height: 1.25;
+  letter-spacing: 0.01em;
   text-transform: uppercase;
   white-space: nowrap;
 }
 
-/* ---------- Hàng dưới: filter trái, thumbnail phải ----------
-   Figma: y 676. Nằm ở đáy cột trái (margin-top auto) nên
-   tự rơi đúng vị trí: cột trái cao bằng ảnh lớn (548px),
-   hàng dưới cao ~135px nên bắt đầu ở ~676. */
-
-.wn-bottom {
-  margin-top: auto;
-  padding-top: 48px;
-  display: flex;
-  align-items: flex-start;
-  gap: 0;
-}
-
-.wn-industry {
-  flex: none;
-  width: 112px;
-  font-size: 9px;
-  font-weight: 600;
-  line-height: 1.25;
-  padding-top: 2px;
-}
-
-/* Filter: Regular 16px trong Figma, web dùng 12px (75%), viết hoa,
-   đen; cả cụm opacity 0.5 như Figma, mục đang chọn opacity 1,
-   hover 0.8. Các mục cách nhau 8px. Thêm nút All ở đầu (không có
-   trong khung Figma, có trong yêu cầu: bấm để về tất cả). */
-/* v6: cột này giờ là danh sách TÊN DỰ ÁN (không còn filter).
-   Bề rộng do JS khóa theo tên dài nhất của cả 2 trang. */
-.wn-filters {
-  flex: none;
-  width: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.wn-filter {
-  appearance: none;
-  border: 0;
-  background: none;
-  padding: 0;
-  font-family: var(--font);
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 1.21;
-  color: var(--ink);
-  text-transform: uppercase;
-  text-align: left;
-  cursor: pointer;
-  opacity: 0.5;
-  transition: opacity 0.3s ease;
-  white-space: nowrap;
-}
-
-.wn-filter:hover { opacity: 0.85; }
-
-.wn-filter.is-active { opacity: 1; }
-
-/* ---------- Khung giữ chỗ thumbnail (v4) ----------
-   3 khung vô hình đúng vị trí Figma (back, mid, front, align
-   lề dưới). Card thật nằm trong .wn-cards, JS đo khung này
-   để đặt card. Khung không bao giờ đổi nên stack không bao
-   giờ "spawn" hay nháy. */
-
-.wn-thumbs {
-  position: relative;
-  flex: 1;
-  min-width: 0;
-  height: calc(118px * var(--ts, 1));
-  margin-left: 25px;
-  align-self: flex-end;
+/* ---------- Cột phải: chồng ảnh ----------
+   Chừa 57.4px phía trên cho lớp thứ 3 nhô lên, rồi khung ảnh trước
+   910 x 540.3. Card thật đặt đè lên bằng JS. */
+.wn-stack {
+  padding-top: calc(57.4 * var(--u));
   pointer-events: none;
 }
 
-.wn-slot {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  aspect-ratio: 1.3;
-}
-/* --ts do JS tính (0.55-1): thu nhỏ stack khi cột trái hẹp để stack
-   luôn cách ảnh lớn một khoảng, không đè lên ảnh lớn. */
-.wn-slot--back  { width: calc(118px * var(--ts, 1)); transform: translateX(0); }
-.wn-slot--mid   { width: calc(136px * var(--ts, 1)); transform: translateX(calc(39px * var(--ts, 1))); }
-.wn-slot--front { width: calc(153px * var(--ts, 1)); transform: translateX(calc(118px * var(--ts, 1))); }
-
-/* Khung giữ chỗ ảnh lớn: 910 x 548, card ảnh lớn đặt đè lên. */
 .wn-media {
   width: 100%;
-  aspect-ratio: 910 / 548;
-  pointer-events: none;
+  aspect-ratio: 910 / 540.33;
 }
 
-/* ---------- Lớp card (v4) ----------
-   Mỗi dự án là 1 card cố định. JS (GSAP) đặt x, y, width,
-   height, scale, opacity, z-index và --r (bo góc) theo vai
-   trò: ảnh lớn / deck dưới ảnh lớn / thumbnail / dự trữ. */
-
+/* ---------- Lớp card ---------- */
 .wn-cards {
   position: absolute;
   inset: 0;
@@ -409,17 +260,15 @@
   border: 0;
   background: none;
   cursor: pointer;
-  --r: 5px;
+  --r: 10px;
   will-change: transform, width, height;
   -webkit-tap-highlight-color: transparent;
-  touch-action: none;   /* để kéo thả bằng ngón tay trên iPad */
+  touch-action: none;
   user-select: none;
   -webkit-user-select: none;
 }
 
-.wn-card.is-thumb { cursor: grab; }
 .wn-cards.is-dragging .wn-card { cursor: grabbing; }
-.wn-cards.is-dragging .wn-card:hover .wn-card-inner { box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3); }
 
 .wn-card-inner {
   position: relative;
@@ -428,7 +277,7 @@
   height: 100%;
   border-radius: var(--r);
   overflow: hidden;
-  background: #e3e3e3;
+  background: #d9d9d9;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.04);
   transition: box-shadow 0.45s var(--ease-out);
   will-change: transform;
@@ -444,10 +293,11 @@
   transition: transform 0.8s var(--ease-out);
 }
 
-/* Hover thumbnail: bóng đổ (nghiêng do JS). */
-.wn-card.is-thumb:hover .wn-card-inner { box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22); }
+/* Lớp phía sau: hover mép nhô lên thì nhấc lên một chút, báo bấm được. */
+.wn-card.is-layer .wn-card-inner { transition: box-shadow 0.45s var(--ease-out), transform 0.45s var(--ease-out); }
+.wn-card.is-layer:hover .wn-card-inner { transform: translateY(-6px); }
 
-/* Hover ảnh lớn: bóng đổ mềm, ảnh trong zoom nhẹ, hiện "Click to view". */
+/* Hover ảnh trước: bóng đổ mềm, ảnh trong zoom nhẹ, hiện note. */
 .wn-card.is-big:hover .wn-card-inner { box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28); }
 .wn-card.is-big:hover img { transform: scale(1.07); }
 
@@ -455,14 +305,14 @@
   position: absolute;
   right: 16px;
   bottom: 14px;
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #fff;
   background: rgba(0, 0, 0, 0.55);
   border-radius: 999px;
-  padding: 5px 9px;
+  padding: 6px 11px;
   opacity: 0;
   transform: translateY(6px);
   transition: opacity 0.35s ease, transform 0.35s var(--ease-out);
@@ -470,8 +320,7 @@
 }
 .wn-card.is-big:hover .wn-media-hint { opacity: 1; transform: none; }
 
-/* Đang chuyển dự án, hoặc vừa đóng lightbox mà chuột chưa di
-   chuyển: tắt hover để card mới không hiện ra ở trạng thái hover. */
+/* Đang chuyển dự án: tắt hover để card mới không hiện ra ở trạng thái hover. */
 .wn-cards.is-moving .wn-card:hover .wn-card-inner,
 .wn-cards.no-hover .wn-card:hover .wn-card-inner { box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.04); }
 .wn-cards.is-moving .wn-card:hover img,
@@ -479,128 +328,48 @@
 .wn-cards.is-moving .wn-media-hint,
 .wn-cards.no-hover .wn-media-hint { opacity: 0 !important; }
 
-/* ---------- Lightbox xem ảnh full ----------
-   Ảnh phóng từ khung ảnh lớn ra full màn hình (FLIP bằng
-   GSAP trong JS). Nền tối để ảnh nổi; bấm ảnh, bấm nút
-   đóng hoặc Esc để quay lại. */
-
-.wn-lightbox {
-  position: fixed;
-  inset: 0;
-  z-index: 2000;
-  background: rgba(10, 10, 10, 0.94);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-.wn-lightbox[hidden] { display: none; }
-
-.wn-lightbox-frame {
-  max-width: min(92vw, 1600px);
-  max-height: 86vh;
-  will-change: transform;
-}
-
-.wn-lightbox-frame img {
-  width: 100%;
-  height: 100%;
-  max-height: 86vh;
-  object-fit: contain;
-  display: block;
-  border-radius: 10px;
-}
-
-.wn-lightbox-close {
-  position: absolute;
-  top: 32px;
-  right: 40px;
-  appearance: none;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  background: transparent;
-  color: #fff;
-  font-family: var(--font);
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  border-radius: 999px;
-  padding: 8px 14px;
-  cursor: pointer;
-}
-
-.wn-lightbox-cap {
-  position: absolute;
-  left: 40px;
-  bottom: 32px;
-  color: rgba(255, 255, 255, 0.85);
-  font-size: 10.5px;
-  font-weight: 500;
-}
-
-/* ---------- Trạng thái vào trang ----------
-   Viewer hiện dần khi tải xong (không dùng .reveal của
-   styles.css để tránh xung đột với viewer ghim). */
-
+/* ---------- Vào trang ---------- */
 .js .wn-viewer {
   opacity: 0;
   transform: translateY(16px);
   transition: opacity 0.7s ease, transform 0.7s var(--ease-out);
 }
+.js .wn-viewer.is-ready { opacity: 1; transform: none; }
 
-.js .wn-viewer.is-ready {
-  opacity: 1;
-  transform: none;
-}
-
-/* ---------- Responsive cơ bản ----------
-   Màn hình hẹp: viewer xếp dọc, ảnh lớn lên trên, thông
-   tin và filter xuống dưới, thumbnail xếp ngang. */
-
-
-
+/* ---------- Màn hẹp (≤ 900px) ----------
+   Trang cuộn dọc bình thường: nút Independent / Agency, chồng ảnh,
+   tên + tag, rồi mục lục. Vuốt ngang ảnh trước để chuyển dự án. */
 @media (max-width: 900px) {
   .wn-viewer {
+    --u: 0.75px;
     height: auto;
     min-height: 100svh;
     position: relative;
-    overflow: visible;
-    padding: 24px 20px 40px;
+    overflow: hidden;
+    padding: 24px 20px 48px;
   }
-
-  .wn-track { height: auto !important; }
-
-  .wn-top { margin-top: 40px; }
 
   .wn-main {
-    grid-template-columns: 1fr;
-    margin-top: 32px;
-    gap: 32px;
+    display: flex;
+    flex-direction: column;
+    padding-top: 40px;
   }
 
-  .wn-title { white-space: normal; }
-
+  .wn-left { display: contents; }
+  .wn-switch { order: 1; flex-wrap: wrap; row-gap: 6px; }
+  .wn-switch-btn, .wn-switch-slash { font-size: 16px; }
+  .wn-stack { order: 2; padding-top: 52px; }
+  .wn-info { order: 3; margin-top: 0; padding-top: 24px; }
+  .wn-toc { order: 4; margin-top: 32px; gap: 12px; }
+  .wn-toc-item { font-size: 14px; gap: 14px; }
+  .wn-title { white-space: normal; font-size: 28px; }
   .wn-card { touch-action: pan-y; }
-
-  .wn-switch { flex-wrap: wrap; row-gap: 6px; }
-  .wn-switch-btn, .wn-switch-slash { font-size: 13px; }
-
-  .wn-tags { margin-top: 24px; }
-
-  .wn-bottom {
-    margin-top: 40px;
-    padding-top: 0;
-    flex-wrap: wrap;
-    gap: 24px;
-  }
-
-  .wn-thumbs { margin-left: 0; flex-basis: 100%; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .wn-card-inner,
   .wn-card-inner img,
+  .wn-toc-line,
   .js .wn-viewer { transition: none; transform: none; }
   .js .wn-viewer { opacity: 1; }
 }

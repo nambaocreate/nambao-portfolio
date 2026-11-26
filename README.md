@@ -103,6 +103,31 @@ project trên Vercel.
   hiển thị tới 1840px, các ảnh còn lại 1000-1600px. Hai ảnh
   đầu tải eager (trên màn hình đầu tiên), còn lại lazy.
 
+### Bản v7 (11/2026) — đang chạy ở /work
+
+Phần mô tả lưới 2 cột ở trên là bản cũ (`work.css`, `work.js`,
+`work-data.js` không còn được `work.html` dùng). Bản đang chạy:
+
+- Bố cục theo Figma Frame 28 (node 1742:156): cột trái là nút
+  INDEPENDENT WORKS / AGENCY WORKS, mục lục số + TAGLINE dự án
+  (không phải tên), rồi số thứ tự, tên dự án, tag ở đáy; cột
+  phải là chồng ảnh. Cả bố cục co theo đơn vị `--u` (1px Figma,
+  đúng từng px ở 1920 x 920). Code: `css/work-new.css`,
+  `js/work-new.js`.
+- Chồng ảnh kiểu "Folders" (tham khảo madewithgsap tutorial 045,
+  tự viết lại): 3 dự án kế tiếp nằm sau, nhỏ dần và nhô lên.
+  Sang dự án tiếp thì tờ trước rơi xuống, cả chồng tiến lên; dừng
+  ở 2 đầu, không lặp vòng. Hover ảnh trước vẫn nghiêng theo chuột,
+  giữ con trỏ Open / Coming Soon / tab mới và note trong ảnh.
+- Tagline nằm trong `js/work-new.js` (trường `tagline`). Vore,
+  EGG:01, RMIT theo Figma; Tuổi Hồng 28 theo case study; 4 dự án
+  Agency rút từ trang collectivedesign.agency; Việt Cổ Truyện,
+  Tad.atelier, VIBE Expo, Dế STEM, WEWELL, CyPeace là BẢN NHÁP.
+- Nav v2: CONTACT xanh chanh + thanh xám ấm, góc vuông, khấc cuống
+  vé ở chỗ nối; mở menu như rút tờ giấy ra từ cục cam.
+- Logo footer v3: outline Sarina thật, hiện dần dưới mặt nạ nét bút
+  chạy theo centerline (thứ tự viết tự nhiên, tốc độ bút đều).
+
 ## Việc tiếp theo
 
 1. Bản mobile: hiện tại chỉ có responsive cơ bản (chữ co bằng

@@ -21,9 +21,8 @@
 <body class="work-new-page">
 
   <!-- ============ Trang Work (bản chính thức từ v6) ============
-       Viewer một màn hình: Independent Works / Agency Works,
-       stack card cố định. Logic ở js/work-new.js, style ở
-       css/work-new.css. Nav Contact trỏ về footer trang chủ. -->
+       Bản v7 theo Figma Frame 28: mục lục theo tagline + chồng ảnh kiểu
+       "Folders". Logic ở js/work-new.js, style ở css/work-new.css. -->
 
   <div class="wn-track" id="wn-track">
     <div class="wn-viewer" id="wn-viewer">
@@ -47,63 +46,37 @@
         </div>
       </nav>
 
-      <!-- Hàng trên: nút chuyển trang Independent / Agency bên trái, số thứ tự bên phải -->
-      <div class="wn-top">
-        <div class="wn-switch" id="wn-switch" role="group" aria-label="Chọn nhóm dự án">
-          <button type="button" class="wn-switch-btn is-active" data-coll="independent" aria-pressed="true">Independent Works</button>
-          <span class="wn-switch-slash" aria-hidden="true">/</span>
-          <button type="button" class="wn-switch-btn" data-coll="agency" aria-pressed="false">Agency Works</button>
-          <span class="wn-switch-note">(at Collective Design Agency)</span>
-        </div>
-        <p class="wn-count" id="wn-count" aria-live="polite">01/07</p>
-      </div>
-
-      <!-- Hàng chính: thông tin trái, ảnh lớn phải -->
+      <!-- Hàng chính (Figma Frame 28): cột trái = nút Independent / Agency,
+           mục lục theo tagline, rồi số thứ tự + tên + tag ở đáy;
+           cột phải = chồng ảnh kiểu "Folders". -->
       <div class="wn-main">
         <div class="wn-left">
-          <div class="wn-info" id="wn-info">
-            <h1 class="wn-title" id="wn-title">Vore</h1>
-            <p class="wn-meta" id="wn-meta">
-              <span class="wn-cat" id="wn-cat">Food &amp; beverage</span><span class="wn-dash" id="wn-dash" aria-hidden="true"></span><span class="wn-year" id="wn-year">2025</span>
-            </p>
-            <ul class="wn-tags" id="wn-tags"></ul>
+          <div class="wn-switch" id="wn-switch" role="group" aria-label="Chọn nhóm dự án">
+            <button type="button" class="wn-switch-btn is-active" data-coll="independent" aria-pressed="true">Independent Works</button>
+            <span class="wn-switch-slash" aria-hidden="true">/</span>
+            <button type="button" class="wn-switch-btn" data-coll="agency" aria-pressed="false">Agency Works</button>
           </div>
 
-          <!-- Hàng dưới: tên dự án trái, thumbnail phải -->
-          <div class="wn-bottom">
-            <!-- Danh sách tên dự án: đang xem màu đen, còn lại xám; bấm để chuyển -->
-            <ul class="wn-filters wn-names" id="wn-filters" aria-label="Danh sách dự án"></ul>
-            <!-- Khung giữ chỗ: card thật nằm trong #wn-cards, JS đo các khung này -->
-            <div class="wn-thumbs" id="wn-thumbs" aria-hidden="true">
-              <span class="wn-slot wn-slot--back"></span>
-              <span class="wn-slot wn-slot--mid"></span>
-              <span class="wn-slot wn-slot--front"></span>
-            </div>
+          <!-- Mục lục: số + tagline từng dự án; đang xem màu đen, còn lại xám -->
+          <ol class="wn-toc" id="wn-toc" aria-label="Danh sách dự án"></ol>
+
+          <div class="wn-info" id="wn-info">
+            <p class="wn-count" id="wn-count" aria-live="polite">01/07</p>
+            <h1 class="wn-title" id="wn-title">Vore</h1>
+            <ul class="wn-tags" id="wn-tags"></ul>
           </div>
         </div>
 
-        <!-- Khung giữ chỗ ảnh lớn (card thật nằm trong #wn-cards) -->
-        <div class="wn-media" id="wn-media" aria-hidden="true"></div>
+        <!-- Cột phải: chừa chỗ cho các lớp nhô lên phía trên, rồi khung ảnh
+             trước (card thật nằm trong #wn-cards, JS đo khung #wn-media). -->
+        <div class="wn-stack">
+          <div class="wn-media" id="wn-media" aria-hidden="true"></div>
+        </div>
       </div>
 
-
-      <!-- Lớp chứa toàn bộ card dự án (ảnh lớn, deck, thumbnail) -->
+      <!-- Lớp chứa toàn bộ card dự án -->
       <div class="wn-cards" id="wn-cards"></div>
     </div>
-  </div>
-
-  <!-- ============ Lightbox cũ (đã nghỉ, giữ lại cho an toàn) ============
-       Từng mở khi bấm ảnh lớn Independent; từ khi có trang case study
-       thì bấm ảnh lớn sẽ sang trang case study (EGG:01, Tuổi Hồng 28)
-       hoặc không làm gì (dự án chưa có trang), nên không còn chỗ nào
-       mở lightbox nữa. Giữ nguyên phần tử để các chỗ kiểm tra
-       lightbox.hidden không vỡ; xóa hẳn sau khi kiểm tra kỹ. -->
-  <div class="wn-lightbox" id="wn-lightbox" hidden>
-    <figure class="wn-lightbox-frame">
-      <img id="wn-lightbox-img" src="assets/work/vore.jpg" alt="">
-    </figure>
-    <button type="button" class="wn-lightbox-close" id="wn-lightbox-close" aria-label="Đóng">Close</button>
-    <p class="wn-lightbox-cap" id="wn-lightbox-cap"></p>
   </div>
 
   <div class="cursor" aria-hidden="true"><span data-cursor-label="read">Read</span><span data-cursor-label="open">Open</span><span data-cursor-label="soon">Coming Soon</span><span data-cursor-label="newtab"><svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true"><path d="M5 21L21 5M8 5h13v13" stroke="#fff" stroke-width="2"/></svg></span></div>

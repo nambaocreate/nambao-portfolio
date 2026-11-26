@@ -304,37 +304,58 @@ ul { list-style: none; }
   margin-left: auto;
 }
 
-/* Menu dùng đúng shape SVG gốc trong Figma (node 1734:444):
-   pill CONTACT xanh lá (114.5x36.6, mép phải có tab lồi) và
-   dải vàng (350x36.6, mép trái có rãnh lõm khớp với tab) nên
-   chỗ nối có vết khuyết bán nguyệt đúng như thiết kế. Cục cam
-   chồng lên đầu phải của dải vàng 7px. Chữ Libre Franklin
-   Regular 12px, viết hoa hết. Toàn bộ hiển thị thu còn 75%
-   (SVG giữ nguyên tỉ lệ, chỉ thu kích thước hiển thị). */
+/* Menu v2 (theo ảnh mẫu của Bảo, 11/2026): hai mảnh GÓC VUÔNG,
+   CONTACT nền xanh chanh #CFEB15, WORK / ABOUT / PLAYGROUND nền
+   xám ấm #D9D7CF, đường chia #C4C1B6, chữ đen. Chỗ nối hai mảnh
+   có 2 khấc bán nguyệt (trên và dưới) như cuống vé xé, vẽ bằng
+   mask radial-gradient nên không cần SVG. Cục cam chồng lên đầu
+   phải của thanh xám.
+
+   Motion "rút tờ giấy ra từ cục tròn": cả thanh là một tờ giấy
+   nằm sẵn bên trong cục cam. Mở menu thì tờ giấy trượt ra từ mép
+   trái cục cam (khung .nav-menu chỉ cắt phía PHẢI, nên phần còn
+   nằm trong cục tròn bị che), lúc mới ra hơi bị ép dẹt và nghiêng
+   như giấy rút qua khe, rồi duỗi phẳng và nảy nhẹ khi ra hết.
+   Cục cam co lại một nhịp như đang nhả giấy. Đóng menu thì tờ
+   giấy bị kéo ngược vào cục tròn, nhanh hơn lúc mở. */
 .nav-menu {
   display: flex;
   align-items: center;
   list-style: none;
-  /* REVEAL từ cục tròn: menu mở dần từ mép phải (chỗ tiếp giáp
-     với cục tròn, gọi là tip) sang trái cho tới đủ chiều rộng,
-     giống như menu mọc ra từ cục tròn. Dùng clip-path: lúc ẩn
-     chỉ còn một lát mỏng ở mép phải sát cục tròn, lúc hiện mở
-     hết. KHÔNG fade (không đổi opacity), KHÔNG trượt nguyên
-     khối (không translateX): chữ bên trong đứng yên, chỉ được
-     lộ dần ra từ phải sang trái. */
   visibility: hidden;
-  clip-path: inset(0 0 0 100%);
-  transition: clip-path .35s var(--ease-out), visibility 0s .35s;
+  /* Chỉ cắt mép phải (chỗ cục tròn), ba phía còn lại để thoáng cho
+     tờ giấy nghiêng mà không bị cắt góc. */
+  clip-path: inset(-40px 0 -40px -600px);
+  transition: visibility 0s .4s;
 }
 
 .nav-menu-wrap:hover .nav-menu,
 .nav-menu-wrap.is-menu-open .nav-menu {
   visibility: visible;
-  clip-path: inset(0 0 0 0);
-  transition: clip-path .35s var(--ease-out), visibility 0s;
+  transition: visibility 0s;
 }
 
 .nav-menu li { display: flex; }
+
+/* Tờ giấy: 2 mảnh đi cùng nhau như một tờ (cùng gốc biến đổi ở
+   mép phải, sát cục tròn). Lúc đóng: nằm trong cục tròn. */
+.nav-menu > li {
+  transform-origin: 100% 50%;
+  transform: translateX(352px) scaleY(.62) rotate(-3deg);
+  transition: transform .32s cubic-bezier(.55, 0, .75, .3);
+  will-change: transform;
+}
+/* Mảnh CONTACT co giãn quanh cùng một gốc với cả tờ (mép phải thanh xám). */
+.nav-menu > li:first-child { transform-origin: calc(100% + 263px) 50%; }
+
+.nav-menu-wrap:hover .nav-menu > li,
+.nav-menu-wrap.is-menu-open .nav-menu > li {
+  transform: none;
+  transition: transform .72s cubic-bezier(.2, .9, .25, 1.12);
+}
+/* Mảnh CONTACT ở cuối tờ giấy nên ra sau một chút (giấy bị kéo căng). */
+.nav-menu-wrap:hover .nav-menu > li:first-child,
+.nav-menu-wrap.is-menu-open .nav-menu > li:first-child { transition-delay: .03s; }
 
 .nav-pill {
   display: block;
@@ -350,31 +371,45 @@ ul { list-style: none; }
   cursor: pointer;
 }
 
-/* Pill CONTACT: đúng file SVG gốc (xanh lá #2BAE52, tab lồi ở
-   mép phải khớp rãnh của dải vàng). Chữ offwhite #f2f2f0. */
+/* Khấc bán nguyệt bán kính 4.6px (~17% chiều cao thanh). */
+.nav-pill--contact,
+.nav-menu-bar { --notch: 4.6px; }
+
+/* Mảnh CONTACT: xanh chanh, góc vuông, khấc ở mép phải. */
 .nav-pill--contact {
-  width: 86px; /* 114.5px thu còn 75% */
-  height: 27.5px; /* 36.6px thu còn 75% */
+  width: 86px;
+  height: 27.5px;
   flex: none;
-  padding: 0;
+  padding: 0 0 0 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: url(../assets/nav/menu-contact.svg) no-repeat center / 100% 100%;
-  color: #f2f2f0;
+  background: #cfeb15;
+  color: #000;
+  -webkit-mask:
+    radial-gradient(circle var(--notch) at 100% 0, #0000 97%, #000) top / 100% 51% no-repeat,
+    radial-gradient(circle var(--notch) at 100% 100%, #0000 97%, #000) bottom / 100% 51% no-repeat;
+          mask:
+    radial-gradient(circle var(--notch) at 100% 0, #0000 97%, #000) top / 100% 51% no-repeat,
+    radial-gradient(circle var(--notch) at 100% 100%, #0000 97%, #000) bottom / 100% 51% no-repeat;
+  transition: background-color .25s ease;
 }
 
-.nav-pill--contact:hover { filter: brightness(1.07); }
+.nav-pill--contact:hover { background: #d9f22e; }
 
-/* Dải vàng: đúng file SVG gốc (vàng #CFEB15, rãnh lõm ở mép
-   trái, đường chia dọc giữa các mục). Ba mục nằm đúng vị trí
-   Figma (Work 27px, About 118px, Playground 212px từ mép trái). */
+/* Thanh xám: góc vuông, khấc ở mép trái khớp với mảnh CONTACT. */
 .nav-menu-bar {
   position: relative;
-  width: 263px; /* 350px thu còn 75% */
-  height: 27.5px; /* 36.6px thu còn 75% */
+  width: 263px;
+  height: 27.5px;
   flex: none;
-  background: url(../assets/nav/menu-bar.svg) no-repeat center / 100% 100%;
+  background: #d9d7cf;
+  -webkit-mask:
+    radial-gradient(circle var(--notch) at 0 0, #0000 97%, #000) top / 100% 51% no-repeat,
+    radial-gradient(circle var(--notch) at 0 100%, #0000 97%, #000) bottom / 100% 51% no-repeat;
+          mask:
+    radial-gradient(circle var(--notch) at 0 0, #0000 97%, #000) top / 100% 51% no-repeat,
+    radial-gradient(circle var(--notch) at 0 100%, #0000 97%, #000) bottom / 100% 51% no-repeat;
 }
 
 .nav-menu-bar .nav-pill {
@@ -385,21 +420,21 @@ ul { list-style: none; }
   background: none;
 }
 
-.nav-menu-bar .nav-pill--work { left: 20px; } /* 27px thu còn 75% */
-.nav-menu-bar .nav-pill--about { left: 89px; } /* 118px thu còn 75% */
-.nav-menu-bar .nav-pill--playground { left: 159px; } /* 212px thu còn 75% */
+.nav-menu-bar .nav-pill--work { left: 20px; }
+.nav-menu-bar .nav-pill--about { left: 89px; }
+.nav-menu-bar .nav-pill--playground { left: 159px; }
 
 .nav-menu-divider {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
   width: 1px;
-  height: 20.5px; /* 27.3px thu còn 75% */
-  background: url(../assets/nav/menu-divider.svg) no-repeat center / 100% 100%;
+  height: 20.5px;
+  background: #c4c1b6;
 }
 
-.nav-menu-divider--1 { left: 74px; } /* 99px thu còn 75% */
-.nav-menu-divider--2 { left: 142px; } /* 189px thu còn 75% */
+.nav-menu-divider--1 { left: 74px; }
+.nav-menu-divider--2 { left: 142px; }
 
 /* Cục tròn cam: đúng file SVG gốc (Ellipse 1, cam #E67021),
    dấu sao đen 6 cánh đúng file SVG gốc, xoay chậm liên tục
@@ -426,6 +461,11 @@ ul { list-style: none; }
 }
 
 .nav-ball-rot { display: flex; animation: nav-ball-spin 20s linear infinite; }
+
+/* Cục cam co lại một nhịp lúc nhả tờ giấy menu ra. */
+.nav-menu-wrap:hover .nav-ball,
+.nav-menu-wrap.is-menu-open .nav-ball { animation: nav-ball-gulp .55s cubic-bezier(.3, .7, .4, 1); }
+@keyframes nav-ball-gulp { 0% { transform: scale(1); } 30% { transform: scale(.88, .94); } 65% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
 .nav-ball-star {
   display: block;
@@ -979,50 +1019,57 @@ body.contact-open .wn-nav { position: relative; z-index: 2000; }
   overflow: hidden;
 }
 
-/* Logo footer vẽ kiểu Trim Paths (After Effects): logo là SVG inline
-   chứa OUTLINE GỐC của từng chữ font Sarina (7 path: n, a, m, b, a, o;
-   chữ "o" có 2 contour ngoài + lỗ counter), lấy bằng fontTools từ font
-   Sarina, KHÔNG phải centerline hay vẽ lại. Khi cuộn tới footer,
-   observer của main.js thêm .is-visible cho .footer-draw: từng path tự
-   vẽ ra dần theo stroke-dashoffset (Trim Paths), tốc độ theo độ dài
-   outline, tổng ~2.81s. Điểm quan trọng: fill-opacity của từng chữ
-   chạy ĐỒNG BỘ với stroke của chính chữ đó (cùng delay --dd, cùng thời
-   lượng --dur, cùng easing), chữ vẽ tới đâu thì tô tới đó, không tách
-   rời như bản cũ (bản cũ tô sau khi vẽ xong). Nét vẽ đen 20 units, đầu
-   tròn. Không có JS thì logo hiện luôn đầy đủ; giảm chuyển động thì
-   cũng hiện luôn, không chạy vẽ. */
+/* Logo footer viết tay (v3): giữ nguyên OUTLINE GỐC của font Sarina
+   (6 chữ, lấy bằng fontTools), nhưng chữ chỉ hiện ra dưới một MẶT NẠ
+   là nét bút chạy theo đường giữa (centerline) của từng chữ, theo
+   thứ tự viết tự nhiên. Nét bút rộng hơn thân chữ một chút nên tới
+   đâu thì lộ đúng phần chữ ở đó, như mực ra theo đầu bút; hình cuối
+   cùng là logo Sarina y hệt bản gốc (không bị nét đều tay như bản
+   centerline thuần, không phải vẽ viền rồi tô như bản Trim Paths).
+   Nhịp bút (js không cần, số liệu đã ghi sẵn trong từng path):
+   - Tốc độ bút đều ~8000 units/s, thời lượng mỗi nét theo độ dài.
+   - Các nét chạm nhau là một lần đưa bút liền (linear ở giữa, chỉ
+     tăng tốc ở đầu chuỗi và chậm lại ở cuối chuỗi), không khựng.
+   - Nhấc bút giữa các nét rời 0.07s, nghỉ thêm 0.03s giữa các chữ.
+   - Xong nét thì nét mặt nạ nở rộng ra để lấp kín mọi góc nhọn của
+     chữ (mặt nạ chỉ lộ phần chữ có sẵn, nên nở rộng không lem ra ngoài).
+   Script tạo SVG: xem lịch sử commit (build-logo). Không có JS hoặc
+   giảm chuyển động thì logo hiện đủ ngay. */
 .footer-logo-svg {
   display: block;
   height: calc(100vw * 0.2343);
   width: calc(100vw * 0.2343 * 4.5814);
 }
 
-.footer-logo-svg path {
-  fill: #000;
-  stroke: #000;
-  stroke-width: 20;
+.footer-logo-svg .fl-ink path { fill: #000; }
+
+.footer-logo-svg .fl-stroke {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 900;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 
-.js .footer-logo-svg path {
-  fill-opacity: 0;
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  transition: stroke-dashoffset var(--dur, 0.5s) cubic-bezier(0.6, 0, 0.3, 1) var(--dd, 0s),
-    fill-opacity var(--dur, 0.5s) cubic-bezier(0.6, 0, 0.3, 1) var(--dd, 0s);
+.js .footer-logo-svg .fl-stroke {
+  stroke-width: 330;
+  stroke-dasharray: 1 1.02;
+  stroke-dashoffset: 1.01;
+  transition:
+    stroke-dashoffset var(--dur, 0.3s) var(--ease, linear) var(--dd, 0s),
+    stroke-width 0.4s ease calc(var(--dd, 0s) + var(--dur, 0.3s));
 }
 
-.js .footer-draw.is-visible .footer-logo-svg path {
+.js .footer-draw.is-visible .footer-logo-svg .fl-stroke {
   stroke-dashoffset: 0;
-  fill-opacity: 1;
+  stroke-width: 900;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .js .footer-logo-svg path {
+  .js .footer-logo-svg .fl-stroke {
     transition: none;
     stroke-dashoffset: 0;
-    fill-opacity: 1;
+    stroke-width: 900;
   }
 }
 
@@ -1159,12 +1206,13 @@ body.contact-open .wn-nav { position: relative; z-index: 2000; }
     right: 0;
     transform: scale(.9);
     transform-origin: top right;
-    clip-path: inset(0 0 100% 0);
+    clip-path: inset(0 -600px -600px -600px); /* chỉ cắt phía trên (sát cục tròn) */
   }
+  .nav-menu > li,
+  .nav-menu > li:first-child { transform-origin: 100% 0; transform: translateY(-44px) scaleY(.5) rotate(2deg); }
   .nav-menu-wrap:hover .nav-menu,
   .nav-menu-wrap.is-menu-open .nav-menu {
     transform: scale(.9);
-    clip-path: inset(0 0 0 0);
   }
   .contact-card-flip { height: min(520px, calc(100svh - 120px)); }
   .contact-card--front,
@@ -1187,7 +1235,9 @@ body.contact-open .wn-nav { position: relative; z-index: 2000; }
   .roll-letter { transition: none; }
   .nav-ball-rot,
   .nav-ball-star.is-spinning { animation: none; }
-  .nav-menu { transition: none; } /* reveal hiện ngay, không chạy clip-path */
+  .nav-menu,
+  .nav-menu > li { transition: none !important; } /* menu hiện ngay, không chạy motion rút giấy */
+  .nav-menu-wrap:hover .nav-ball { animation: none; }
   .cursor { display: none; }
   /* Tắt ghim, trượt đè và vòng xoay: vòng đứng yên ở trạng
      thái tĩnh, các section xếp chồng bình thường. */
