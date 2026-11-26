@@ -8,7 +8,7 @@
   <meta name="description" content="Tuoi Hong 28 — brand identity, key visual and typography for the annual charity music festival of Nguyen Thi Minh Khai High School. By Nam Bảo.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700&family=Sarina&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/styles.css">
   <link rel="stylesheet" href="../css/case-study.css">
   <!-- Preload ảnh hero để trang vẽ hero ngay khi tới, không chớp khung trống. -->
@@ -22,19 +22,45 @@
        sạch /work/tuoi-hong-28. -->
   <main class="cs-root" id="cs-root" data-study="tuoi-hong-28">
     <nav class="nav cs-nav" aria-label="Main">
-      <a class="nav-logo" href="/" aria-label="Nam Bảo, home">
-        <img src="../assets/logo.svg" alt="nam bao" width="135" height="30">
-      </a>
-      <ul class="nav-center">
-        <li><a href="/work" aria-current="page"><span data-roll>Work</span></a></li>
-        <li><a href="/#about"><span data-roll>About</span></a></li>
-        <li><a href="/playground"><span data-roll>Playground</span></a></li>
-      </ul>
-      <a class="nav-contact" href="/#contact"><span data-roll>Contact</span></a>
+      <a class="nav-logo" href="/" aria-label="Nam Bảo, home">nambao</a>
+      <div class="nav-menu-wrap" id="nav-menu-wrap">
+        <ul class="nav-menu" id="nav-menu">
+          <li><button type="button" class="nav-pill nav-pill--contact" id="nav-contact-btn" aria-expanded="false" aria-controls="contact-overlay">Contact</button></li>
+          <li><a class="nav-pill" href="/work">Work</a></li>
+          <li><a class="nav-pill" href="/#about">About</a></li>
+          <li><a class="nav-pill" href="/playground">Playground</a></li>
+        </ul>
+        <button type="button" class="nav-ball" id="nav-ball" aria-label="Menu" aria-expanded="false" aria-controls="nav-menu">
+          <span class="nav-ball-rot"><span class="nav-ball-star" id="nav-ball-star" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" aria-hidden="true"><path d="M12 2v20M7 3.3L17 20.7M17 3.3L7 20.7" stroke="#000" stroke-width="3" stroke-linecap="round"/></svg></span></span>
+        </button>
+      </div>
     </nav>
   </main>
 
   <div class="cursor" aria-hidden="true"><span data-cursor-label="read">Read</span><span data-cursor-label="open">Open</span></div>
+
+  <!-- ============ CONTACT: overlay tối + card xanh lá lật mặt ============ -->
+  <div class="contact-overlay" id="contact-overlay" aria-hidden="true">
+    <div class="contact-card-tilt" id="contact-card-tilt">
+      <div class="contact-card-flip" id="contact-card-flip">
+        <article class="contact-card contact-card--front">
+          <p class="contact-label">get in touch</p>
+          <button type="button" class="contact-email" id="contact-email">nambao.create@gmail.com</button>
+          <span class="contact-copied" id="contact-copied" role="status">✓ Đã copy</span>
+          <ul class="contact-socials">
+            <li><a href="https://www.instagram.com/bynambao/" target="_blank" rel="noopener" aria-label="Instagram"><img src="../assets/social/instagram.svg" alt="" width="24" height="24"></a></li>
+            <li><a href="https://www.facebook.com/nambao.create/" target="_blank" rel="noopener" aria-label="Facebook"><img src="../assets/social/facebook.svg" alt="" width="24" height="24"></a></li>
+            <li><a href="https://www.linkedin.com/in/nam-bao/" target="_blank" rel="noopener" aria-label="LinkedIn"><img src="../assets/social/linkedin.svg" alt="" width="24" height="24"></a></li>
+            <li><a href="https://www.behance.net/nam-bao" target="_blank" rel="noopener" aria-label="Behance"><img src="../assets/social/behance.svg" alt="" width="24" height="24"></a></li>
+          </ul>
+          <p class="contact-logo" aria-hidden="true">nambao</p>
+        </article>
+        <article class="contact-card contact-card--back" aria-hidden="true">
+          <p class="contact-logo contact-logo--green" aria-hidden="true">nambao</p>
+        </article>
+      </div>
+    </div>
+  </div>
 
   <script src="../js/case-study-data.js"></script>
   <script src="../js/case-study.js"></script>

@@ -131,10 +131,6 @@
   transform: translateZ(0);
 }
 
-.wn-nav .nav-center a,
-.wn-nav .nav-contact {
-  font-size: 15px;
-}
 
 /* ---------- Hàng trên: SELECTED WORKS / 01/07 ----------
    Figma: y 159.6 (nav kết thúc ở y 69 nên cách nav 90px),

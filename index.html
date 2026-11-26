@@ -8,30 +8,33 @@
   <meta name="description" content="Nam Bảo is a graduate of Design Studies at RMIT Vietnam and one of the only two recipients of the Creativity Scholarship 2022.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700&family=Sarina&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/hero-wheel.css">
   <script>document.documentElement.classList.add("js");</script>
 </head>
 <body class="home">
 
-  <!-- ============ NAV: cố định trên cùng, chữ đen mọi section ============ -->
+  <!-- ============ NAV: cố định trên cùng, logo Sarina đen ============ -->
   <!-- Nav tách khỏi Hero, là con trực tiếp của body, position
-       fixed, z-index cao nhất, luôn luôn chữ đen trên mọi
-       section (không còn mix-blend-mode difference, đã bỏ
-       hẳn từ v11). Trang /work dùng lại class .nav nhưng
-       không có class .home ở body nên nav ở đó vẫn như cũ,
-       không bị đổi. -->
+       fixed, z-index cao nhất, logo "nambao" chữ Sarina luôn
+       chữ đen trên mọi section (không còn mix-blend-mode
+       difference, đã bỏ hẳn từ v11). Trang /work dùng lại
+       class .nav nhưng không có class .home ở body nên nav
+       ở đó vẫn như cũ, không bị đổi. -->
   <nav class="nav reveal" aria-label="Main">
-    <a class="nav-logo" href="#top" aria-label="Nam Bảo, home">
-      <img src="assets/logo.svg" alt="nam bao" width="135" height="30">
-    </a>
-    <ul class="nav-center">
-      <li><a href="/work" aria-current="page"><span data-roll>Work</span></a></li>
-      <li><a href="#about"><span data-roll>About</span></a></li>
-      <li><a href="/playground"><span data-roll>Playground</span></a></li>
-    </ul>
-    <a class="nav-contact" href="#contact"><span data-roll>Contact</span></a>
+    <a class="nav-logo" href="/" aria-label="Nam Bảo, home">nambao</a>
+    <div class="nav-menu-wrap" id="nav-menu-wrap">
+      <ul class="nav-menu" id="nav-menu">
+        <li><button type="button" class="nav-pill nav-pill--contact" id="nav-contact-btn" aria-expanded="false" aria-controls="contact-overlay">Contact</button></li>
+        <li><a class="nav-pill" href="/work">Work</a></li>
+        <li><a class="nav-pill" href="#about">About</a></li>
+        <li><a class="nav-pill" href="/playground">Playground</a></li>
+      </ul>
+      <button type="button" class="nav-ball" id="nav-ball" aria-label="Menu" aria-expanded="false" aria-controls="nav-menu">
+        <span class="nav-ball-rot"><span class="nav-ball-star" id="nav-ball-star" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" aria-hidden="true"><path d="M12 2v20M7 3.3L17 20.7M17 3.3L7 20.7" stroke="#000" stroke-width="3" stroke-linecap="round"/></svg></span></span>
+      </button>
+    </div>
   </nav>
 
   <!-- ============ HERO: vòng ảnh 3D của Claude, nền offwhite ============ -->
@@ -276,6 +279,32 @@
   </footer>
 
   <div class="cursor" aria-hidden="true"><span data-cursor-label="read">Read</span><span data-cursor-label="open">Open</span></div>
+
+  <!-- ============ CONTACT: overlay tối + card xanh lá lật mặt ============ -->
+  <!-- Mở bằng nút CONTACT trên nav; đóng bằng nền tối, cục tròn
+       hoặc phím Esc. Bấm email thì copy; bấm logo nền tảng thì
+       mở trang đó ở tab mới; bấm vùng trống của card thì lật mặt. -->
+  <div class="contact-overlay" id="contact-overlay" aria-hidden="true">
+    <div class="contact-card-tilt" id="contact-card-tilt">
+      <div class="contact-card-flip" id="contact-card-flip">
+        <article class="contact-card contact-card--front">
+          <p class="contact-label">get in touch</p>
+          <button type="button" class="contact-email" id="contact-email">nambao.create@gmail.com</button>
+          <span class="contact-copied" id="contact-copied" role="status">✓ Đã copy</span>
+          <ul class="contact-socials">
+            <li><a href="https://www.instagram.com/bynambao/" target="_blank" rel="noopener" aria-label="Instagram"><img src="assets/social/instagram.svg" alt="" width="24" height="24"></a></li>
+            <li><a href="https://www.facebook.com/nambao.create/" target="_blank" rel="noopener" aria-label="Facebook"><img src="assets/social/facebook.svg" alt="" width="24" height="24"></a></li>
+            <li><a href="https://www.linkedin.com/in/nam-bao/" target="_blank" rel="noopener" aria-label="LinkedIn"><img src="assets/social/linkedin.svg" alt="" width="24" height="24"></a></li>
+            <li><a href="https://www.behance.net/nam-bao" target="_blank" rel="noopener" aria-label="Behance"><img src="assets/social/behance.svg" alt="" width="24" height="24"></a></li>
+          </ul>
+          <p class="contact-logo" aria-hidden="true">nambao</p>
+        </article>
+        <article class="contact-card contact-card--back" aria-hidden="true">
+          <p class="contact-logo contact-logo--green" aria-hidden="true">nambao</p>
+        </article>
+      </div>
+    </div>
+  </div>
 
   <script src="js/main.js"></script>
   <!-- GSAP core cho vòng ảnh hero của Claude (repo là HTML

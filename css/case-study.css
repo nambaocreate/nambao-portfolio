@@ -52,8 +52,9 @@
 
 /* Nav cố định trên cùng, trắng khi còn trên hero (đọc được trên
    ảnh tối), đen khi đã cuộn qua hero (class cs-nav--dark do
-   js/case-study.js bật theo vị trí cuộn). Logo đen gốc nên khi
-   nav trắng thì đảo màu bằng filter invert. */
+   js/case-study.js bật theo vị trí cuộn). Logo "nambao" chữ
+   Sarina lấy màu theo nav (trắng trên hero, đen khi đã cuộn
+   qua) nên không cần filter invert như logo ảnh trước đây. */
 .cs-hero .nav {
   position: fixed;
   top: 0;
@@ -65,25 +66,10 @@
   transition: color 0.3s ease;
 }
 
-.cs-hero .nav .nav-logo img {
-  filter: invert(1);
-  transition: filter 0.3s ease;
-}
-
 /* Độ đặc hiệu phải cao hơn .cs-hero .nav (0,2,0) thì mới thắng
-   được màu trắng khi cuộn qua hero; dùng đúng class nav trên
-   cùng phần tử để thắng cả màu chữ lẫn filter logo. */
+   được màu trắng khi cuộn qua hero. */
 .cs-hero .nav.cs-nav--dark {
   color: #000;
-}
-
-.cs-hero .nav.cs-nav--dark .nav-logo img {
-  filter: none;
-}
-
-.cs-hero .nav-center a,
-.cs-hero .nav-contact {
-  font-size: 15px;
 }
 
 /* Scrim sau nav, chỉ trang TH28 (nền hồng nhạt ở đầu hero làm chữ

@@ -48,8 +48,15 @@
 //    này.
 // 6. Nav chữ đen cho mọi section: đã bỏ hẳn mix-blend-mode
 //    difference và logic JS thêm class .nav-on-hero theo
-//    scrollY (v10); nav luôn chữ đen trên mọi nền, logo là
-//    SVG đen gốc, không cần filter invert.
+//    scrollY (v10); nav luôn chữ đen trên mọi nền.
+// 7. Nav mới (Figma node 1732:432): logo "nambao" chữ Sarina
+//    trái, cục tròn cam phải xoay chậm 20 giây/vòng, hover
+//    thì sao xoay nhanh 1 vòng (0,8 giây) rồi về tốc độ chậm
+//    và reveal menu pill (CONTACT xanh lá, WORK / ABOUT /
+//    PLAYGROUND vàng); bấm CONTACT thì mở card contact
+//    (overlay tối, card xanh lá, tilt theo chuột, bấm email
+//    thì copy, logo nền tảng mở tab mới, bấm vùng trống thì
+//    lật mặt, đóng bằng nền tối / cục tròn / Esc).
 // Tôn trọng prefers-reduced-motion và thiết bị cảm ứng.
 
 (function () {
@@ -250,4 +257,152 @@
       target.focus({ preventScroll: true });
     });
   });
+
+  /* ---------- 5. Nav mới: cục cam, menu, card contact ---------- */
+  var navBall = document.getElementById("nav-ball");
+  var navBallStar = document.getElementById("nav-ball-star");
+  var navWrap = document.getElementById("nav-menu-wrap");
+  var contactBtn = document.getElementById("nav-contact-btn");
+  var overlay = document.getElementById("contact-overlay");
+  var cardTilt = document.getElementById("contact-card-tilt");
+  var cardFlip = document.getElementById("contact-card-flip");
+  var emailBtn = document.getElementById("contact-email");
+  var copiedBadge = document.getElementById("contact-copied");
+
+  // Hover vào cục cam: dấu sao xoay nhanh 1 vòng (0,8 giây) rồi
+  // về tốc độ chậm. Chỉ bật khi chưa xoay để không khởi động
+  // lại giữa chừng gây giật góc (sao là con của lớp xoay chậm
+  // nên vòng nhanh cộng dồn lên vòng chậm, xong 360 độ thì về
+  // đúng góc cũ). Giảm chuyển động thì không xoay.
+  if (navBall && navBallStar && !reduceMotion) {
+    navBall.addEventListener("mouseenter", function () {
+      if (!navBallStar.classList.contains("is-spinning")) {
+        navBallStar.classList.add("is-spinning");
+      }
+    });
+    navBallStar.addEventListener("animationend", function () {
+      navBallStar.classList.remove("is-spinning");
+    });
+  }
+
+  var contactOpen = false;
+  var copiedTimer = null;
+
+  function openContact() {
+    if (!overlay || contactOpen) return;
+    contactOpen = true;
+    overlay.classList.add("is-open");
+    overlay.setAttribute("aria-hidden", "false");
+    document.body.classList.add("contact-open");
+    if (contactBtn) contactBtn.setAttribute("aria-expanded", "true");
+    if (emailBtn) emailBtn.focus({ preventScroll: true });
+  }
+
+  function closeContact(returnFocus) {
+    if (!overlay || !contactOpen) return;
+    contactOpen = false;
+    overlay.classList.remove("is-open");
+    overlay.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("contact-open");
+    if (contactBtn) contactBtn.setAttribute("aria-expanded", "false");
+    if (returnFocus && contactBtn) contactBtn.focus({ preventScroll: true });
+  }
+
+  function closeMenu() {
+    if (!navWrap || !navBall) return;
+    navWrap.classList.remove("is-menu-open");
+    navBall.setAttribute("aria-expanded", "false");
+  }
+
+  if (contactBtn) {
+    contactBtn.addEventListener("click", function () { openContact(); });
+  }
+
+  if (overlay) {
+    // Bấm vào nền tối (không phải card) thì đóng.
+    overlay.addEventListener("click", function (e) {
+      if (e.target === overlay) closeContact(true);
+    });
+  }
+
+  if (navBall) {
+    navBall.addEventListener("click", function () {
+      // Card đang mở thì bấm cục tròn để đóng.
+      if (contactOpen) { closeContact(true); return; }
+      // Còn không thì bấm để ghim/mở menu (cho cảm ứng và bàn
+      // phím; chuột thì hover đã reveal, bấm thêm để ghim lại).
+      if (navWrap) {
+        var open = navWrap.classList.toggle("is-menu-open");
+        navBall.setAttribute("aria-expanded", open ? "true" : "false");
+      }
+    });
+  }
+
+  // Bấm một mục menu (Work / About / Playground) thì đóng card
+  // (nếu đang mở) và gỡ ghim menu rồi mới chuyển trang.
+  document.querySelectorAll(".nav-menu a").forEach(function (link) {
+    link.addEventListener("click", function () { closeContact(false); closeMenu(); });
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape") return;
+    if (contactOpen) { closeContact(true); return; }
+    closeMenu();
+  });
+
+  /* ---------- 5b. Card contact: copy email, lật mặt, nghiêng theo chuột ---------- */
+  function fallbackCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand("copy"); } catch (err) {}
+    document.body.removeChild(ta);
+  }
+
+  if (emailBtn && copiedBadge) {
+    emailBtn.addEventListener("click", function (e) {
+      e.stopPropagation(); // bấm email thì copy, không lật card
+      var email = "nambao.create@gmail.com";
+      var done = function () {
+        copiedBadge.classList.add("is-show");
+        clearTimeout(copiedTimer);
+        copiedTimer = setTimeout(function () { copiedBadge.classList.remove("is-show"); }, 1600);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(email).then(done, function () { fallbackCopy(email); done(); });
+      } else {
+        fallbackCopy(email);
+        done();
+      }
+    });
+  }
+
+  if (cardFlip) {
+    // Bấm vùng trống của card thì lật mặt; bấm email hoặc logo
+    // nền tảng (nằm trong a / button) thì không lật.
+    cardFlip.addEventListener("click", function (e) {
+      if (e.target.closest("a, button")) return;
+      cardFlip.classList.toggle("is-flipped");
+    });
+  }
+
+  // Nghiêng card theo chuột, giống card trang Work
+  // (perspective 900, tối đa 10 độ, về lại mượt khi rời chuột).
+  if (cardTilt && finePointer && !reduceMotion) {
+    cardTilt.addEventListener("mousemove", function (e) {
+      var r = cardTilt.getBoundingClientRect();
+      var px = (e.clientX - r.left) / r.width - 0.5;
+      var py = (e.clientY - r.top) / r.height - 0.5;
+      cardTilt.style.transition = "transform .12s ease-out";
+      cardTilt.style.transform = "rotateX(" + (-py * 10).toFixed(2) + "deg) rotateY(" + (px * 10).toFixed(2) + "deg)";
+    });
+    cardTilt.addEventListener("mouseleave", function () {
+      cardTilt.style.transition = "transform .6s cubic-bezier(0.65, 0, 0.35, 1)";
+      cardTilt.style.transform = "";
+    });
+  }
 })();
