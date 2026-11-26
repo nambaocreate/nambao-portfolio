@@ -47,7 +47,7 @@ window.WORK_PROJECTS = [
   },
   {
     id: "dothanh",
-    title: "Đô Thành Cổ Tích",
+    title: "Việt Cổ Truyện",
     tag: "Art",
     image: "assets/work/dothanh.jpg",
     alt: "Laptop chạy website Phố Việt Cổ Truyện",
