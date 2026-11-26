@@ -992,6 +992,52 @@ body.contact-open .wn-nav { position: relative; z-index: 2000; }
   overflow: hidden;
 }
 
+/* Logo footer vẽ theo stroke (thay cho fade): logo là SVG inline chứa
+   outline thật của font Sarina, trích bằng fontTools từ file
+   Sarina-Regular.ttf. SVG khớp đúng logo text cũ về cỡ chữ, khoảng
+   cách chữ, vị trí và độ tràn viền: viewBox 9382.8x2048 (rộng
+   4.5814em, baseline ở 81.05% chiều cao, giống line box của text),
+   cao 23.43vw và rộng 107.34vw (= 23.43vw x 4.5814), tràn qua mép
+   trái/phải và bị cắt ở biên footer bởi overflow hidden như cũ.
+   Khi cuộn tới footer, observer của main.js thêm .is-visible cho
+   .footer-draw: từng chữ vẽ dần theo stroke từ trái sang phải
+   (pathLength chuẩn hoá nên dashoffset 1 -> 0 vẽ hết mỗi contour),
+   rồi tô đầy đen đặc; trạng thái cuối giống hệt logo text cũ.
+   Không có JS thì logo hiện đặc ngay (không ẩn); giảm chuyển động
+   thì cũng hiện đặc ngay, không chạy vẽ. */
+.footer-logo-svg {
+  display: block;
+  height: calc(100vw * 0.2343);
+  width: calc(100vw * 0.2343 * 4.5814);
+}
+
+.footer-logo-svg path { fill: #000; }
+
+.js .footer-logo-svg path {
+  fill-opacity: 0;
+  stroke: #000;
+  stroke-width: 20;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset var(--dur, 0.5s) cubic-bezier(0.6, 0, 0.3, 1) var(--dd, 0s),
+    fill-opacity 0.5s ease calc(var(--dd, 0s) + var(--dur, 0.5s) + 0.08s);
+}
+
+.js .footer-draw.is-visible .footer-logo-svg path {
+  stroke-dashoffset: 0;
+  fill-opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js .footer-logo-svg path {
+    transition: none;
+    stroke-dashoffset: 0;
+    fill-opacity: 1;
+  }
+}
+
 /* ================= MOTION: CON TRỎ "READ" / "OPEN" =================
    Chấm đen nhỏ đi theo chuột khắp trang, khi vào thẻ Press
    thì nở thành đĩa tròn đen 120px có chữ Read ở giữa,

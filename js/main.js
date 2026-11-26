@@ -86,7 +86,7 @@
   });
 
   /* ---------- 2. Hiện dần khi cuộn ---------- */
-  var revealEls = document.querySelectorAll(".reveal, .reveal--fade, .reveal-clip");
+  var revealEls = document.querySelectorAll(".reveal, .reveal--fade, .reveal-clip, .footer-draw");
 
   // Stagger tự động: các con trong [data-stagger] lệch nhau 90ms.
   document.querySelectorAll("[data-stagger]").forEach(function (group) {
