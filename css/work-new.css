@@ -220,6 +220,7 @@
   line-height: 1.1;
   letter-spacing: -0.03em;
   margin-left: -0.07em;
+  cursor: pointer;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

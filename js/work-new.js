@@ -562,12 +562,10 @@
   /* ---------- Danh sách tên dự án (thay cho filter) ----------
      Cột trái hiện tên toàn bộ dự án của trang đang xem. Dự án đang
      xem màu đen, các dự án khác màu xám; hover thì đậm dần. Bấm tên
-     thì mở case study của dự án đó, giống như bấm vô ảnh lớn
-     (Independent: lightbox xem ảnh full; Agency: mở URL dự án ở tab
-     mới). Hover tên thì cursor hiện chữ Open (Independent) hoặc mũi
-     tên tab mới (Agency). Tên đổi màu đúng lúc tiêu đề đổi (trong
-     renderInfo). Bề rộng cột cố định theo tên dài nhất của cả 2 trang,
-     nên khi đổi trang stack thumbnail không bị xê dịch. */
+     thì chuyển tới dự án đó với cùng motion như bấm thumbnail. Tên
+     đổi màu đúng lúc tiêu đề đổi (trong renderInfo). Bề rộng cột cố
+     định theo tên dài nhất của cả 2 trang, nên khi đổi trang stack
+     thumbnail không bị xê dịch. */
   function renderNames() {
     filtersEl.innerHTML = list.map(function (p, i) {
       return '<li><button type="button" class="wn-filter" data-index="' + i + '">' + p.title + "</button></li>";
@@ -596,34 +594,13 @@
     filtersEl.style.width = Math.ceil(w) + "px";
   }
 
-  // Bấm tên dự án thì mở case study của dự án đó, giống như bấm vô
-  // ảnh lớn: Independent thì mở lightbox xem ảnh full, Agency thì mở
-  // URL dự án của agency ở tab mới. Không chuyển dự án (không goTo).
   filtersEl.addEventListener("click", function (event) {
     var btn = event.target.closest(".wn-filter");
     if (!btn) return;
     var i = parseInt(btn.getAttribute("data-index"), 10);
     if (isNaN(i)) return;
-    var p = list[i];
-    if (!p) return;
     pendingStep = 0;
-    if (p.url) window.open(p.url, "_blank", "noopener");
-    else openLightbox(p);
-  });
-
-  // Hover tên dự án thì cursor hiện chữ Open (Independent) hoặc mũi
-  // tên tab mới (Agency), giống hệt như hover ảnh lớn của từng loại.
-  filtersEl.addEventListener("mouseover", function (event) {
-    var btn = event.target.closest(".wn-filter");
-    if (!btn) return;
-    var i = parseInt(btn.getAttribute("data-index"), 10);
-    if (isNaN(i)) return;
-    var p = list[i];
-    if (!p) return;
-    setCursor(p.url ? "newtab" : "open");
-  });
-  filtersEl.addEventListener("mouseleave", function () {
-    setCursor(null);
+    goTo(i);
   });
 
   /* ---------- Đổi trang: Independent Works / Agency Works ----------
@@ -681,6 +658,31 @@
     var idx = list.indexOf(c.p);
     if (idx >= 0) { pendingStep = 0; goTo(idx); }
   });
+
+  /* ---------- Bấm tên dự án lớn ----------
+     Tiêu đề lớn của dự án đang xem (h1#wn-title) cũng mở case study
+     giống như bấm vô ảnh lớn: Independent thì mở lightbox xem ảnh
+     full, Agency thì mở URL dự án của agency ở tab mới. Hover tên lớn
+     thì cursor hiện chữ Open (Independent) hoặc mũi tên tab mới
+     (Agency). Dự án đang xem là list[shownIndex], khớp với chữ tiêu
+     đề đang hiện trên màn hình. Phần tử tiêu đề ổn định (renderInfo
+     chỉ đổi textContent), nên gắn sự kiện trực tiếp một lần là đủ. */
+  titleEl.addEventListener("click", function () {
+    var p = list[shownIndex];
+    if (!p) return;
+    if (p.url) window.open(p.url, "_blank", "noopener");
+    else openLightbox(p);
+  });
+  if (finePointer) {
+    titleEl.addEventListener("mouseenter", function () {
+      var p = list[shownIndex];
+      if (!p) return;
+      setCursor(p.url ? "newtab" : "open");
+    });
+    titleEl.addEventListener("mouseleave", function () {
+      setCursor(null);
+    });
+  }
 
   /* ---------- Hover nghiêng theo chuột (ảnh lớn VÀ thumbnail) ---------- */
   if (finePointer && !reduceMotion) {
