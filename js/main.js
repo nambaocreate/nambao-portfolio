@@ -157,6 +157,18 @@
       media.addEventListener("mouseenter", function () { cursor.classList.add("cursor--open"); });
       media.addEventListener("mouseleave", function () { cursor.classList.remove("cursor--open"); });
     });
+
+    // Mục Playground trong nav chưa có trang thật: hover vào thì
+    // đĩa hiện chữ "coming soon", đúng motif đĩa ở trang Work
+    // (đĩa đen 140px, chữ 8px, theo chuột). Chỉ Playground mới
+    // có, Work / About / Contact không có. Đĩa có
+    // pointer-events: none nên không cản việc bấm Playground,
+    // và chỉ thêm class cho con trỏ nên không động tới hiệu
+    // ứng roll chữ của mục này.
+    document.querySelectorAll(".nav-pill--playground").forEach(function (link) {
+      link.addEventListener("mouseenter", function () { cursor.classList.add("cursor--soon"); });
+      link.addEventListener("mouseleave", function () { cursor.classList.remove("cursor--soon"); });
+    });
   }
 
   /* ---------- 4. Press chồng ngang từng card khi ghim ---------- */
