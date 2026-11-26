@@ -404,7 +404,15 @@
   }
 
   function farForward() {
-    var FLY = 0.7, longest = DUR;
+    // Nhảy tới xa làm hai nhịp cho sạch như farBack, thay vì tất cả
+    // cùng bay một lúc. Nhịp 1: các card bay về deck dọn stack nhanh
+    // trong 0.5s. Nhịp 2: card đích đợi tới 0.35s (stack đã dọn khoảng
+    // 89%) mới bay lên ảnh lớn trong 0.7s, tổng 1.05s, tương đương
+    // farBack khoảng 1.0s. Nếu card đích bay sớm (delay 0.15s như
+    // trước) thì stack mới dọn khoảng 4% vì ease power3.inOut lúc
+    // đầu rất chậm, card đích phình to ngay trên stack chưa dọn xong
+    // nên nhìn như nhảy ra đột ngột.
+    var CLEAR = 0.5, FLY = 0.7, TARGET_AT = 0.35, longest = DUR;
     list.forEach(function (p, i) {
       var c = cards[p.id];
       var s = stateFor(i - current);
@@ -417,15 +425,19 @@
       // z đích ngay từ đầu, nếu không nó đè lên các thumbnail khác
       // dù vẫn đang ở trong stack.
       gsap.set(c.el, { opacity: 1 });
-      if ((s.kind === "deck" || s.kind === "big") && (from === "thumb" || from === "reserve")) {
-        // Các card bay vào chồng ảnh lớn đi CÙNG LÚC (không so le từng
-        // cái 0.09s như trước) để stack rời đi như một khối, không nhảy
-        // liên tục. Card đích bay sau một nhịp ngắn để bay cuối cùng,
-        // nằm trên. Nâng z lên z đích trong onStart, đúng lúc bắt đầu bay.
-        var d = (s.kind === "big") ? 0.15 : 0;
-        gsap.to(c.el, vars(s, { duration: FLY, ease: "power3.inOut", delay: d,
+      if (s.kind === "big" && (from === "thumb" || from === "reserve")) {
+        // Card đích: đợi stack dọn xong rồi mới bay. Nâng z lên z
+        // đích trong onStart, đúng lúc bắt đầu bay.
+        gsap.to(c.el, vars(s, { duration: FLY, ease: "power3.inOut", delay: TARGET_AT,
           onStart: function () { gsap.set(c.el, { zIndex: s.z }); } }));
-        longest = Math.max(longest, d + FLY);
+        longest = Math.max(longest, TARGET_AT + FLY);
+      } else if (s.kind === "deck" && (from === "thumb" || from === "reserve")) {
+        // Các card bay về deck đi CÙNG LÚC (không so le từng cái)
+        // để stack rời đi như một khối, dọn nhanh trong 0.5s. Nâng z
+        // lên z đích trong onStart, đúng lúc bắt đầu bay.
+        gsap.to(c.el, vars(s, { duration: CLEAR, ease: "power3.inOut", delay: 0,
+          onStart: function () { gsap.set(c.el, { zIndex: s.z }); } }));
+        longest = Math.max(longest, CLEAR);
       } else {
         // Ảnh lớn / deck cũ lùi sâu xuống dưới (bị các card bay tới che);
         // thumbnail / dự trữ còn lại dịch nấc trong stack. Bắt đầu ngay
