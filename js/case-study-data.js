@@ -77,8 +77,8 @@ window.CASE_STUDIES = {
       { type: "text-image", imageSide: "left",
         image: { src: "../assets/case-study/egg-01/06-text-image.jpg", alt: "EGG:01 visual motif", width: 1920, height: 1081 },
         text: [
-          { t: "p", text: "The visual motifs expand on cell division and bitmap logic, suggesting a time when scientific systems began to transcend biology,", w: 290 },
-          { t: "p", text: "gradually abstracting life into something designed, optimized, and emotionally detached.", w: 290 }
+          { t: "p", text: "Every motif starts from the same moment: a cell splitting in two. One becomes two, two become four.", w: 290 },
+          { t: "p", text: "I redraw that split as pixels. Biology, turned into a grid. Life, rebuilt by design.", w: 290 }
         ] },
       { type: "duo", images: [
         { src: "../assets/case-study/egg-01/07-b1.jpg", alt: "Packaging, box row", width: 1920, height: 1058, caption: "Packaging, box row" },
@@ -91,8 +91,8 @@ window.CASE_STUDIES = {
       { type: "text-image", imageSide: "right",
         image: { src: "../assets/case-study/egg-01/11-text-image.jpg", alt: "EGG:01 bottle design", width: 1920, height: 1075 },
         text: [
-          { t: "p", text: "The visual motifs expand on cell division and bitmap logic, suggesting a time when scientific systems began to transcend biology,", w: 290 },
-          { t: "p", text: "gradually abstracting life into something designed, optimized, and emotionally detached.", w: 290 }
+          { t: "p", text: "The bottle borrows the shape of a chicken, then strips it down to a silhouette. You recognise it, but it is not a chicken.", w: 290 },
+          { t: "p", text: "Ribbed glass, no feathers, no beak. A living creature, rebuilt as an object.", w: 290 }
         ] },
       { type: "text", heading: "Bottle Design", paragraphs: [
         "The bottle's design explores the idea of technology replacing the living creature that once created life. The bottle's shape is inspired by a chicken, but abstracted enough to avoid literal imitation.",
@@ -111,8 +111,8 @@ window.CASE_STUDIES = {
       { type: "text-image", imageSide: "right",
         image: { src: "../assets/case-study/egg-01/15-image-text.jpg", alt: "EGG:01 logo", width: 1920, height: 1077 },
         text: [
-          { t: "p", text: "It's futuristic, but avoids those typical sci-fi cliches.", w: 290 },
-          { t: "p", text: "Everything from the motifs to the bitmap logic hints at a world where systems have moved past nature,", w: 290 }
+          { t: "p", text: "The logo is a pixel grid that spells EGG:01. It looks digital, but it comes from a cell.", w: 290 },
+          { t: "p", text: "Biology on one side, engineering on the other. The logo sits exactly between them.", w: 290 }
         ] },
     ],
     credits: null,

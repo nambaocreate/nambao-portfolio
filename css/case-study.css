@@ -220,8 +220,8 @@
   display: flex;
   flex-direction: column;
   gap: 32px;
-  /* Grid: 4 cột (1220px), cạnh phải rơi vào biên cột x=1220. */
-  max-width: 1220px;
+  /* Grid: 2 cột (600px), khoảng 66 chữ/dòng ở cỡ 18px, đúng chuẩn dễ đọc. */
+  max-width: 600px;
 }
 
 .cs-intro-p {
