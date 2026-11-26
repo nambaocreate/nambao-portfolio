@@ -298,9 +298,11 @@
    đen; cả cụm opacity 0.5 như Figma, mục đang chọn opacity 1,
    hover 0.8. Các mục cách nhau 8px. Thêm nút All ở đầu (không có
    trong khung Figma, có trong yêu cầu: bấm để về tất cả). */
+/* v6: cột này giờ là danh sách TÊN DỰ ÁN (không còn filter).
+   Bề rộng do JS khóa theo tên dài nhất của cả 2 trang. */
 .wn-filters {
   flex: none;
-  width: 192px;
+  width: auto;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -533,10 +535,7 @@
    Màn hình hẹp: viewer xếp dọc, ảnh lớn lên trên, thông
    tin và filter xuống dưới, thumbnail xếp ngang. */
 
-@media (max-width: 1280px) {
-  .wn-industry { width: 80px; }
-  .wn-filters { width: 150px; }
-}
+
 
 @media (max-width: 900px) {
   .wn-viewer {
