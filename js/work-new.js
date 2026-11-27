@@ -46,6 +46,7 @@
       tagline: "Fictional luxury egg brand",
       caseStudy: "/work/egg-01",
       hero: { src: "/assets/case-study/egg-01/01-hero.jpg", width: 1920, height: 1860 },
+      heroFull: true,
       tags: ["BRAND IDENTITY", "PACKAGING DESIGN", "PRODUCT DESIGN", "ART DIRECTION"],
       image: "assets/work/egg01.jpg", alt: "Hộp bạc EGG:01 cạnh chai thủy tinh gân sóng có lòng đỏ cam", width: 1400, height: 1356 },
     { id: "rmit25", title: "RMIT 25th Anniversary Logo", year: "2025", tag: "Education",
@@ -278,7 +279,13 @@
     var vh = window.innerHeight;
     var hw = (p.hero && p.hero.width) || 1920;
     var hh = (p.hero && p.hero.height) || 1080;
-    var target = { x: 0, y: 0, w: vw, h: Math.round(vw * hh / hw) };
+    /* Hero full màn (100vh cover, như EGG:01): đích là đúng khung
+       hero hiển thị, min(vh, chiều cao ảnh gốc), chứ không phải
+       tỉ lệ gốc vw * hh/hw. Hero thường (TH28, height auto) thì
+       đích vẫn là tỉ lệ gốc. Overlay và hero đều object-fit cover
+       nên crop trùng nhau, chuyển trang không nhảy. */
+    var targetH = p.heroFull ? Math.min(vh, hh) : Math.round(vw * hh / hw);
+    var target = { x: 0, y: 0, w: vw, h: targetH };
     var heroSrc = (p.hero && p.hero.src) || p.image;
 
     var overlay = document.createElement("div");

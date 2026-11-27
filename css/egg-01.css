@@ -6,10 +6,15 @@
    tồn tại nên đổi tên thành --egg-*).
    Chỉ file này mới load ở /work/egg-01 nên rule html dưới đây
    chỉ ảnh hưởng trang này.
-   Hero: ảnh hiện đúng tỉ lệ gốc (height auto, không crop) thay
-   cho 100vh cover của bản Claude, để khung hero trùng khít với
-   đích của hiệu ứng mở rộng từ /work (js/work-new.js,
-   target = vw * 1860/1920), không nháy khi chuyển trang.
+   Hero: cover tràn viền đúng như bản Claude (height 100vh,
+   max-height 1860px theo ảnh gốc, object-fit cover), để hero
+   full màn. Hiệu ứng mở rộng từ /work (js/work-new.js) dùng
+   target = vw x min(vh, 1860) cho trùng khít khung hero,
+   không nháy khi chuyển trang.
+   Nav trên trang này: chỉ logo "nambao" đổi màu theo hero
+   (trắng trên hero tối, đen khi cuộn qua), chữ menu
+   (CONTACT/WORK/ABOUT/PLAYGROUND) luôn đen vì nằm trên
+   dải vàng, không đổi thành trắng.
    ============================================================ */
 html { scroll-behavior: auto; /* Lenis smooth scroll, không để CSS smooth scroll đánh nhau */ }
 
@@ -34,7 +39,14 @@ html { scroll-behavior: auto; /* Lenis smooth scroll, không để CSS smooth sc
 .egg a { color: inherit; text-decoration: none; }
 .egg .wrap { padding: 0 var(--egg-gutter) var(--egg-section); }
 .egg .hero .media { margin: 0; border-radius: 0; }
-.egg .hero img { height: auto; max-height: none; }
+.egg .hero img { height: 100vh; max-height: 1860px; object-fit: cover; }
+
+/* Nav: chỉ logo đổi màu theo hero, chữ menu luôn đen. Ghi đè
+   case-study.css (.cs-hero .nav trắng trên hero) chỉ trên
+   trang này; TH28 không đổi. */
+.egg .cs-hero .nav { color: #000; }
+.egg .cs-hero .nav .nav-logo { color: #fff; transition: color 0.3s ease; }
+.egg .cs-hero .nav.cs-nav--dark .nav-logo { color: #000; }
 .egg .case-title {
   display: flex; justify-content: space-between; gap: 40px;
   padding-top: clamp(60px, 6.25vw, 120px);
