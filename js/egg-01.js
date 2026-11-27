@@ -173,19 +173,24 @@
           render(true);
         }
       }
-      clip.addEventListener("pointerdown", function (e) {
-        dragStart(e.clientX);
-        try { clip.setPointerCapture(e.pointerId); } catch (err) {}
-      });
-      clip.addEventListener("pointermove", function (e) { dragMove(e.clientX); });
-      clip.addEventListener("pointerup", dragEnd);
-      clip.addEventListener("pointercancel", dragEnd);
+      clip.addEventListener("pointerdown", function (e) { dragStart(e.clientX); });
       clip.addEventListener("mousedown", function (e) {
         dragStart(e.clientX);
         e.preventDefault();
       });
+      // Move/up nghe ở window (không dùng setPointerCapture): dù con trỏ
+      // đi đâu thì window vẫn bắt được, kể cả khi trình duyệt giả lập
+      // không phát pointer events đúng chuẩn.
+      window.addEventListener("pointermove", function (e) { dragMove(e.clientX); });
+      window.addEventListener("pointerup", dragEnd);
+      window.addEventListener("pointercancel", dragEnd);
       window.addEventListener("mousemove", function (e) { dragMove(e.clientX); });
       window.addEventListener("mouseup", dragEnd);
+      // Chặn kéo ảnh gốc của trình duyệt (native image drag) trên strip.
+      items.forEach(function (m) {
+        var im = m.querySelector("img");
+        if (im) im.addEventListener("dragstart", function (e) { e.preventDefault(); });
+      });
 
       window.addEventListener("resize", function () { render(false); });
       render(false);
