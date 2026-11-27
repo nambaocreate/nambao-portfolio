@@ -81,7 +81,13 @@ html::-webkit-scrollbar { display: none; }
 .egg .chapter { padding-top: var(--egg-section); }
 .egg .chapter > .row + * { margin-top: clamp(20px, 3.33vw, 64px); }
 .egg .chapter > * + .fig, .egg .chapter > * + .flow, .egg .chapter > * + .strip { margin-top: clamp(20px, 3.33vw, 64px); }
-.egg .media { border-radius: 6px; }
+.egg .media { border-radius: 0; overflow: hidden; background: transparent; }
+/* Slider strip: kéo/chuyển ảnh ngang, không còn stroke viền do
+   bo tròn + nền #e4e4e1 lộ ra ở mép ảnh. */
+.egg .strip .flow { transition: transform 0.9s var(--egg-ease); will-change: transform; }
+.egg .strip__prev, .egg .strip__next { cursor: pointer; }
+.egg .strip__prev:hover, .egg .strip__next:hover { color: var(--egg-ink); }
+.egg .strip__prev.is-off, .egg .strip__next.is-off { opacity: 0.35; cursor: default; }
 /* Video Vimeo (brand film 16:9), tràn ngang như ảnh full-width */
 .egg .media--video { aspect-ratio: 16 / 9; background: #111; }
 .egg .media--video iframe { display: block; width: 100%; height: 100%; border: 0; }
@@ -106,7 +112,6 @@ html::-webkit-scrollbar { display: none; }
 .egg .body p { font-size: clamp(15px, .94vw, 18px); line-height: 1.5; }
 .egg .body p + p { margin-top: 1.5em; }
 .egg .body--lg p { font-size: clamp(17px, 1.2vw, 23px); font-weight: 500; line-height: 1.45; }
-.egg .media { overflow: hidden; background: #e4e4e1; }
 .egg .media--center { width: calc(50% - var(--egg-gap) / 2); margin-left: auto; margin-right: auto; }
 .egg .others { padding-top: var(--egg-section); }
 .egg .others__grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--egg-gap); margin-top: 24px; }

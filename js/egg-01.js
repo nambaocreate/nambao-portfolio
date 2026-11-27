@@ -79,6 +79,107 @@
     update();
   })();
 
+  /* ---------- Site: slider strip (mục 01 Visual language) ----------
+     Claude để strip là layout tĩnh (3 ảnh xếp ngang, overflow hidden)
+     nên bấm Previous/Next hay kéo đều không làm gì. Thêm slider:
+     bấm Previous/Next hoặc kéo ngang để trượt, counter 1/3 cập nhật
+     theo vị trí. Kéo thì không mở lightbox (phân biệt click và drag). */
+  (function stripSlider() {
+    var strips = document.querySelectorAll(".egg .strip");
+    if (!strips.length) return;
+    strips.forEach(function (strip) {
+      var clip = strip.querySelector(".flow--clip");
+      var track = strip.querySelector(".flow");
+      var items = Array.prototype.slice.call(track.querySelectorAll(".media"));
+      if (!clip || !track || items.length < 2) return;
+      var cap = strip.querySelector(".strip__cap");
+      var countEl = cap ? cap.querySelector("span:first-child") : null;
+      var navEl = cap ? cap.querySelector("span:last-child") : null;
+      var total = items.length;
+      var index = 0;
+      var dragging = false;
+      var dragMoved = false;
+      var startX = 0, startTx = 0, curTx = 0;
+
+      // Tách "Previous / Next" thành hai nút bấm riêng.
+      var prevBtn = null, nextBtn = null;
+      if (navEl) {
+        navEl.innerHTML = '<span class="strip__prev">Previous</span> / <span class="strip__next">Next</span>';
+        prevBtn = navEl.querySelector(".strip__prev");
+        nextBtn = navEl.querySelector(".strip__next");
+      }
+
+      function maxScroll() {
+        var last = items[items.length - 1];
+        var end = last.offsetLeft + last.offsetWidth;
+        return Math.max(0, end - clip.clientWidth);
+      }
+      // 3 ảnh, khung chỉ hiện ~2.4 ảnh nên chia đều quãng trượt thành
+      // 3 vị trí (0, giữa, cuối), khớp counter 1/3, 2/3, 3/3.
+      function step() { return maxScroll() / (total - 1); }
+      function txFor(i) { return -Math.min(i * step(), maxScroll()); }
+      function render(animate) {
+        curTx = txFor(index);
+        track.style.transition = animate === false ? "none" : "";
+        track.style.transform = "translateX(" + curTx + "px)";
+        if (countEl) countEl.textContent = (index + 1) + " / " + total;
+        if (prevBtn) prevBtn.classList.toggle("is-off", index <= 0);
+        if (nextBtn) nextBtn.classList.toggle("is-off", index >= total - 1);
+      }
+      function goTo(i) {
+        index = Math.max(0, Math.min(total - 1, i));
+        render(true);
+      }
+      if (prevBtn) prevBtn.addEventListener("click", function () { goTo(index - 1); });
+      if (nextBtn) nextBtn.addEventListener("click", function () { goTo(index + 1); });
+
+      // Kéo ngang (chuột + cảm ứng). Trong lúc kéo thì dừng Lenis để
+      // trang không cuộn theo, và không mở lightbox khi thả chuột.
+      clip.style.touchAction = "pan-y";
+      clip.style.cursor = "grab";
+      clip.addEventListener("pointerdown", function (e) {
+        dragging = true; dragMoved = false;
+        startX = e.clientX; startTx = curTx;
+        track.style.transition = "none";
+        clip.style.cursor = "grabbing";
+        try { clip.setPointerCapture(e.pointerId); } catch (err) {}
+        if (window.__eggLenis) window.__eggLenis.stop();
+      });
+      clip.addEventListener("pointermove", function (e) {
+        if (!dragging) return;
+        var dx = e.clientX - startX;
+        if (Math.abs(dx) > 4) dragMoved = true;
+        var next = startTx + dx;
+        var max = maxScroll();
+        if (next > 0) next = next * 0.3;
+        if (next < -max) next = -max + (next + max) * 0.3;
+        curTx = next;
+        track.style.transform = "translateX(" + next + "px)";
+      });
+      function endDrag() {
+        if (!dragging) return;
+        dragging = false;
+        clip.style.cursor = "grab";
+        if (window.__eggLenis) window.__eggLenis.start();
+        if (dragMoved) {
+          var s = step();
+          goTo(s > 0 ? Math.round(-curTx / s) : 0);
+          // Chặn click mở lightbox ngay sau khi kéo xong.
+          var block = function (ev) { ev.stopPropagation(); ev.preventDefault(); };
+          clip.addEventListener("click", block, true);
+          setTimeout(function () { clip.removeEventListener("click", block, true); }, 60);
+        } else {
+          render(true);
+        }
+      }
+      clip.addEventListener("pointerup", endDrag);
+      clip.addEventListener("pointercancel", endDrag);
+
+      window.addEventListener("resize", function () { render(false); });
+      render(false);
+    });
+  })();
+
   /* ---------- Site: lightbox xem ảnh lớn ----------
      Bấm bất kỳ ảnh nào trong trang (hero + mọi ảnh nội dung) thì mở
      pop up xem ảnh đó ở độ phân giải đầy đủ. Không tính ảnh ở mục
