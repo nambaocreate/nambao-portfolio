@@ -45,7 +45,7 @@
     { id: "egg01", title: "EGG:01", year: "2025", tag: "Food & beverage",
       tagline: "Fictional luxury egg brand",
       caseStudy: "/work/egg-01",
-      hero: { src: "/assets/case-study/egg-01/01-hero.jpg", width: 1920, height: 1483 },
+      hero: { src: "/assets/case-study/egg-01/01-hero.jpg", width: 1920, height: 1860 },
       tags: ["BRAND IDENTITY", "PACKAGING DESIGN", "PRODUCT DESIGN", "ART DIRECTION"],
       image: "assets/work/egg01.jpg", alt: "Hộp bạc EGG:01 cạnh chai thủy tinh gân sóng có lòng đỏ cam", width: 1400, height: 1356 },
     { id: "rmit25", title: "RMIT 25th Anniversary Logo", year: "2025", tag: "Education",

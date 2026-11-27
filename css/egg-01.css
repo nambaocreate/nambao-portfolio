@@ -9,7 +9,7 @@
    Hero: ảnh hiện đúng tỉ lệ gốc (height auto, không crop) thay
    cho 100vh cover của bản Claude, để khung hero trùng khít với
    đích của hiệu ứng mở rộng từ /work (js/work-new.js,
-   target = vw * 1483/1920), không nháy khi chuyển trang.
+   target = vw * 1860/1920), không nháy khi chuyển trang.
    ============================================================ */
 html { scroll-behavior: auto; /* Lenis smooth scroll, không để CSS smooth scroll đánh nhau */ }
 
