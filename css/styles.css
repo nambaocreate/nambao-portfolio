@@ -298,6 +298,16 @@ ul { list-style: none; }
   flex: none;
 }
 
+/* Logo nav là vector (outline gốc font Sarina, cùng bộ path với logo
+   footer), không phụ thuộc font tải về nên không còn nháy sang font
+   dự phòng lúc mới mở trang. Cao 1em theo font-size của .nav-logo,
+   tỉ lệ 9382.8 / 2048 như logo footer; màu theo currentColor. */
+.nav-logo-svg {
+  display: block;
+  height: 1em;
+  width: calc(1em * 9382.8 / 2048);
+}
+
 .nav-menu-wrap {
   display: flex;
   align-items: center;
