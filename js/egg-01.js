@@ -135,19 +135,21 @@
 
       // Kéo ngang (chuột + cảm ứng). Trong lúc kéo thì dừng Lenis để
       // trang không cuộn theo, và không mở lightbox khi thả chuột.
+      // Dùng cả pointer events và mouse events: pointer events đôi khi
+      // không tới trong trình duyệt giả lập, mouse events là fallback.
       clip.style.touchAction = "pan-y";
       clip.style.cursor = "grab";
-      clip.addEventListener("pointerdown", function (e) {
+      var usingPointer = false;
+      function dragStart(x) {
         dragging = true; dragMoved = false;
-        startX = e.clientX; startTx = curTx;
+        startX = x; startTx = curTx;
         track.style.transition = "none";
         clip.style.cursor = "grabbing";
-        try { clip.setPointerCapture(e.pointerId); } catch (err) {}
         if (window.__eggLenis) window.__eggLenis.stop();
-      });
-      clip.addEventListener("pointermove", function (e) {
+      }
+      function dragMove(x) {
         if (!dragging) return;
-        var dx = e.clientX - startX;
+        var dx = x - startX;
         if (Math.abs(dx) > 4) dragMoved = true;
         var next = startTx + dx;
         var max = maxScroll();
@@ -155,8 +157,8 @@
         if (next < -max) next = -max + (next + max) * 0.3;
         curTx = next;
         track.style.transform = "translateX(" + next + "px)";
-      });
-      function endDrag() {
+      }
+      function dragEnd() {
         if (!dragging) return;
         dragging = false;
         clip.style.cursor = "grab";
@@ -172,8 +174,21 @@
           render(true);
         }
       }
-      clip.addEventListener("pointerup", endDrag);
-      clip.addEventListener("pointercancel", endDrag);
+      clip.addEventListener("pointerdown", function (e) {
+        usingPointer = true;
+        dragStart(e.clientX);
+        try { clip.setPointerCapture(e.pointerId); } catch (err) {}
+      });
+      clip.addEventListener("pointermove", function (e) { if (usingPointer) dragMove(e.clientX); });
+      clip.addEventListener("pointerup", function () { if (usingPointer) { usingPointer = false; dragEnd(); } });
+      clip.addEventListener("pointercancel", function () { if (usingPointer) { usingPointer = false; dragEnd(); } });
+      clip.addEventListener("mousedown", function (e) {
+        if (usingPointer) return;
+        dragStart(e.clientX);
+        e.preventDefault();
+      });
+      window.addEventListener("mousemove", function (e) { if (dragging && !usingPointer) dragMove(e.clientX); });
+      window.addEventListener("mouseup", function () { if (dragging && !usingPointer) dragEnd(); });
 
       window.addEventListener("resize", function () { render(false); });
       render(false);
