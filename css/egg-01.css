@@ -18,6 +18,13 @@
    ============================================================ */
 html { scroll-behavior: auto; /* Lenis smooth scroll, không để CSS smooth scroll đánh nhau */ }
 
+/* Ẩn thanh cuộn (vẫn cuộn bằng chuột, bàn phím, cảm ứng như thường).
+   Trang /work không có thanh cuộn nên khung mở rộng của transition
+   kết thúc ở đúng 100vw; nếu trang này có thanh cuộn thì hero hẹp
+   hơn ~15px, ảnh cover bị crop lại và nhảy ngay khi vừa sang trang. */
+html { scrollbar-width: none; }
+html::-webkit-scrollbar { display: none; }
+
 .egg {
   --egg-bg: #f2f2f0;
   --egg-ink: #111;
