@@ -82,6 +82,7 @@ html::-webkit-scrollbar { display: none; }
 .egg .chapter > .row + * { margin-top: clamp(20px, 3.33vw, 64px); }
 .egg .chapter > * + .fig, .egg .chapter > * + .flow, .egg .chapter > * + .strip { margin-top: clamp(20px, 3.33vw, 64px); }
 .egg .media { border-radius: 0; overflow: hidden; background: transparent; }
+.egg .media img { border-radius: 0; }
 /* Slider strip: kéo/chuyển ảnh ngang, không còn stroke viền do
    bo tròn + nền #e4e4e1 lộ ra ở mép ảnh. */
 .egg .strip .flow { transition: transform 0.9s var(--egg-ease); will-change: transform; }

@@ -135,11 +135,10 @@
 
       // Kéo ngang (chuột + cảm ứng). Trong lúc kéo thì dừng Lenis để
       // trang không cuộn theo, và không mở lightbox khi thả chuột.
-      // Dùng cả pointer events và mouse events: pointer events đôi khi
-      // không tới trong trình duyệt giả lập, mouse events là fallback.
+      // Nghe cả pointer events và mouse events cùng lúc, không chặn
+      // lẫn nhau: trình duyệt giả lập có khi chỉ phát một loại.
       clip.style.touchAction = "pan-y";
       clip.style.cursor = "grab";
-      var usingPointer = false;
       function dragStart(x) {
         dragging = true; dragMoved = false;
         startX = x; startTx = curTx;
@@ -175,20 +174,18 @@
         }
       }
       clip.addEventListener("pointerdown", function (e) {
-        usingPointer = true;
         dragStart(e.clientX);
         try { clip.setPointerCapture(e.pointerId); } catch (err) {}
       });
-      clip.addEventListener("pointermove", function (e) { if (usingPointer) dragMove(e.clientX); });
-      clip.addEventListener("pointerup", function () { if (usingPointer) { usingPointer = false; dragEnd(); } });
-      clip.addEventListener("pointercancel", function () { if (usingPointer) { usingPointer = false; dragEnd(); } });
+      clip.addEventListener("pointermove", function (e) { dragMove(e.clientX); });
+      clip.addEventListener("pointerup", dragEnd);
+      clip.addEventListener("pointercancel", dragEnd);
       clip.addEventListener("mousedown", function (e) {
-        if (usingPointer) return;
         dragStart(e.clientX);
         e.preventDefault();
       });
-      window.addEventListener("mousemove", function (e) { if (dragging && !usingPointer) dragMove(e.clientX); });
-      window.addEventListener("mouseup", function () { if (dragging && !usingPointer) dragEnd(); });
+      window.addEventListener("mousemove", function (e) { dragMove(e.clientX); });
+      window.addEventListener("mouseup", dragEnd);
 
       window.addEventListener("resize", function () { render(false); });
       render(false);
