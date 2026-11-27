@@ -311,21 +311,21 @@ ul { list-style: none; }
    mask radial-gradient nên không cần SVG. Cục cam chồng lên đầu
    phải của thanh xám.
 
-   Motion "rút tờ giấy ra từ cục tròn": cả thanh là một tờ giấy
-   nằm sẵn bên trong cục cam. Mở menu thì tờ giấy trượt ra từ mép
-   trái cục cam (khung .nav-menu chỉ cắt phía PHẢI, nên phần còn
-   nằm trong cục tròn bị che), lúc mới ra hơi bị ép dẹt và nghiêng
-   như giấy rút qua khe, rồi duỗi phẳng và nảy nhẹ khi ra hết.
-   Cục cam co lại một nhịp như đang nhả giấy. Đóng menu thì tờ
-   giấy bị kéo ngược vào cục tròn, nhanh hơn lúc mở. */
+   Motion "rút tờ giấy ra từ cục tròn" (v2, theo note của Bảo):
+   cả thanh là MỘT dải liền, đầu phải của dải nằm đúng TÂM cục
+   cam (thanh xám luồn dưới nửa trái cục tròn), tâm dải trùng tâm
+   cục tròn theo chiều dọc. Mở menu thì dải trượt thẳng ra từ tâm
+   cục cam (khung .nav-menu cắt đúng ở tâm, phần còn trong cục
+   tròn bị che), không nghiêng, không lệch tâm; 2 mảnh CONTACT và
+   thanh xám dùng chung một transform, cùng nhịp, nên không bao
+   giờ tách rời hay lộ khe. Đóng thì dải bị kéo ngược vào tâm. */
 .nav-menu {
   display: flex;
   align-items: center;
   list-style: none;
   visibility: hidden;
-  /* Chỉ cắt mép phải (chỗ cục tròn), ba phía còn lại để thoáng cho
-     tờ giấy nghiêng mà không bị cắt góc. */
-  clip-path: inset(-40px 0 -40px -600px);
+  /* Chỉ cắt mép phải (= tâm cục tròn). */
+  clip-path: inset(-12px 0 -12px -600px);
   transition: visibility 0s .4s;
 }
 
@@ -337,25 +337,23 @@ ul { list-style: none; }
 
 .nav-menu li { display: flex; }
 
-/* Tờ giấy: 2 mảnh đi cùng nhau như một tờ (cùng gốc biến đổi ở
-   mép phải, sát cục tròn). Lúc đóng: nằm trong cục tròn. */
+/* Dải giấy: 2 mảnh dùng CHUNG một transform (chỉ dịch ngang và ép
+   dẹt nhẹ quanh trục giữa theo chiều dọc), nên đi như một khối liền
+   và luôn thẳng tâm cục tròn. Lúc đóng: nằm hết trong cục tròn
+   (dịch sang phải đúng bằng chiều dài dải 86 + 276 = 362px). Lúc
+   ra hơi dẹt (giấy rút qua khe) rồi duỗi phẳng, nảy rất nhẹ. */
 .nav-menu > li {
-  transform-origin: 100% 50%;
-  transform: translateX(352px) scaleY(.62) rotate(-3deg);
-  transition: transform .32s cubic-bezier(.55, 0, .75, .3);
+  transform-origin: 50% 50%;
+  transform: translateX(362px) scaleY(.82);
+  transition: transform .34s cubic-bezier(.5, 0, .75, 0);
   will-change: transform;
 }
-/* Mảnh CONTACT co giãn quanh cùng một gốc với cả tờ (mép phải thanh xám). */
-.nav-menu > li:first-child { transform-origin: calc(100% + 263px) 50%; }
 
 .nav-menu-wrap:hover .nav-menu > li,
 .nav-menu-wrap.is-menu-open .nav-menu > li {
   transform: none;
-  transition: transform .72s cubic-bezier(.2, .9, .25, 1.12);
+  transition: transform .7s cubic-bezier(.22, 1, .36, 1.04);
 }
-/* Mảnh CONTACT ở cuối tờ giấy nên ra sau một chút (giấy bị kéo căng). */
-.nav-menu-wrap:hover .nav-menu > li:first-child,
-.nav-menu-wrap.is-menu-open .nav-menu > li:first-child { transition-delay: .03s; }
 
 .nav-pill {
   display: block;
@@ -397,12 +395,17 @@ ul { list-style: none; }
 
 .nav-pill--contact:hover { background: #d9f22e; }
 
-/* Thanh xám: góc vuông, khấc ở mép trái khớp với mảnh CONTACT. */
+/* Thanh xám: góc vuông, khấc ở mép trái khớp với mảnh CONTACT.
+   Rộng 276px = 263px thấy được + 13px luồn dưới cục tròn tới đúng
+   tâm (cục tròn chồng lên 20px = nửa bề ngang). Chồng mép trái lên
+   mảnh CONTACT 1px (margin -1px) để không bao giờ lộ đường khe
+   mờ ở chỗ nối khi vị trí rơi vào nửa pixel. */
 .nav-menu-bar {
   position: relative;
-  width: 263px;
+  width: 276px;
   height: 27.5px;
   flex: none;
+  margin-left: -1px;
   background: #d9d7cf;
   -webkit-mask:
     radial-gradient(circle var(--notch) at 0 0, #0000 97%, #000) top / 100% 51% no-repeat,
@@ -454,7 +457,7 @@ ul { list-style: none; }
   background: url(../assets/nav/nav-ball.svg) no-repeat center / contain;
   cursor: pointer;
   padding: 0;
-  margin-left: -7px;
+  margin-left: -20px; /* chồng nửa cục tròn lên đầu dải: dải ra từ đúng tâm */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1192,7 +1195,8 @@ body.contact-open .wn-nav { position: relative; z-index: 2000; }
 @media (max-width: 640px) {
   .nav { padding-top: 24px; } /* 32px thu còn 75% */
   .nav-logo { font-size: 23px; } /* 30px thu còn 75% */
-  .nav-ball { width: 33px; height: 33px; } /* 44px thu còn 75% */
+  .nav-ball { width: 33px; height: 33px; margin-left: 0; } /* 44px thu còn 75% */
+  .nav-menu-bar { width: 263px; } /* menu thả dọc: không luồn dưới cục tròn */
   .nav-ball-star { width: 19px; height: 19px; } /* 25px thu còn 75% */
   /* Menu thả xuống dưới cục tròn thay vì xếp ngang (không đủ chỗ).
      Reveal dọc: mở dần từ trên (sát cục tròn) xuống dưới bằng
